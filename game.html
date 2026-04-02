@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Товары игры</title>
     <style>
-      /* Стили как в предыдущем arc-riders.html, но с адаптацией */
       * {
         margin: 0;
         padding: 0;
@@ -57,6 +56,12 @@
       .nav-links a:hover {
         color: #3b82f6;
       }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: white !important;
+      }
       .youtube-link {
         background: #ff0000;
         color: white !important;
@@ -76,6 +81,7 @@
         align-items: center;
         gap: 12px;
         color: #9ca3af;
+        cursor: pointer;
       }
       .logout-btn {
         background: none;
@@ -145,7 +151,7 @@
         position: absolute;
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(4px);
-        border-radius: 30px;
+        border-radius: 20px;
         padding: 4px 10px;
         font-size: 0.8rem;
         cursor: pointer;
@@ -196,7 +202,7 @@
       .footer {
         background: #0f1117;
         border-top: 1px solid #1f2329;
-        padding: 40px 0;
+        padding: 30px 0;
       }
       .footer-content {
         display: flex;
@@ -223,14 +229,14 @@
       .modal-content {
         background: #15181f;
         border-radius: 24px;
-        padding: 28px;
+        padding: 24px;
         width: 90%;
-        max-width: 450px;
+        max-width: 400px;
       }
       .modal-content input {
         width: 100%;
-        padding: 12px;
-        margin-bottom: 16px;
+        padding: 10px;
+        margin-bottom: 12px;
         background: #1f2329;
         border: 1px solid #2d3138;
         border-radius: 12px;
@@ -239,7 +245,7 @@
       .modal-content button {
         background: #3b82f6;
         border: none;
-        padding: 10px 20px;
+        padding: 8px 16px;
         border-radius: 30px;
         color: white;
         cursor: pointer;
@@ -264,6 +270,7 @@
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
             <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
             <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
             <a
               href="https://www.youtube.com/@atr1but"
@@ -300,6 +307,10 @@
               >Отзывы</a
             >
             <a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Реквизиты</a
+            ><a
               href="https://t.me/your_telegram"
               style="color: #9ca3af; text-decoration: none"
               >Telegram</a
@@ -335,8 +346,8 @@
       let products = [];
       let editingProductId = null;
       let currentGameId = null;
+      let currentGameName = "";
 
-      // Получить gameId из URL
       function getGameIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
         return params.get("id");
@@ -353,6 +364,7 @@
           document.getElementById("gameTitle").innerText = "Игра не найдена";
           return;
         }
+        currentGameName = data.name;
         document.getElementById("gameTitle").innerText =
           data.name + " — товары и услуги";
       }
@@ -371,6 +383,59 @@
         renderProducts();
       }
 
+      async function addToCart(product) {
+        if (!currentUser) {
+          alert(
+            "Пожалуйста, войдите в аккаунт, чтобы добавить товар в корзину",
+          );
+          window.location.href = "login.html";
+          return;
+        }
+
+        // Проверяем, есть ли уже такой товар в корзине у этого пользователя
+        const { data: existing, error: checkError } = await supabaseClient
+          .from("cart")
+          .select("id, quantity")
+          .eq("user_id", currentUser.id)
+          .eq("product_id", product.id)
+          .maybeSingle();
+
+        if (checkError && checkError.code !== "PGRST116") {
+          alert("Ошибка проверки корзины: " + checkError.message);
+          return;
+        }
+
+        if (existing) {
+          // Если товар уже есть, увеличиваем количество
+          const { error: updateError } = await supabaseClient
+            .from("cart")
+            .update({ quantity: existing.quantity + 1 })
+            .eq("id", existing.id);
+          if (updateError) {
+            alert("Ошибка обновления количества: " + updateError.message);
+          } else {
+            alert("Товар добавлен в корзину!");
+          }
+        } else {
+          // Добавляем новый товар
+          const { error: insertError } = await supabaseClient
+            .from("cart")
+            .insert({
+              user_id: currentUser.id,
+              game_id: currentGameId,
+              product_id: product.id,
+              product_name: product.name,
+              product_price: product.price,
+              quantity: 1,
+            });
+          if (insertError) {
+            alert("Ошибка добавления в корзину: " + insertError.message);
+          } else {
+            alert("Товар добавлен в корзину!");
+          }
+        }
+      }
+
       async function saveProduct(product) {
         if (product.id) {
           const { error } = await supabaseClient
@@ -379,13 +444,11 @@
             .eq("id", product.id);
           if (error) throw error;
         } else {
-          const { error } = await supabaseClient
-            .from("game_products")
-            .insert({
-              game_id: currentGameId,
-              name: product.name,
-              price: product.price,
-            });
+          const { error } = await supabaseClient.from("game_products").insert({
+            game_id: currentGameId,
+            name: product.name,
+            price: product.price,
+          });
           if (error) throw error;
         }
       }
@@ -419,15 +482,19 @@
                     }
                     <div class="product-name">${escapeHtml(prod.name)}</div>
                     <div class="product-price">${escapeHtml(prod.price)}</div>
-                    <button class="btn-buy" data-name="${escapeHtml(prod.name)}">Купить</button>
+                    <button class="btn-buy" data-id="${prod.id}" data-name="${escapeHtml(prod.name)}" data-price="${escapeHtml(prod.price)}">Купить</button>
                 </div>
             `,
           )
           .join("");
 
+        // Обработчики кнопок "Купить"
         document.querySelectorAll(".btn-buy").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            alert(`🛒 Добавлено в корзину: ${btn.dataset.name}\n(Демо-режим)`);
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const productId = parseInt(btn.dataset.id);
+            const product = products.find((p) => p.id === productId);
+            if (product) await addToCart(product);
           });
         });
 
@@ -533,16 +600,22 @@
             currentUser.email === "vufysay@gmail.com";
           const authSection = document.getElementById("auth-section");
           authSection.innerHTML = `
-                    <div class="user-info">
+                    <div class="user-info" id="userMenu">
                         <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
                         <button id="logoutBtn" class="logout-btn">Выйти</button>
                     </div>
                 `;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn") {
+              window.location.href = "profile.html";
+            }
+          });
           document
             .getElementById("logoutBtn")
-            .addEventListener("click", async () => {
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
               await supabaseClient.auth.signOut();
-              window.location.href = "index.html";
+              window.location.reload();
             });
           if (isAdmin) {
             renderAdminPanel();

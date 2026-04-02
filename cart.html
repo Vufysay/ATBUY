@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — Корзина</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: none;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+        min-height: calc(100vh - 200px);
+      }
+      .cart-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .cart-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .cart-items {
+        background: #15181f;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid #2d3138;
+        margin-bottom: 30px;
+      }
+      .cart-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 0.5fr;
+        gap: 16px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #2d3138;
+        align-items: center;
+      }
+      .cart-item:last-child {
+        border-bottom: none;
+      }
+      .item-name {
+        font-weight: 600;
+      }
+      .item-price {
+        color: #3b82f6;
+        font-weight: 600;
+      }
+      .item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .item-quantity button {
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1rem;
+      }
+      .item-quantity span {
+        min-width: 30px;
+        text-align: center;
+      }
+      .item-remove {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+      .cart-summary {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 20px;
+        text-align: right;
+        border: 1px solid #2d3138;
+      }
+      .cart-summary p {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+      }
+      .checkout-btn {
+        background: #3b82f6;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+        background: #15181f;
+        border-radius: 24px;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .cart-item {
+          grid-template-columns: 1fr;
+          gap: 12px;
+          text-align: center;
+        }
+        .item-quantity {
+          justify-content: center;
+        }
+        .cart-summary {
+          text-align: center;
+        }
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="container">
+        <div class="cart-header">
+          <h1>Моя корзина</h1>
+        </div>
+        <div id="cartContent"></div>
+      </div>
+    </main>
+
+   <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            >
+            <a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Реквизиты</a
+            ><a
+              href="https://t.me/your_telegram"
+              style="color: #9ca3af; text-decoration: none"
+              >Telegram</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      let currentUser = null;
+
+      async function loadCart() {
+        if (!currentUser) {
+          document.getElementById("cartContent").innerHTML = `
+                    <div class="empty-cart">
+                        <p>Войдите в аккаунт, чтобы увидеть корзину.</p>
+                        <a href="login.html" class="auth-btn" style="display: inline-block; margin-top: 20px;">Войти</a>
+                    </div>
+                `;
+          return;
+        }
+        const { data, error } = await supabaseClient
+          .from("cart")
+          .select("*")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error("Ошибка загрузки корзины:", error);
+          document.getElementById("cartContent").innerHTML =
+            '<div class="empty-cart">Ошибка загрузки корзины</div>';
+          return;
+        }
+        if (!data || data.length === 0) {
+          document.getElementById("cartContent").innerHTML = `
+                    <div class="empty-cart">
+                        <p>Ваша корзина пуста.</p>
+                        <a href="index.html" class="auth-btn" style="display: inline-block; margin-top: 20px;">Перейти к играм</a>
+                    </div>
+                `;
+          return;
+        }
+        renderCart(data);
+      }
+
+      function renderCart(items) {
+        let total = 0;
+        const itemsHtml = items
+          .map((item) => {
+            const priceNum = parseFloat(
+              item.product_price.replace(/[^0-9]/g, ""),
+            );
+            const itemTotal = priceNum * item.quantity;
+            total += itemTotal;
+            return `
+                    <div class="cart-item" data-id="${item.id}">
+                        <div class="item-name">${escapeHtml(item.product_name)}</div>
+                        <div class="item-price">${escapeHtml(item.product_price)}</div>
+                        <div class="item-quantity">
+                            <button class="decr-quantity" data-id="${item.id}">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="incr-quantity" data-id="${item.id}">+</button>
+                        </div>
+                        <button class="item-remove" data-id="${item.id}">🗑️</button>
+                    </div>
+                `;
+          })
+          .join("");
+        const totalHtml = `
+                <div class="cart-summary">
+                    <p>Общая сумма: <strong>${total.toLocaleString()} ₽</strong></p>
+                    <button id="checkoutBtn" class="checkout-btn">Оформить заказ</button>
+                </div>
+            `;
+        document.getElementById("cartContent").innerHTML = `
+                <div class="cart-items">${itemsHtml}</div>
+                ${totalHtml}
+            `;
+
+        // Обработчики изменения количества
+        document.querySelectorAll(".decr-quantity").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = parseInt(btn.dataset.id);
+            await updateQuantity(id, -1);
+          });
+        });
+        document.querySelectorAll(".incr-quantity").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = parseInt(btn.dataset.id);
+            await updateQuantity(id, 1);
+          });
+        });
+        document.querySelectorAll(".item-remove").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = parseInt(btn.dataset.id);
+            await removeItem(id);
+          });
+        });
+        document.getElementById("checkoutBtn").addEventListener("click", () => {
+          alert("Оплата временно недоступна. Это демо-режим.");
+          // Здесь можно добавить интеграцию с платёжной системой (ЮKassa, Stripe и т.д.)
+        });
+      }
+
+      async function updateQuantity(cartId, delta) {
+        const { data: item, error: fetchError } = await supabaseClient
+          .from("cart")
+          .select("quantity")
+          .eq("id", cartId)
+          .single();
+        if (fetchError) {
+          console.error(fetchError);
+          return;
+        }
+        const newQuantity = item.quantity + delta;
+        if (newQuantity <= 0) {
+          await removeItem(cartId);
+        } else {
+          const { error: updateError } = await supabaseClient
+            .from("cart")
+            .update({ quantity: newQuantity })
+            .eq("id", cartId);
+          if (updateError) console.error(updateError);
+          else await loadCart();
+        }
+      }
+
+      async function removeItem(cartId) {
+        const { error } = await supabaseClient
+          .from("cart")
+          .delete()
+          .eq("id", cartId);
+        if (error) console.error(error);
+        else await loadCart();
+      }
+
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `
+                    <div class="user-info" id="userMenu">
+                        <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
+                        <button id="logoutBtn" class="logout-btn">Выйти</button>
+                    </div>
+                `;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn") {
+              window.location.href = "profile.html";
+            }
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async () => {
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+        } else {
+          document.getElementById("auth-section").innerHTML =
+            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          currentUser = null;
+        }
+        await loadCart();
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      window.addEventListener("load", async () => {
+        await checkAuth();
+      });
+    </script>
+  </body>
+</html>

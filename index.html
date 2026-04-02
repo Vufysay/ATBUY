@@ -357,9 +357,11 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html">🛒 Корзина</a>
+            <!-- ← добавить эту строку -->
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -415,6 +417,11 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
+            >
+            <a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Реквизиты</a
             ><a
               href="https://t.me/your_telegram"
               style="color: #9ca3af; text-decoration: none"
@@ -634,18 +641,15 @@
             userData?.is_admin || currentUser.email === "vufysay@gmail.com";
           document.getElementById("auth-section").innerHTML =
             `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-
-          // Обработчик клика на всю панель (имя + иконка), но не на кнопку выхода
           document.getElementById("userMenu").addEventListener("click", (e) => {
             if (e.target.id !== "logoutBtn") {
               window.location.href = "profile.html";
             }
           });
-
           document
             .getElementById("logoutBtn")
             .addEventListener("click", async (e) => {
-              e.stopPropagation(); // чтобы клик по кнопке не открывал профиль
+              e.stopPropagation();
               await supabaseClient.auth.signOut();
               window.location.reload();
             });
