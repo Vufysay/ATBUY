@@ -534,6 +534,7 @@
         const {
           data: { session },
         } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
         if (session) {
           currentUser = session.user;
           const { data: userData } = await supabaseClient
@@ -543,22 +544,27 @@
             .single();
           isAdmin =
             userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          document.getElementById("auth-section").innerHTML =
-            `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn")
-              window.location.href = "profile.html";
-          });
+          authSection.innerHTML = `
+            <div class="user-info" id="userMenu">
+                <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
+                <button id="logoutBtn" class="logout-btn">Выйти</button>
+            </div>
+        `;
+          document
+            .getElementById("userMenu")
+            ?.addEventListener("click", (e) => {
+              if (e.target.id !== "logoutBtn")
+                window.location.href = "profile.html";
+            });
           document
             .getElementById("logoutBtn")
-            .addEventListener("click", async (e) => {
+            ?.addEventListener("click", async (e) => {
               e.stopPropagation();
               await supabaseClient.auth.signOut();
               window.location.reload();
             });
         } else {
-          document.getElementById("auth-section").innerHTML =
-            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
           isAdmin = false;
         }
         await loadGames();

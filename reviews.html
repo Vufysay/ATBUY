@@ -429,7 +429,7 @@
           .select("name")
           .eq("id", userId)
           .single();
-        if (error || !data) return "Пользователь";
+        if (error || !data || !data.name) return "Пользователь";
         return data.name;
       }
 
