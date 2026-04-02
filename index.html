@@ -56,6 +56,12 @@
       .nav-links a:hover {
         color: #3b82f6;
       }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: #fff !important;
+      }
       .youtube-link {
         background: #ff0000;
         color: #fff !important;
@@ -75,6 +81,7 @@
         align-items: center;
         gap: 12px;
         color: #9ca3af;
+        cursor: pointer;
       }
       .logout-btn {
         background: 0 0;
@@ -98,71 +105,6 @@
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-      }
-      .top-promo {
-        display: flex;
-        justify-content: space-between;
-        gap: 30px;
-        margin-bottom: 48px;
-        flex-wrap: wrap;
-      }
-      .stats {
-        background: #15181f;
-        border-radius: 20px;
-        padding: 16px 24px;
-        flex: 1;
-        border: 1px solid #2d3138;
-      }
-      .stats h2 {
-        font-size: 1.2rem;
-        margin-bottom: 12px;
-        color: #3b82f6;
-      }
-      .stats-grid {
-        display: flex;
-        justify-content: space-around;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-      .stat-item {
-        text-align: center;
-      }
-      .stat-number {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #fbbf24;
-      }
-      .stat-label {
-        font-size: 0.8rem;
-        color: #9ca3af;
-      }
-      .special-offer {
-        background: linear-gradient(135deg, #1e3a5f, #0f1117);
-        border-radius: 20px;
-        padding: 16px 24px;
-        flex: 1;
-        text-align: center;
-        border: 1px solid #3b82f6;
-      }
-      .special-offer h3 {
-        font-size: 1.2rem;
-        color: #fbbf24;
-      }
-      .special-offer p {
-        font-size: 0.9rem;
-        margin: 8px 0;
-      }
-      .special-offer .btn {
-        background: #3b82f6;
-        border: 0;
-        padding: 6px 16px;
-        border-radius: 30px;
-        color: #fff;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 0.8rem;
       }
       .search-box {
         max-width: 600px;
@@ -191,6 +133,7 @@
         cursor: pointer;
         display: flex;
         flex-direction: column;
+        position: relative;
       }
       .game-card:hover {
         transform: translateY(-4px);
@@ -209,27 +152,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        display: block;
-      }
-      .skeleton {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          #1f2329 25%,
-          #2a2e36 50%,
-          #1f2329 75%
-        );
-        background-size: 200% 100%;
-        animation: loading 1.2s infinite;
-      }
-      @keyframes loading {
-        0% {
-          background-position: 200% 0;
-        }
-        100% {
-          background-position: -200% 0;
-        }
       }
       .game-title {
         background: #000000b3;
@@ -278,7 +200,6 @@
       }
       .admin-add-card .card-image {
         font-size: 2.5rem;
-        background: 0 0;
       }
       .footer {
         background: #0f1117;
@@ -340,12 +261,8 @@
         .nav-links {
           justify-content: center;
         }
-        .top-promo {
-          flex-direction: column;
-        }
         .games-grid {
-          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-          gap: 16px;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         }
       }
     </style>
@@ -357,11 +274,10 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a>
-            <a href="cart.html">🛒 Корзина</a>
-            <!-- ← добавить эту строку -->
-            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
-            <a
+            <a href="reviews.html">Отзывы</a
+            ><a href="cart.html" class="cart-link">🛒 Корзина</a
+            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
+            ><a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -378,30 +294,6 @@
           <h1>ИГРЫ</h1>
           <p>Цифровые товары для геймеров</p>
         </div>
-        <div class="top-promo">
-          <div class="stats">
-            <h2>Нас уже выбрали</h2>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-number" id="userCount">10,000+</div>
-                <div class="stat-label">Довольных клиентов</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Игр в каталоге</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">Поддержка</div>
-              </div>
-            </div>
-          </div>
-          <div class="special-offer">
-            <h3>🔥 Спецпредложение 🔥</h3>
-            <p>Скидка 20% по промокоду <strong>WELCOME20</strong></p>
-            <a href="reviews.html" class="btn">Узнать больше</a>
-          </div>
-        </div>
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="Поиск игры..." />
         </div>
@@ -417,26 +309,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            >
-            <a
+            ><a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            >
-            <a
+            ><a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            >
-            <a
+            ><a
               href="requisites.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Реквизиты</a
-            >
-            <a
-              href="https://t.me/your_telegram"
               style="color: #9ca3af; text-decoration: none"
-              >Telegram</a
+              >Реквизиты</a
             >
           </div>
         </div>
@@ -473,13 +357,20 @@
         isAdmin = false,
         games = [],
         editingGameId = null;
-      function getOptimizedImageUrl(url) {
-        if (!url || !url.includes("supabase.co/storage")) return url;
-        return (
-          url.split("?")[0] +
-          "?width=200&height=200&resize=cover&quality=80&format=webp"
-        );
+
+      async function uploadImage(file, gameId) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${gameId}_${Date.now()}.${fileExt}`;
+        const { error } = await supabaseClient.storage
+          .from("game_images")
+          .upload(fileName, file);
+        if (error) throw error;
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
+        return publicUrl;
       }
+
       async function loadGames() {
         const { data, error } = await supabaseClient
           .from("games")
@@ -494,54 +385,47 @@
         games = data || [];
         renderGames();
       }
-      async function updateUserCount() {
-        const { count } = await supabaseClient
-          .from("users")
-          .select("*", { count: "exact", head: true });
-        if (count)
-          document.getElementById("userCount").innerText =
-            (count + 10000).toLocaleString() + "+";
-      }
+
       async function saveGame(game, imageFile = null) {
         let imageUrl = game.image;
         if (imageFile) {
-          const tempId = game.id || Date.now(),
-            fileExt = imageFile.name.split(".").pop(),
-            fileName = `${tempId}_${Date.now()}.${fileExt}`;
-          await supabaseClient.storage
-            .from("game_images")
-            .upload(fileName, imageFile);
-          const {
-            data: { publicUrl },
-          } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
-          imageUrl = publicUrl;
+          const tempId = game.id || Date.now();
+          imageUrl = await uploadImage(imageFile, tempId);
         }
-        if (game.id)
-          await supabaseClient
+        if (game.id) {
+          const { error } = await supabaseClient
             .from("games")
             .update({ name: game.name, image: imageUrl })
             .eq("id", game.id);
-        else {
-          const { data } = await supabaseClient
+          if (error) throw error;
+        } else {
+          const { data, error } = await supabaseClient
             .from("games")
             .insert({ name: game.name, image: imageUrl })
             .select();
+          if (error) throw error;
           return data[0];
         }
       }
+
       async function deleteGame(id) {
         const game = games.find((g) => g.id === id);
-        if (game?.image?.includes("game_images")) {
+        if (game && game.image && game.image.includes("game_images")) {
           const fileName = game.image.split("/").pop().split("?")[0];
           await supabaseClient.storage.from("game_images").remove([fileName]);
         }
-        await supabaseClient.from("games").delete().eq("id", id);
+        const { error } = await supabaseClient
+          .from("games")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
       }
+
       function renderGames(filter = "") {
-        const container = document.getElementById("gamesContainer"),
-          filtered = games.filter((g) =>
-            g.name.toLowerCase().includes(filter.toLowerCase()),
-          );
+        const container = document.getElementById("gamesContainer");
+        const filtered = games.filter((g) =>
+          g.name.toLowerCase().includes(filter.toLowerCase()),
+        );
         if (!filtered.length) {
           container.innerHTML =
             '<div style="grid-column:1/-1; text-align:center; padding:40px;">😔 Игры не найдены</div>';
@@ -549,13 +433,20 @@
         }
         let html = filtered
           .map((game) => {
-            const optSrc = getOptimizedImageUrl(game.image);
-            return `<div class="game-card" data-link="game.html?id=${game.id}" data-id="${game.id}">${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}<div class="card-image">${optSrc ? `<img src="${optSrc}" alt="${escapeHtml(game.name)}" loading="lazy">` : '<div class="skeleton"></div>'}</div><div class="game-title">${escapeHtml(game.name)}</div></div>`;
+            const isImageUrl =
+              game.image &&
+              (game.image.startsWith("http") || game.image.startsWith("https"));
+            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">
+                    ${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}
+                    <div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div>
+                    <div class="game-title">${escapeHtml(game.name)}</div>
+                </div>`;
           })
           .join("");
         if (isAdmin)
           html += `<div class="game-card admin-add-card" id="addGameCard"><div class="card-image">➕</div><div class="game-title">Добавить игру</div></div>`;
         container.innerHTML = html;
+
         document
           .querySelectorAll(".game-card:not(.admin-add-card)")
           .forEach((card) =>
@@ -566,7 +457,7 @@
               )
                 return;
               const link = card.dataset.link;
-              if (link) window.location.href = link;
+              if (link && link !== "#") window.location.href = link;
               else alert("Страница в разработке");
             }),
           );
@@ -616,6 +507,7 @@
             });
         }
       }
+
       function openEditModal(id, name, img) {
         editingGameId = id;
         document.getElementById("editName").value = name;
@@ -623,8 +515,8 @@
         document.getElementById("editModal").classList.add("active");
       }
       async function saveEdit() {
-        const newName = document.getElementById("editName").value.trim(),
-          imageFile = document.getElementById("editImageFile").files[0];
+        const newName = document.getElementById("editName").value.trim();
+        const imageFile = document.getElementById("editImageFile").files[0];
         if (!newName) {
           alert("Введите название");
           return;
@@ -637,6 +529,7 @@
           alert(err.message);
         }
       }
+
       async function checkAuth() {
         const {
           data: { session },
@@ -653,9 +546,8 @@
           document.getElementById("auth-section").innerHTML =
             `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
           document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn") {
+            if (e.target.id !== "logoutBtn")
               window.location.href = "profile.html";
-            }
           });
           document
             .getElementById("logoutBtn")
@@ -670,19 +562,21 @@
           isAdmin = false;
         }
         await loadGames();
-        updateUserCount();
       }
+
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
         );
       }
-      window.addEventListener("load", async () => {
-        await checkAuth();
+      window.addEventListener("load", () => {
+        checkAuth();
         document
           .getElementById("searchInput")
-          .addEventListener("input", (e) => renderGames(e.target.value));
+          .addEventListener("input", (e) =>
+            renderGames(e.target.value.toLowerCase()),
+          );
         document
           .getElementById("saveEditBtn")
           .addEventListener("click", saveEdit);
