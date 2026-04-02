@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — магазин игр</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: #fff !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+      }
+      .logout-btn {
+        background: 0 0;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .hero {
+        text-align: center;
+        margin-bottom: 56px;
+      }
+      .hero h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .top-promo {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        margin-bottom: 48px;
+        flex-wrap: wrap;
+      }
+      .stats {
+        background: #15181f;
+        border-radius: 20px;
+        padding: 16px 24px;
+        flex: 1;
+        border: 1px solid #2d3138;
+      }
+      .stats h2 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+        color: #3b82f6;
+      }
+      .stats-grid {
+        display: flex;
+        justify-content: space-around;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .stat-item {
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fbbf24;
+      }
+      .stat-label {
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+      .special-offer {
+        background: linear-gradient(135deg, #1e3a5f, #0f1117);
+        border-radius: 20px;
+        padding: 16px 24px;
+        flex: 1;
+        text-align: center;
+        border: 1px solid #3b82f6;
+      }
+      .special-offer h3 {
+        font-size: 1.2rem;
+        color: #fbbf24;
+      }
+      .special-offer p {
+        font-size: 0.9rem;
+        margin: 8px 0;
+      }
+      .special-offer .btn {
+        background: #3b82f6;
+        border: 0;
+        padding: 6px 16px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.8rem;
+      }
+      .search-box {
+        max-width: 600px;
+        margin: 0 auto 48px;
+      }
+      .search-box input {
+        width: 100%;
+        padding: 14px 24px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 60px;
+        color: #fff;
+        outline: 0;
+      }
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 24px;
+      }
+      .game-card {
+        background: #15181f;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #22262e;
+        transition: transform 0.2s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+      }
+      .game-card:hover {
+        transform: translateY(-4px);
+        border-color: #3b82f6;
+      }
+      .card-image {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: #0f1117;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .skeleton {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          #1f2329 25%,
+          #2a2e36 50%,
+          #1f2329 75%
+        );
+        background-size: 200% 100%;
+        animation: loading 1.2s infinite;
+      }
+      @keyframes loading {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      .game-title {
+        background: #000000b3;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 8px;
+        text-align: center;
+        border-top: 1px solid #2d3138;
+      }
+      .edit-icon,
+      .delete-icon {
+        position: absolute;
+        background: #0009;
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        color: #fff;
+        z-index: 2;
+      }
+      .edit-icon {
+        top: 8px;
+        right: 8px;
+      }
+      .delete-icon {
+        top: 8px;
+        right: 48px;
+        background: #dc2626cc;
+      }
+      .delete-icon:hover {
+        background: #dc2626;
+      }
+      .edit-icon:hover {
+        background: #3b82f6;
+      }
+      .admin-add-card {
+        background: #15181f;
+        border: 2px dashed #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        cursor: pointer;
+      }
+      .admin-add-card .card-image {
+        font-size: 2.5rem;
+        background: 0 0;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000c;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+      }
+      .modal-content input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 12px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: #fff;
+      }
+      .modal-content button {
+        background: #3b82f6;
+        border: 0;
+        padding: 8px 16px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+        margin-right: 12px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+        .top-promo {
+          flex-direction: column;
+        }
+        .games-grid {
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          gap: 16px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a
+            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
+            ><a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="main">
+      <div class="container">
+        <div class="hero">
+          <h1>ИГРЫ</h1>
+          <p>Цифровые товары для геймеров</p>
+        </div>
+        <div class="top-promo">
+          <div class="stats">
+            <h2>Нас уже выбрали</h2>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number" id="userCount">10,000+</div>
+                <div class="stat-label">Довольных клиентов</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Игр в каталоге</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Поддержка</div>
+              </div>
+            </div>
+          </div>
+          <div class="special-offer">
+            <h3>🔥 Спецпредложение 🔥</h3>
+            <p>Скидка 20% по промокоду <strong>WELCOME20</strong></p>
+            <a href="reviews.html" class="btn">Узнать больше</a>
+          </div>
+        </div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Поиск игры..." />
+        </div>
+        <div id="gamesContainer" class="games-grid"></div>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            ><a
+              href="https://t.me/your_telegram"
+              style="color: #9ca3af; text-decoration: none"
+              >Telegram</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h3>Редактировать игру</h3>
+        <input type="text" id="editName" placeholder="Название" /><input
+          type="file"
+          id="editImageFile"
+          accept="image/*"
+        />
+        <div style="margin: 8px 0; font-size: 0.75rem; color: #9ca3af">
+          Оставьте пустым, чтобы сохранить текущее изображение
+        </div>
+        <div style="display: flex; justify-content: flex-end">
+          <button id="saveEditBtn">Сохранить</button
+          ><button id="cancelEditBtn" style="background: #4b5563">
+            Отмена
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null,
+        isAdmin = false,
+        games = [],
+        editingGameId = null;
+      function getOptimizedImageUrl(url) {
+        if (!url || !url.includes("supabase.co/storage")) return url;
+        return (
+          url.split("?")[0] +
+          "?width=200&height=200&resize=cover&quality=80&format=webp"
+        );
+      }
+      async function loadGames() {
+        const { data, error } = await supabaseClient
+          .from("games")
+          .select("*")
+          .order("name");
+        if (error) {
+          console.error(error);
+          games = [];
+          renderGames();
+          return;
+        }
+        games = data || [];
+        renderGames();
+      }
+      async function updateUserCount() {
+        const { count } = await supabaseClient
+          .from("users")
+          .select("*", { count: "exact", head: true });
+        if (count)
+          document.getElementById("userCount").innerText =
+            (count + 10000).toLocaleString() + "+";
+      }
+      async function saveGame(game, imageFile = null) {
+        let imageUrl = game.image;
+        if (imageFile) {
+          const tempId = game.id || Date.now(),
+            fileExt = imageFile.name.split(".").pop(),
+            fileName = `${tempId}_${Date.now()}.${fileExt}`;
+          await supabaseClient.storage
+            .from("game_images")
+            .upload(fileName, imageFile);
+          const {
+            data: { publicUrl },
+          } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
+          imageUrl = publicUrl;
+        }
+        if (game.id)
+          await supabaseClient
+            .from("games")
+            .update({ name: game.name, image: imageUrl })
+            .eq("id", game.id);
+        else {
+          const { data } = await supabaseClient
+            .from("games")
+            .insert({ name: game.name, image: imageUrl })
+            .select();
+          return data[0];
+        }
+      }
+      async function deleteGame(id) {
+        const game = games.find((g) => g.id === id);
+        if (game?.image?.includes("game_images")) {
+          const fileName = game.image.split("/").pop().split("?")[0];
+          await supabaseClient.storage.from("game_images").remove([fileName]);
+        }
+        await supabaseClient.from("games").delete().eq("id", id);
+      }
+      function renderGames(filter = "") {
+        const container = document.getElementById("gamesContainer"),
+          filtered = games.filter((g) =>
+            g.name.toLowerCase().includes(filter.toLowerCase()),
+          );
+        if (!filtered.length) {
+          container.innerHTML =
+            '<div style="grid-column:1/-1; text-align:center; padding:40px;">😔 Игры не найдены</div>';
+          return;
+        }
+        let html = filtered
+          .map((game) => {
+            const optSrc = getOptimizedImageUrl(game.image);
+            return `<div class="game-card" data-link="game.html?id=${game.id}" data-id="${game.id}">${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}<div class="card-image">${optSrc ? `<img src="${optSrc}" alt="${escapeHtml(game.name)}" loading="lazy">` : '<div class="skeleton"></div>'}</div><div class="game-title">${escapeHtml(game.name)}</div></div>`;
+          })
+          .join("");
+        if (isAdmin)
+          html += `<div class="game-card admin-add-card" id="addGameCard"><div class="card-image">➕</div><div class="game-title">Добавить игру</div></div>`;
+        container.innerHTML = html;
+        document
+          .querySelectorAll(".game-card:not(.admin-add-card)")
+          .forEach((card) =>
+            card.addEventListener("click", (e) => {
+              if (
+                e.target.classList.contains("edit-icon") ||
+                e.target.classList.contains("delete-icon")
+              )
+                return;
+              const link = card.dataset.link;
+              if (link) window.location.href = link;
+              else alert("Страница в разработке");
+            }),
+          );
+        if (isAdmin) {
+          document.querySelectorAll(".edit-icon").forEach((icon) =>
+            icon.addEventListener("click", (e) => {
+              e.stopPropagation();
+              openEditModal(
+                parseInt(icon.dataset.id),
+                icon.dataset.name,
+                icon.dataset.image,
+              );
+            }),
+          );
+          document.querySelectorAll(".delete-icon").forEach((icon) =>
+            icon.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              if (confirm("Удалить игру?"))
+                try {
+                  await deleteGame(parseInt(icon.dataset.id));
+                  await loadGames();
+                } catch (err) {
+                  alert(err.message);
+                }
+            }),
+          );
+          const addCard = document.getElementById("addGameCard");
+          if (addCard)
+            addCard.addEventListener("click", async () => {
+              const newName = prompt("Название игры:");
+              if (!newName) return;
+              const fileInput = document.createElement("input");
+              fileInput.type = "file";
+              fileInput.accept = "image/*";
+              fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                try {
+                  const newGame = await saveGame({ name: newName }, file);
+                  await loadGames();
+                  if (newGame?.id)
+                    window.location.href = `game.html?id=${newGame.id}`;
+                } catch (err) {
+                  alert(err.message);
+                }
+              };
+              fileInput.click();
+            });
+        }
+      }
+      function openEditModal(id, name, img) {
+        editingGameId = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editImageFile").value = "";
+        document.getElementById("editModal").classList.add("active");
+      }
+      async function saveEdit() {
+        const newName = document.getElementById("editName").value.trim(),
+          imageFile = document.getElementById("editImageFile").files[0];
+        if (!newName) {
+          alert("Введите название");
+          return;
+        }
+        try {
+          await saveGame({ id: editingGameId, name: newName }, imageFile);
+          await loadGames();
+          document.getElementById("editModal").classList.remove("active");
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+          document.getElementById("auth-section").innerHTML =
+            `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+
+          // Обработчик клика на всю панель (имя + иконка), но не на кнопку выхода
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn") {
+              window.location.href = "profile.html";
+            }
+          });
+
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation(); // чтобы клик по кнопке не открывал профиль
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+        } else {
+          document.getElementById("auth-section").innerHTML =
+            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          isAdmin = false;
+        }
+        await loadGames();
+        updateUserCount();
+      }
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
+      window.addEventListener("load", async () => {
+        await checkAuth();
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", (e) => renderGames(e.target.value));
+        document
+          .getElementById("saveEditBtn")
+          .addEventListener("click", saveEdit);
+        document
+          .getElementById("cancelEditBtn")
+          .addEventListener("click", () =>
+            document.getElementById("editModal").classList.remove("active"),
+          );
+      });
+    </script>
+  </body>
+</html>

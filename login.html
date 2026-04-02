@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — Вход и регистрация</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .auth-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 460px;
+        overflow: hidden;
+      }
+      .tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+      }
+      .tab-btn {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 18px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .tab-btn.active {
+        color: #4f46e5;
+        background: white;
+        border-bottom: 3px solid #4f46e5;
+      }
+      .form-panel {
+        display: none;
+        padding: 32px 28px 36px;
+        animation: fadeIn 0.3s ease;
+      }
+      .form-panel.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      h2 {
+        font-size: 1.8rem;
+        margin-bottom: 24px;
+        color: #1f2937;
+        text-align: center;
+      }
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: #374151;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 1rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 16px;
+        transition: all 0.2s;
+        outline: none;
+      }
+      .input-group input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      }
+      .action-btn {
+        width: 100%;
+        background: linear-gradient(105deg, #4f46e5, #7c3aed);
+        border: none;
+        padding: 14px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+      .action-btn:hover {
+        background: linear-gradient(105deg, #4338ca, #6d28d9);
+      }
+      .demo-note {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 0.75rem;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 20px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #1f2937;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 40px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        z-index: 1000;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Вход</button>
+        <button class="tab-btn" data-tab="register">Регистрация</button>
+      </div>
+
+      <div class="form-panel active" id="login-panel">
+        <h2>Добро пожаловать</h2>
+        <form id="login-form">
+          <div class="input-group">
+            <label>Электронная почта</label>
+            <input
+              type="email"
+              id="login-email"
+              placeholder="example@mail.ru"
+            />
+          </div>
+          <div class="input-group">
+            <label>Пароль</label>
+            <input type="password" id="login-password" placeholder="••••••••" />
+          </div>
+          <button type="submit" class="action-btn">Войти</button>
+        </form>
+        <div class="demo-note">
+          После регистрации подтвердите email — письмо придёт на почту.
+        </div>
+      </div>
+
+      <div class="form-panel" id="register-panel">
+        <h2>Создать аккаунт</h2>
+        <form id="register-form">
+          <div class="input-group">
+            <label>Имя пользователя</label>
+            <input type="text" id="reg-name" placeholder="Алексей" />
+          </div>
+          <div class="input-group">
+            <label>Электронная почта</label>
+            <input type="email" id="reg-email" placeholder="hello@site.com" />
+          </div>
+          <div class="input-group">
+            <label>Пароль</label>
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="минимум 6 символов"
+            />
+          </div>
+          <div class="input-group">
+            <label>Подтвердите пароль</label>
+            <input
+              type="password"
+              id="reg-password-confirm"
+              placeholder="повторите пароль"
+            />
+          </div>
+          <button type="submit" class="action-btn">Зарегистрироваться</button>
+        </form>
+        <div class="demo-note">
+          После регистрации на почту придёт ссылка для подтверждения.
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-message" class="toast"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+        const SUPABASE_ANON_KEY =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+        const supabase = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_ANON_KEY,
+        );
+
+        const tabBtns = document.querySelectorAll(".tab-btn");
+        const loginPanel = document.getElementById("login-panel");
+        const registerPanel = document.getElementById("register-panel");
+        const loginForm = document.getElementById("login-form");
+        const registerForm = document.getElementById("register-form");
+        const toastEl = document.getElementById("toast-message");
+
+        function showToast(message, isError = false) {
+          toastEl.textContent = message;
+          toastEl.classList.add("show");
+          if (isError) toastEl.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
+          else toastEl.style.backgroundColor = "rgba(31, 41, 55, 0.9)";
+          setTimeout(() => toastEl.classList.remove("show"), 3000);
+        }
+
+        function switchTab(tabId) {
+          tabBtns.forEach((btn) => {
+            if (btn.getAttribute("data-tab") === tabId) {
+              btn.classList.add("active");
+            } else {
+              btn.classList.remove("active");
+            }
+          });
+          if (tabId === "login") {
+            loginPanel.classList.add("active");
+            registerPanel.classList.remove("active");
+          } else {
+            loginPanel.classList.remove("active");
+            registerPanel.classList.add("active");
+          }
+        }
+
+        tabBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const tabId = btn.getAttribute("data-tab");
+            if (tabId === "login" || tabId === "register") {
+              switchTab(tabId);
+            }
+          });
+        });
+
+        // Регистрация
+        registerForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("reg-name").value.trim();
+          const email = document.getElementById("reg-email").value.trim();
+          const password = document.getElementById("reg-password").value;
+          const confirm = document.getElementById("reg-password-confirm").value;
+
+          if (!name || name.length < 2) {
+            showToast("Имя должно быть не менее 2 символов", true);
+            return;
+          }
+          if (!email.includes("@")) {
+            showToast("Введите корректный email", true);
+            return;
+          }
+          if (password.length < 6) {
+            showToast("Пароль должен быть не менее 6 символов", true);
+            return;
+          }
+          if (password !== confirm) {
+            showToast("Пароли не совпадают", true);
+            return;
+          }
+
+          const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { name: name },
+            },
+          });
+
+          if (error) {
+            showToast(error.message, true);
+            return;
+          }
+
+          showToast("Письмо с подтверждением отправлено на почту!");
+          setTimeout(() => switchTab("login"), 2000);
+          registerForm.reset();
+        });
+
+        // Вход
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("login-email").value.trim();
+          const password = document.getElementById("login-password").value;
+
+          if (!email || !password) {
+            showToast("Заполните все поля", true);
+            return;
+          }
+
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
+
+          if (error) {
+            showToast("Неверный email или пароль", true);
+            return;
+          }
+
+          showToast("Вход выполнен! Перенаправление...");
+          localStorage.setItem(
+            "atbuy_current_user",
+            JSON.stringify({
+              email: data.user.email,
+              name: data.user.user_metadata.name,
+            }),
+          );
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — Личный кабинет</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: none;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+        display: flex;
+        justify-content: center;
+        min-height: calc(100vh - 200px);
+      }
+      .profile-card {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 32px;
+        width: 100%;
+        max-width: 500px;
+        border: 1px solid #2d3138;
+      }
+      .profile-card h1 {
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .section {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #2d3138;
+      }
+      .section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .info-row {
+        margin-bottom: 12px;
+        font-size: 1rem;
+      }
+      .info-label {
+        font-weight: 600;
+        color: #9ca3af;
+        margin-right: 12px;
+      }
+      .info-value {
+        color: #eef2ff;
+      }
+      .input-group {
+        margin-bottom: 16px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px 12px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+      }
+      button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      .message {
+        margin-top: 12px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+      }
+      .message.success {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid #22c55e;
+        color: #22c55e;
+      }
+      .message.error {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+        .profile-card {
+          margin: 0 20px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="container">
+        <div class="profile-card">
+          <h1>Личный кабинет</h1>
+          <div id="profileContent">Загрузка...</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            >
+            <a
+              href="https://t.me/your_telegram"
+              style="color: #9ca3af; text-decoration: none"
+              >Telegram</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      let currentUser = null;
+
+      async function loadProfile() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+        currentUser = session.user;
+
+        // Получаем имя из user_metadata
+        const currentName =
+          currentUser.user_metadata?.name || currentUser.email;
+
+        document.getElementById("profileContent").innerHTML = `
+                <div class="section">
+                    <h2>Информация об аккаунте</h2>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${escapeHtml(currentUser.email)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Имя:</span>
+                        <span class="info-value" id="currentNameDisplay">${escapeHtml(currentName)}</span>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Изменить имя</h2>
+                    <div class="input-group">
+                        <input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}">
+                    </div>
+                    <button id="updateNameBtn">Сохранить имя</button>
+                    <div id="nameMessage" class="message" style="display: none;"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Изменить пароль</h2>
+                    <p style="margin-bottom: 16px; font-size: 0.9rem; color: #9ca3af;">На вашу почту будет отправлена ссылка для сброса пароля.</p>
+                    <button id="resetPasswordBtn">Отправить ссылку для сброса пароля</button>
+                    <div id="passwordMessage" class="message" style="display: none;"></div>
+                </div>
+            `;
+
+        document
+          .getElementById("updateNameBtn")
+          .addEventListener("click", updateName);
+        document
+          .getElementById("resetPasswordBtn")
+          .addEventListener("click", resetPassword);
+      }
+
+      async function updateName() {
+        const newName = document.getElementById("newName").value.trim();
+        const messageDiv = document.getElementById("nameMessage");
+
+        if (!newName) {
+          messageDiv.textContent = "Имя не может быть пустым";
+          messageDiv.className = "message error";
+          messageDiv.style.display = "block";
+          return;
+        }
+
+        try {
+          const { data, error } = await supabaseClient.auth.updateUser({
+            data: { name: newName },
+          });
+
+          if (error) throw error;
+
+          // Обновляем отображаемое имя
+          document.getElementById("currentNameDisplay").textContent =
+            escapeHtml(newName);
+          messageDiv.textContent = "Имя успешно обновлено!";
+          messageDiv.className = "message success";
+          messageDiv.style.display = "block";
+
+          // Обновляем информацию в шапке
+          updateAuthHeader();
+
+          setTimeout(() => {
+            messageDiv.style.display = "none";
+          }, 3000);
+        } catch (error) {
+          messageDiv.textContent = "Ошибка: " + error.message;
+          messageDiv.className = "message error";
+          messageDiv.style.display = "block";
+        }
+      }
+
+      async function resetPassword() {
+        const email = currentUser.email;
+        const messageDiv = document.getElementById("passwordMessage");
+        messageDiv.textContent = "Отправляем...";
+        messageDiv.className = "message";
+        messageDiv.style.display = "block";
+
+        try {
+          // Укажите полный URL до update-password.html
+          const redirectUrl = `${window.location.origin}/update-password.html`;
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo: redirectUrl,
+            },
+          );
+          if (error) throw error;
+          messageDiv.textContent =
+            "Ссылка для сброса пароля отправлена на ваш email!";
+          messageDiv.className = "message success";
+          setTimeout(() => (messageDiv.style.display = "none"), 5000);
+        } catch (error) {
+          messageDiv.textContent = "Ошибка: " + error.message;
+          messageDiv.className = "message error";
+        }
+      }
+
+      async function updateAuthHeader() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          const userName =
+            session.user.user_metadata?.name || session.user.email;
+          const authSection = document.getElementById("auth-section");
+          if (authSection) {
+            authSection.innerHTML = `
+                        <div class="user-info" id="userMenu">
+                            <span>👤 ${escapeHtml(userName)}</span>
+                            <button id="logoutBtn" class="logout-btn">Выйти</button>
+                        </div>
+                    `;
+            document
+              .getElementById("logoutBtn")
+              ?.addEventListener("click", async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = "index.html";
+              });
+            document
+              .getElementById("userMenu")
+              ?.addEventListener("click", (e) => {
+                if (e.target.id !== "logoutBtn") {
+                  window.location.href = "profile.html";
+                }
+              });
+          }
+        }
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      window.addEventListener("load", async () => {
+        await updateAuthHeader();
+        await loadProfile();
+      });
+    </script>
+  </body>
+</html>

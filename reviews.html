@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — Отзывы</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+      }
+      .logout-btn {
+        background: none;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .reviews-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .reviews-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .average-rating {
+        background: #15181f;
+        border-radius: 30px;
+        padding: 20px;
+        text-align: center;
+        max-width: 300px;
+        margin: 0 auto 40px;
+        border: 1px solid #2d3138;
+      }
+      .average-rating .stars {
+        font-size: 2rem;
+        letter-spacing: 4px;
+        color: #fbbf24;
+      }
+      .average-rating .value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 8px 0;
+      }
+      .review-form {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 28px;
+        margin-bottom: 48px;
+        border: 1px solid #2d3138;
+      }
+      .review-form h3 {
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+      }
+      .rating-input {
+        margin-bottom: 20px;
+      }
+      .rating-input label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .stars-input {
+        display: flex;
+        gap: 8px;
+        font-size: 2rem;
+        cursor: pointer;
+      }
+      .stars-input span {
+        cursor: pointer;
+        color: #4b5563;
+        transition: color 0.1s;
+      }
+      .stars-input span.active,
+      .stars-input span:hover {
+        color: #fbbf24;
+      }
+      .review-form textarea {
+        width: 100%;
+        padding: 12px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 16px;
+        color: white;
+        font-size: 1rem;
+        resize: vertical;
+        margin-bottom: 20px;
+      }
+      .review-form button {
+        background: #3b82f6;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .review-form button:disabled {
+        background: #4b5563;
+        cursor: not-allowed;
+      }
+      .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .review-card {
+        background: #15181f;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid #2d3138;
+        position: relative;
+      }
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .review-author {
+        font-weight: 600;
+        color: #3b82f6;
+      }
+      .review-stars {
+        color: #fbbf24;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+      }
+      .review-date {
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
+      .review-comment {
+        line-height: 1.4;
+        margin-top: 8px;
+      }
+      .edit-review-icon {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        border-radius: 30px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        color: white;
+        z-index: 2;
+      }
+      .edit-review-icon:hover {
+        background: #3b82f6;
+      }
+      .no-reviews {
+        text-align: center;
+        padding: 40px;
+        color: #9ca3af;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 40px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 28px;
+        width: 90%;
+        max-width: 450px;
+      }
+      .modal-content h3 {
+        margin-bottom: 20px;
+      }
+      .modal-content textarea {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 16px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: white;
+      }
+      .modal-content .stars-input {
+        margin-bottom: 16px;
+      }
+      .modal-content button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+        margin-right: 12px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="container">
+        <div class="reviews-header">
+          <h1>Отзывы наших клиентов</h1>
+        </div>
+
+        <div id="averageContainer" class="average-rating">
+          <div class="stars">★★★★★</div>
+          <div class="value">Загрузка...</div>
+          <div>средняя оценка</div>
+        </div>
+
+        <div id="reviewFormContainer"></div>
+
+        <div id="reviewsList" class="reviews-list">
+          <div class="no-reviews">Загрузка отзывов...</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            >
+            <a
+              href="https://t.me/your_telegram"
+              style="color: #9ca3af; text-decoration: none"
+              >Telegram</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Модальное окно редактирования отзыва -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h3>Редактировать отзыв</h3>
+        <div class="rating-input">
+          <label>Оценка:</label>
+          <div class="stars-input" id="editStarsInput">
+            <span data-rating="1">★</span>
+            <span data-rating="2">★</span>
+            <span data-rating="3">★</span>
+            <span data-rating="4">★</span>
+            <span data-rating="5">★</span>
+          </div>
+        </div>
+        <textarea
+          id="editComment"
+          rows="4"
+          placeholder="Текст отзыва"
+        ></textarea>
+        <div style="display: flex; justify-content: flex-end">
+          <button id="saveEditBtn">Сохранить</button>
+          <button id="cancelEditBtn" style="background: #4b5563">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Используем уникальное имя переменной, чтобы избежать конфликта с глобальным supabase
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      let currentUser = null;
+      let isAdmin = false;
+      let selectedRating = 0;
+      let editingReviewId = null;
+      let editingCurrentRating = 0;
+
+      async function getUserName(userId) {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("name")
+          .eq("id", userId)
+          .single();
+        if (error || !data) return "Пользователь";
+        return data.name;
+      }
+
+      async function loadReviews() {
+        const { data: reviews, error } = await supabaseClient
+          .from("reviews")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error("Ошибка загрузки отзывов:", error);
+          return;
+        }
+        const reviewsWithNames = await Promise.all(
+          reviews.map(async (rev) => {
+            const name = await getUserName(rev.user_id);
+            return { ...rev, userName: name };
+          }),
+        );
+        displayReviews(reviewsWithNames);
+        calculateAverage(reviewsWithNames);
+      }
+
+      function displayReviews(reviews) {
+        const container = document.getElementById("reviewsList");
+        if (!reviews.length) {
+          container.innerHTML =
+            '<div class="no-reviews">Пока нет отзывов. Будьте первым!</div>';
+          return;
+        }
+        container.innerHTML = reviews
+          .map(
+            (rev) => `
+                <div class="review-card" data-review-id="${rev.id}">
+                    ${isAdmin ? `<div class="edit-review-icon" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️ Редактировать</div>` : ""}
+                    <div class="review-header">
+                        <span class="review-author">${escapeHtml(rev.userName)}</span>
+                        <span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span>
+                        <span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div class="review-comment">${escapeHtml(rev.comment)}</div>
+                </div>
+            `,
+          )
+          .join("");
+
+        if (isAdmin) {
+          document.querySelectorAll(".edit-review-icon").forEach((icon) => {
+            icon.addEventListener("click", (e) => {
+              const id = parseInt(icon.dataset.id);
+              const rating = parseInt(icon.dataset.rating);
+              const comment = icon.dataset.comment;
+              openEditModal(id, rating, comment);
+            });
+          });
+        }
+      }
+
+      function calculateAverage(reviews) {
+        if (!reviews.length) {
+          document.getElementById("averageContainer").innerHTML = `
+                    <div class="stars">★★★★★</div>
+                    <div class="value">Нет оценок</div>
+                    <div>средняя оценка</div>
+                `;
+          return;
+        }
+        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+        const avg = (sum / reviews.length).toFixed(1);
+        const fullStars = Math.floor(avg);
+        const halfStar = avg % 1 >= 0.5 ? "½" : "";
+        const starsString =
+          "★".repeat(fullStars) +
+          halfStar +
+          "☆".repeat(5 - fullStars - (halfStar ? 1 : 0));
+        document.getElementById("averageContainer").innerHTML = `
+                <div class="stars">${starsString}</div>
+                <div class="value">${avg} / 5</div>
+                <div>средняя оценка (${reviews.length} отзывов)</div>
+            `;
+      }
+
+      function renderReviewForm() {
+        const container = document.getElementById("reviewFormContainer");
+        if (!currentUser) {
+          container.innerHTML = `<div style="background:#15181f; border-radius:24px; padding:28px; text-align:center; border:1px solid #2d3138;">
+                    <p>Чтобы оставить отзыв, пожалуйста, <a href="login.html" style="color:#3b82f6;">войдите</a>.</p>
+                </div>`;
+          return;
+        }
+        container.innerHTML = `
+                <div class="review-form">
+                    <h3>Оставить отзыв</h3>
+                    <div class="rating-input">
+                        <label>Ваша оценка:</label>
+                        <div class="stars-input" id="starsInput">
+                            <span data-rating="1">★</span>
+                            <span data-rating="2">★</span>
+                            <span data-rating="3">★</span>
+                            <span data-rating="4">★</span>
+                            <span data-rating="5">★</span>
+                        </div>
+                    </div>
+                    <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями..."></textarea>
+                    <button id="submitReviewBtn">Отправить отзыв</button>
+                </div>
+            `;
+        const starsSpans = document.querySelectorAll("#starsInput span");
+        function updateStars(rating) {
+          starsSpans.forEach((span, idx) => {
+            if (idx < rating) span.classList.add("active");
+            else span.classList.remove("active");
+          });
+          selectedRating = rating;
+        }
+        starsSpans.forEach((span) => {
+          span.addEventListener("click", () => {
+            const rating = parseInt(span.dataset.rating);
+            updateStars(rating);
+          });
+        });
+        updateStars(0);
+        document
+          .getElementById("submitReviewBtn")
+          .addEventListener("click", submitReview);
+      }
+
+      async function submitReview() {
+        const comment = document.getElementById("reviewComment").value.trim();
+        if (selectedRating === 0) {
+          alert("Пожалуйста, выберите оценку");
+          return;
+        }
+        if (!comment) {
+          alert("Напишите текст отзыва");
+          return;
+        }
+        const { error } = await supabaseClient.from("reviews").insert({
+          user_id: currentUser.id,
+          rating: selectedRating,
+          comment: comment,
+        });
+        if (error) {
+          alert("Ошибка при отправке отзыва: " + error.message);
+          return;
+        }
+        alert("Спасибо за отзыв!");
+        document.getElementById("reviewComment").value = "";
+        selectedRating = 0;
+        const starsSpans = document.querySelectorAll("#starsInput span");
+        starsSpans.forEach((span) => span.classList.remove("active"));
+        loadReviews();
+      }
+
+      function openEditModal(id, rating, comment) {
+        editingReviewId = id;
+        editingCurrentRating = rating;
+        document.getElementById("editComment").value = comment;
+        const starsSpans = document.querySelectorAll("#editStarsInput span");
+        function updateStars(r) {
+          starsSpans.forEach((span, idx) => {
+            if (idx < r) span.classList.add("active");
+            else span.classList.remove("active");
+          });
+        }
+        // Удаляем старые обработчики, чтобы не накапливались
+        starsSpans.forEach((span) => {
+          span.removeEventListener("click", starsSpans.clickHandler);
+          const handler = () => {
+            const newRating = parseInt(span.dataset.rating);
+            updateStars(newRating);
+            editingCurrentRating = newRating;
+          };
+          span.addEventListener("click", handler);
+          starsSpans.clickHandler = handler; // сохраняем для возможного удаления, но не обязательно
+        });
+        updateStars(rating);
+        document.getElementById("editModal").classList.add("active");
+      }
+
+      async function saveEdit() {
+        const newComment = document.getElementById("editComment").value.trim();
+        if (!newComment) {
+          alert("Комментарий не может быть пустым");
+          return;
+        }
+        const { error } = await supabaseClient
+          .from("reviews")
+          .update({ rating: editingCurrentRating, comment: newComment })
+          .eq("id", editingReviewId);
+        if (error) {
+          alert("Ошибка обновления: " + error.message);
+          return;
+        }
+        alert("Отзыв обновлён");
+        document.getElementById("editModal").classList.remove("active");
+        loadReviews();
+      }
+
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData, error } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          if (!error && userData) {
+            isAdmin = userData.is_admin;
+          } else {
+            isAdmin = currentUser.email === "vufysay@gmail.com";
+          }
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `
+    <div class="user-info" id="userMenu">
+        <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
+        <button id="logoutBtn" class="logout-btn">Выйти</button>
+    </div>
+`;
+          // Клик по блоку (кроме кнопки выхода) ведёт в профиль
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn") {
+              window.location.href = "profile.html";
+            }
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+        } else {
+          document.getElementById("auth-section").innerHTML =
+            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          currentUser = null;
+          isAdmin = false;
+        }
+        renderReviewForm();
+        loadReviews();
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      window.addEventListener("load", async () => {
+        await checkAuth();
+        document
+          .getElementById("saveEditBtn")
+          .addEventListener("click", saveEdit);
+        document
+          .getElementById("cancelEditBtn")
+          .addEventListener("click", () => {
+            document.getElementById("editModal").classList.remove("active");
+          });
+      });
+    </script>
+  </body>
+</html>

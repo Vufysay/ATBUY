@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATBUY — Товары игры</title>
+    <style>
+      /* Стили как в предыдущем arc-riders.html, но с адаптацией */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: white !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+      }
+      .logout-btn {
+        background: none;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .page-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 28px;
+        margin-bottom: 40px;
+      }
+      .product-card {
+        background: #15181f;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #22262e;
+        transition: transform 0.2s;
+        position: relative;
+        padding: 20px;
+        text-align: center;
+      }
+      .product-card:hover {
+        transform: translateY(-6px);
+        border-color: #3b82f6;
+      }
+      .product-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      .product-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #3b82f6;
+        margin-bottom: 16px;
+      }
+      .btn-buy {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+      }
+      .edit-icon,
+      .delete-icon {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        border-radius: 30px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        color: white;
+        z-index: 2;
+      }
+      .edit-icon {
+        top: 12px;
+        right: 12px;
+      }
+      .delete-icon {
+        top: 12px;
+        right: 70px;
+        background: rgba(220, 38, 38, 0.8);
+      }
+      .delete-icon:hover {
+        background: #dc2626;
+      }
+      .edit-icon:hover {
+        background: #3b82f6;
+      }
+      .admin-controls {
+        background: #15181f;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .admin-controls input {
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: white;
+        flex: 1;
+      }
+      .admin-controls button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 40px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 28px;
+        width: 90%;
+        max-width: 450px;
+      }
+      .modal-content input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 16px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: white;
+      }
+      .modal-content button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+        margin-right: 12px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="container">
+        <div class="page-header">
+          <h1 id="gameTitle">Загрузка...</h1>
+        </div>
+
+        <div id="adminPanel" style="display: none"></div>
+
+        <div id="productsContainer" class="products-grid"></div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            >
+            <a
+              href="https://t.me/your_telegram"
+              style="color: #9ca3af; text-decoration: none"
+              >Telegram</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h3>Редактировать товар</h3>
+        <input type="text" id="editName" placeholder="Название" />
+        <input type="text" id="editPrice" placeholder="Цена" />
+        <div style="display: flex; justify-content: flex-end">
+          <button id="saveEditBtn">Сохранить</button>
+          <button id="cancelEditBtn" style="background: #4b5563">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      let currentUser = null;
+      let isAdmin = false;
+      let products = [];
+      let editingProductId = null;
+      let currentGameId = null;
+
+      // Получить gameId из URL
+      function getGameIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("id");
+      }
+
+      async function loadGameInfo() {
+        const { data, error } = await supabaseClient
+          .from("games")
+          .select("name")
+          .eq("id", currentGameId)
+          .single();
+        if (error) {
+          console.error("Ошибка загрузки игры:", error);
+          document.getElementById("gameTitle").innerText = "Игра не найдена";
+          return;
+        }
+        document.getElementById("gameTitle").innerText =
+          data.name + " — товары и услуги";
+      }
+
+      async function loadProducts() {
+        const { data, error } = await supabaseClient
+          .from("game_products")
+          .select("*")
+          .eq("game_id", currentGameId)
+          .order("id");
+        if (error) {
+          console.error("Ошибка загрузки товаров:", error);
+          return;
+        }
+        products = data || [];
+        renderProducts();
+      }
+
+      async function saveProduct(product) {
+        if (product.id) {
+          const { error } = await supabaseClient
+            .from("game_products")
+            .update({ name: product.name, price: product.price })
+            .eq("id", product.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient
+            .from("game_products")
+            .insert({
+              game_id: currentGameId,
+              name: product.name,
+              price: product.price,
+            });
+          if (error) throw error;
+        }
+      }
+
+      async function deleteProduct(id) {
+        const { error } = await supabaseClient
+          .from("game_products")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+      }
+
+      function renderProducts() {
+        const container = document.getElementById("productsContainer");
+        if (!products.length) {
+          container.innerHTML =
+            '<div style="grid-column:1/-1; text-align:center; padding:40px;">Товары отсутствуют. Добавьте первый товар.</div>';
+          return;
+        }
+        container.innerHTML = products
+          .map(
+            (prod) => `
+                <div class="product-card">
+                    ${
+                      isAdmin
+                        ? `
+                        <div class="edit-icon" data-id="${prod.id}" data-name="${escapeHtml(prod.name)}" data-price="${escapeHtml(prod.price)}">✏️</div>
+                        <div class="delete-icon" data-id="${prod.id}">🗑️</div>
+                    `
+                        : ""
+                    }
+                    <div class="product-name">${escapeHtml(prod.name)}</div>
+                    <div class="product-price">${escapeHtml(prod.price)}</div>
+                    <button class="btn-buy" data-name="${escapeHtml(prod.name)}">Купить</button>
+                </div>
+            `,
+          )
+          .join("");
+
+        document.querySelectorAll(".btn-buy").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            alert(`🛒 Добавлено в корзину: ${btn.dataset.name}\n(Демо-режим)`);
+          });
+        });
+
+        if (isAdmin) {
+          document.querySelectorAll(".edit-icon").forEach((icon) => {
+            icon.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const id = parseInt(icon.dataset.id);
+              const name = icon.dataset.name;
+              const price = icon.dataset.price;
+              openEditModal(id, name, price);
+            });
+          });
+          document.querySelectorAll(".delete-icon").forEach((icon) => {
+            icon.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              const id = parseInt(icon.dataset.id);
+              if (confirm("Удалить этот товар?")) {
+                try {
+                  await deleteProduct(id);
+                  await loadProducts();
+                } catch (err) {
+                  alert("Ошибка удаления: " + err.message);
+                }
+              }
+            });
+          });
+        }
+      }
+
+      function renderAdminPanel() {
+        const container = document.getElementById("adminPanel");
+        container.innerHTML = `
+                <div class="admin-controls">
+                    <input type="text" id="newProductName" placeholder="Название товара">
+                    <input type="text" id="newProductPrice" placeholder="Цена (например, 1000 ₽)">
+                    <button id="addProductBtn">➕ Добавить товар</button>
+                </div>
+            `;
+        document
+          .getElementById("addProductBtn")
+          .addEventListener("click", async () => {
+            const name = document.getElementById("newProductName").value.trim();
+            const price = document
+              .getElementById("newProductPrice")
+              .value.trim();
+            if (!name || !price) {
+              alert("Заполните название и цену");
+              return;
+            }
+            try {
+              await saveProduct({ name, price });
+              await loadProducts();
+              document.getElementById("newProductName").value = "";
+              document.getElementById("newProductPrice").value = "";
+            } catch (err) {
+              alert("Ошибка добавления: " + err.message);
+            }
+          });
+        container.style.display = "block";
+      }
+
+      function openEditModal(id, name, price) {
+        editingProductId = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editPrice").value = price;
+        document.getElementById("editModal").classList.add("active");
+      }
+
+      async function saveEdit() {
+        const newName = document.getElementById("editName").value.trim();
+        const newPrice = document.getElementById("editPrice").value.trim();
+        if (!newName || !newPrice) {
+          alert("Заполните все поля");
+          return;
+        }
+        try {
+          await saveProduct({
+            id: editingProductId,
+            name: newName,
+            price: newPrice,
+          });
+          await loadProducts();
+          document.getElementById("editModal").classList.remove("active");
+        } catch (err) {
+          alert("Ошибка обновления: " + err.message);
+        }
+      }
+
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData, error } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            (userData && userData.is_admin) ||
+            currentUser.email === "vufysay@gmail.com";
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `
+                    <div class="user-info">
+                        <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
+                        <button id="logoutBtn" class="logout-btn">Выйти</button>
+                    </div>
+                `;
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async () => {
+              await supabaseClient.auth.signOut();
+              window.location.href = "index.html";
+            });
+          if (isAdmin) {
+            renderAdminPanel();
+          }
+        } else {
+          document.getElementById("auth-section").innerHTML =
+            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          isAdmin = false;
+        }
+        await loadProducts();
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function (m) {
+          if (m === "&") return "&amp;";
+          if (m === "<") return "&lt;";
+          if (m === ">") return "&gt;";
+          return m;
+        });
+      }
+
+      window.addEventListener("load", async () => {
+        currentGameId = getGameIdFromUrl();
+        if (!currentGameId) {
+          document.getElementById("gameTitle").innerText = "Игра не указана";
+          return;
+        }
+        await loadGameInfo();
+        await checkAuth();
+        document
+          .getElementById("saveEditBtn")
+          .addEventListener("click", saveEdit);
+        document
+          .getElementById("cancelEditBtn")
+          .addEventListener("click", () => {
+            document.getElementById("editModal").classList.remove("active");
+          });
+      });
+    </script>
+  </body>
+</html>
