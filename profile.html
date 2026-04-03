@@ -447,15 +447,20 @@
             });
         }
       }
+
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
         );
       }
+
       window.addEventListener("load", async () => {
         await updateAuthHeader();
-        await loadProfile();
+        const resetMode = await handlePasswordReset();
+        if (!resetMode) {
+          await loadProfile();
+        }
       });
     </script>
   </body>
