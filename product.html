@@ -127,31 +127,60 @@
       .product-description {
         font-size: 1rem;
         line-height: 1.5;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
         color: #cbd5e1;
+      }
+      .action-block {
+        background: #1f2329;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .total-price {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+      }
+      .total-price strong {
+        color: #fbbf24;
+      }
+      .btn-add-to-cart {
+        background: #3b82f6;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 40px;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+      .back-link {
+        display: inline-block;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-top: 8px;
       }
       .options-section {
         background: #1f2329;
         border-radius: 20px;
         padding: 20px;
-        margin-bottom: 24px;
       }
       .options-section h3 {
         font-size: 1.3rem;
         margin-bottom: 16px;
         color: #3b82f6;
       }
-      .options-search {
+      .search-options {
         margin-bottom: 16px;
       }
-      .options-search input {
+      .search-options input {
         width: 100%;
         padding: 10px;
         background: #0f1117;
         border: 1px solid #2d3138;
         border-radius: 12px;
         color: #fff;
-        outline: none;
       }
       .option-item {
         display: flex;
@@ -171,6 +200,11 @@
         color: #3b82f6;
         font-weight: 600;
       }
+      .option-total {
+        color: #fbbf24;
+        font-weight: 600;
+        min-width: 80px;
+      }
       .option-quantity {
         display: flex;
         align-items: center;
@@ -178,12 +212,12 @@
       }
       .option-quantity input {
         width: 60px;
-        background: #1f2329;
+        padding: 6px;
+        background: #0f1117;
         border: 1px solid #2d3138;
         border-radius: 8px;
         color: #fff;
         text-align: center;
-        padding: 4px;
       }
       .option-quantity button {
         background: #1f2329;
@@ -193,12 +227,6 @@
         height: 28px;
         border-radius: 6px;
         cursor: pointer;
-      }
-      .option-total {
-        color: #fbbf24;
-        font-weight: 600;
-        min-width: 80px;
-        text-align: right;
       }
       .admin-option-controls {
         display: flex;
@@ -238,17 +266,6 @@
         border-radius: 30px;
         color: #fff;
         cursor: pointer;
-      }
-      .btn-add-to-cart {
-        background: #3b82f6;
-        border: none;
-        padding: 12px 32px;
-        border-radius: 40px;
-        color: #fff;
-        font-weight: 700;
-        cursor: pointer;
-        font-size: 1.1rem;
-        width: 100%;
       }
       .edit-icon {
         display: inline-block;
@@ -423,7 +440,7 @@
         currentProduct = null,
         productOptions = [],
         selectedOptionQuantities = {},
-        optionsSearchTerm = "";
+        optionsFilter = "";
 
       async function loadProduct() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -477,12 +494,14 @@
       function renderProductPage(gameLink, gameName) {
         const basePrice = parsePrice(currentProduct.price);
         let totalPrice = basePrice;
-        let filteredOptions = productOptions;
-        if (optionsSearchTerm.trim() !== "") {
-          filteredOptions = productOptions.filter((opt) =>
-            opt.name.toLowerCase().includes(optionsSearchTerm.toLowerCase()),
-          );
+        for (let id in selectedOptionQuantities) {
+          const qty = selectedOptionQuantities[id];
+          const opt = productOptions.find((o) => o.id == id);
+          if (opt && qty > 0) totalPrice += opt.price * qty;
         }
+        const filteredOptions = productOptions.filter((opt) =>
+          opt.name.toLowerCase().includes(optionsFilter.toLowerCase()),
+        );
         const optionsHtml = filteredOptions
           .map((opt) => {
             const qty = selectedOptionQuantities[opt.id] || 0;
@@ -490,13 +509,13 @@
             return `
                     <div class="option-item">
                         <span class="option-name">${escapeHtml(opt.name)}</span>
-                        <span class="option-price">+${opt.price} ₽</span>
+                        <span class="option-price">${opt.price} ₽</span>
+                        <span class="option-total">${optionTotal} ₽</span>
                         <div class="option-quantity">
                             <button class="opt-minus" data-id="${opt.id}">-</button>
                             <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
                             <button class="opt-plus" data-id="${opt.id}">+</button>
                         </div>
-                        <span class="option-total">${optionTotal} ₽</span>
                         ${
                           isAdmin
                             ? `
@@ -511,12 +530,6 @@
                 `;
           })
           .join("");
-        // Пересчёт итоговой цены
-        for (let id in selectedOptionQuantities) {
-          const qty = selectedOptionQuantities[id];
-          const opt = productOptions.find((o) => o.id == id);
-          if (opt && qty > 0) totalPrice += opt.price * qty;
-        }
         const addOptionHtml = isAdmin
           ? `
                 <div class="add-option-form">
@@ -526,16 +539,8 @@
                 </div>
             `
           : "";
-        const searchHtml =
-          productOptions.length > 0
-            ? `
-                <div class="options-search">
-                    <input type="text" id="optionsSearchInput" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsSearchTerm)}">
-                </div>
-            `
-            : "";
-        const totalPriceHtml = productOptions.length
-          ? `<div style="margin:16px 0; font-size:1.2rem;">Итого: <strong style="color:#fbbf24;">${totalPrice} ₽</strong></div>`
+        const searchHtml = productOptions.length
+          ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>`
           : "";
         document.getElementById("productContainer").innerHTML = `
                 <div class="product-container">
@@ -544,22 +549,16 @@
                         <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
                         <div class="product-price">${escapeHtml(currentProduct.price)}</div>
                         <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
-                        ${productOptions.length ? `<div class="options-section"><h3>Дополнительные опции</h3>${searchHtml}${optionsHtml}${addOptionHtml}</div>` : isAdmin ? `<div class="options-section"><h3>Дополнительные опции</h3>${addOptionHtml}</div>` : ""}
-                        ${totalPriceHtml}
-                        <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
-                        <div style="margin-top:16px;"><a href="${gameLink}" style="color:#3b82f6;">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
+                        <div class="action-block">
+                            <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
+                            <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
+                            <a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a>
+                        </div>
+                        ${productOptions.length ? `<div class="options-section"><h3>Дополнительные опции</h3>${searchHtml}<div id="optionsList">${optionsHtml}</div>${addOptionHtml}</div>` : isAdmin ? `<div class="options-section"><h3>Дополнительные опции</h3>${addOptionHtml}</div>` : ""}
                     </div>
                 </div>
             `;
-        // Поиск
-        const searchInput = document.getElementById("optionsSearchInput");
-        if (searchInput) {
-          searchInput.addEventListener("input", (e) => {
-            optionsSearchTerm = e.target.value;
-            renderProductPage(gameLink, gameName);
-          });
-        }
-        // Кнопки +/-
+        // Обработчики изменения количества опций
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
@@ -576,7 +575,6 @@
             renderProductPage(gameLink, gameName);
           });
         });
-        // Ручной ввод количества
         document.querySelectorAll(".opt-qty-input").forEach((input) => {
           input.addEventListener("change", (e) => {
             const id = parseInt(input.dataset.id);
@@ -586,6 +584,14 @@
             renderProductPage(gameLink, gameName);
           });
         });
+        // Поиск
+        const searchInput = document.getElementById("searchOptions");
+        if (searchInput) {
+          searchInput.addEventListener("input", (e) => {
+            optionsFilter = e.target.value;
+            renderProductPage(gameLink, gameName);
+          });
+        }
         document
           .getElementById("addToCartBtn")
           .addEventListener("click", () => addToCart());
