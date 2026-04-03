@@ -209,21 +209,29 @@
         line-height: 1.4;
         margin-top: 8px;
       }
-      .edit-review-icon {
+      .admin-review-controls {
         position: absolute;
         top: 16px;
         right: 16px;
+        display: flex;
+        gap: 8px;
+        z-index: 2;
+      }
+      .admin-review-controls button {
         background: #0009;
         backdrop-filter: blur(4px);
-        border-radius: 30px;
+        border-radius: 20px;
         padding: 4px 10px;
         font-size: 0.8rem;
         cursor: pointer;
         color: #fff;
-        z-index: 2;
+        border: none;
       }
-      .edit-review-icon:hover {
+      .admin-review-controls .edit-btn:hover {
         background: #3b82f6;
+      }
+      .admin-review-controls .delete-btn:hover {
+        background: #dc2626;
       }
       .no-reviews {
         text-align: center;
@@ -382,7 +390,7 @@
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
       const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
+        SUPBASE_URL,
         SUPABASE_ANON_KEY,
       );
       let currentUser = null,
@@ -430,7 +438,7 @@
           .map(
             (rev) => `
                 <div class="review-card" data-review-id="${rev.id}">
-                    ${isAdmin ? `<div class="edit-review-icon" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️ Редактировать</div>` : ""}
+                    ${isAdmin ? `<div class="admin-review-controls"><button class="edit-btn" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️</button><button class="delete-btn" data-id="${rev.id}">🗑️</button></div>` : ""}
                     <div class="review-header"><span class="review-author">${escapeHtml(rev.userName)}</span><span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span><span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span></div>
                     <div class="review-comment">${escapeHtml(rev.comment)}</div>
                 </div>
@@ -438,15 +446,31 @@
           )
           .join("");
         if (isAdmin) {
-          document.querySelectorAll(".edit-review-icon").forEach((icon) => {
-            icon.addEventListener("click", (e) => {
-              const id = parseInt(icon.dataset.id),
-                rating = parseInt(icon.dataset.rating),
-                comment = icon.dataset.comment;
+          document.querySelectorAll(".edit-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = parseInt(btn.dataset.id),
+                rating = parseInt(btn.dataset.rating),
+                comment = btn.dataset.comment;
               openEditModal(id, rating, comment);
             });
           });
+          document.querySelectorAll(".delete-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              if (confirm("Удалить этот отзыв?")) {
+                await deleteReview(parseInt(btn.dataset.id));
+                await loadReviews();
+              }
+            });
+          });
         }
+      }
+      async function deleteReview(id) {
+        const { error } = await supabaseClient
+          .from("reviews")
+          .delete()
+          .eq("id", id);
+        if (error) alert("Ошибка удаления: " + error.message);
+        else alert("Отзыв удалён");
       }
       function calculateAverage(reviews) {
         if (!reviews.length) {
@@ -486,13 +510,8 @@
           container.innerHTML = `
                     <div class="review-form">
                         <h3>Ваш отзыв (редактирование)</h3>
-                        <div class="rating-input">
-                            <label>Ваша оценка:</label>
-                            <div class="stars-input" id="starsInput">
-                                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
-                            </div>
-                        </div>
-                        <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями...">${escapeHtml(existingReview.comment)}</textarea>
+                        <div class="rating-input"><label>Ваша оценка:</label><div class="stars-input" id="starsInput"><span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span></div></div>
+                        <textarea id="reviewComment" rows="4">${escapeHtml(existingReview.comment)}</textarea>
                         <button id="submitReviewBtn">Обновить отзыв</button>
                     </div>
                 `;
@@ -533,18 +552,14 @@
               else {
                 alert("Отзыв обновлён");
                 loadReviews();
+                renderReviewForm();
               }
             });
         } else {
           container.innerHTML = `
                     <div class="review-form">
                         <h3>Оставить отзыв</h3>
-                        <div class="rating-input">
-                            <label>Ваша оценка:</label>
-                            <div class="stars-input" id="starsInput">
-                                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
-                            </div>
-                        </div>
+                        <div class="rating-input"><label>Ваша оценка:</label><div class="stars-input" id="starsInput"><span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span></div></div>
                         <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями..."></textarea>
                         <button id="submitReviewBtn">Отправить отзыв</button>
                     </div>
