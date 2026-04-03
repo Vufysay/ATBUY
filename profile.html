@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Личный кабинет</title>
     <style>
-      /* стили как в предыдущем ответе (я их опускаю для краткости, но они должны быть) */
       * {
         margin: 0;
         padding: 0;
@@ -299,6 +298,56 @@
       );
       let currentUser = null,
         isAdmin = false;
+
+      // Обработка сброса пароля (если есть access_token)
+      async function handlePasswordReset() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get("access_token");
+        const type = urlParams.get("type");
+        if (accessToken && type === "recovery") {
+          const profileContent = document.getElementById("profileContent");
+          profileContent.innerHTML = `
+                    <div class="section">
+                        <h2>Восстановление пароля</h2>
+                        <div class="input-group">
+                            <input type="password" id="newPassword" placeholder="Новый пароль (минимум 6 символов)">
+                        </div>
+                        <button id="updatePasswordBtn">Сохранить пароль</button>
+                        <div id="resetMessage" class="message" style="display: none;"></div>
+                    </div>
+                `;
+          document
+            .getElementById("updatePasswordBtn")
+            .addEventListener("click", async () => {
+              const newPassword = document.getElementById("newPassword").value;
+              const msgDiv = document.getElementById("resetMessage");
+              if (!newPassword || newPassword.length < 6) {
+                msgDiv.textContent = "Пароль должен быть не менее 6 символов";
+                msgDiv.className = "message error";
+                msgDiv.style.display = "block";
+                return;
+              }
+              try {
+                const { error } = await supabaseClient.auth.updateUser({
+                  password: newPassword,
+                });
+                if (error) throw error;
+                msgDiv.textContent =
+                  "Пароль успешно изменён! Перенаправляем на страницу входа...";
+                msgDiv.className = "message success";
+                msgDiv.style.display = "block";
+                setTimeout(() => (window.location.href = "login.html"), 2000);
+              } catch (err) {
+                msgDiv.textContent = "Ошибка: " + err.message;
+                msgDiv.className = "message error";
+                msgDiv.style.display = "block";
+              }
+            });
+          return true; // показана форма сброса, обычный профиль не грузим
+        }
+        return false;
+      }
+
       async function loadProfile() {
         const {
           data: { session },
@@ -330,8 +379,11 @@
         if (isAdmin) {
           document.getElementById("adminPanel").style.display = "block";
           loadAllUsers();
+        } else {
+          document.getElementById("adminPanel").style.display = "none";
         }
       }
+
       async function updateName() {
         const newName = document.getElementById("newName").value.trim();
         const msg = document.getElementById("nameMessage");
@@ -358,6 +410,7 @@
           updateAuthHeader();
         }
       }
+
       async function resetPassword() {
         const msg = document.getElementById("passwordMessage");
         msg.textContent = "Отправляем...";
@@ -375,11 +428,12 @@
           setTimeout(() => (msg.style.display = "none"), 5000);
         }
       }
+
       async function loadAllUsers() {
         try {
           const { data, error } = await supabaseClient.rpc("get_all_users");
           if (error) {
-            console.error("RPC get_all_users error:", error);
+            console.error(error);
             document.getElementById("usersList").innerHTML =
               `<p class="message error">Ошибка загрузки: ${escapeHtml(error.message)}</p>`;
             return;
@@ -398,7 +452,6 @@
           });
           html += `</tbody></table></div>`;
           document.getElementById("usersList").innerHTML = html;
-
           document.querySelectorAll(".ban-btn").forEach((btn) =>
             btn.addEventListener("click", async () => {
               const userId = btn.dataset.userId,
@@ -419,11 +472,12 @@
             }),
           );
         } catch (err) {
-          console.error("Ошибка в loadAllUsers:", err);
+          console.error(err);
           document.getElementById("usersList").innerHTML =
             '<p class="message error">Не удалось загрузить пользователей. Проверьте консоль.</p>';
         }
       }
+
       async function updateAuthHeader() {
         const {
           data: { session },
@@ -445,10 +499,15 @@
               if (e.target.id !== "logoutBtn")
                 window.location.href = "profile.html";
             });
+        } else {
+          const authSection = document.getElementById("auth-section");
+          if (authSection)
+            authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
         }
       }
 
       function escapeHtml(str) {
+        if (!str) return "";
         return str.replace(
           /[&<>]/g,
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
@@ -457,8 +516,8 @@
 
       window.addEventListener("load", async () => {
         await updateAuthHeader();
-        const resetMode = await handlePasswordReset();
-        if (!resetMode) {
+        const isResetMode = await handlePasswordReset();
+        if (!isResetMode) {
           await loadProfile();
         }
       });
