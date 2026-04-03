@@ -332,13 +332,12 @@
         }, 1000);
       });
       // Восстановление пароля
-      const forgotLink = document.getElementById("forgotPasswordLink");
-      if (forgotLink) {
-        forgotLink.addEventListener("click", (e) => {
+      document
+        .getElementById("forgotPasswordLink")
+        .addEventListener("click", (e) => {
           e.preventDefault();
           window.location.href = "reset-password.html";
         });
-      }
     </script>
   </body>
 </html>
