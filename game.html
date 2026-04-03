@@ -107,44 +107,73 @@
       }
       .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 28px;
-        margin-bottom: 40px;
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+        gap: 24px;
       }
       .product-card {
         background: #15181f;
         border-radius: 20px;
-        overflow: hidden;
         border: 1px solid #22262e;
         transition: transform 0.2s;
         position: relative;
-        padding: 20px;
-        text-align: center;
+        display: flex;
+        overflow: hidden;
+        cursor: pointer;
       }
       .product-card:hover {
-        transform: translateY(-6px);
+        transform: translateY(-4px);
         border-color: #3b82f6;
+      }
+      .product-image {
+        flex: 0 0 200px;
+        background: #0f1117;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .product-image .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: #1f2329;
+      }
+      .product-details {
+        flex: 1;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       .product-name {
         font-size: 1.3rem;
         font-weight: 700;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
       .product-price {
         font-size: 1.5rem;
         font-weight: bold;
         color: #3b82f6;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
       .btn-buy {
         background: #3b82f6;
         border: none;
-        padding: 10px 24px;
+        padding: 8px 20px;
         border-radius: 40px;
         color: #fff;
         font-weight: 600;
         cursor: pointer;
-        width: 100%;
+        align-self: flex-start;
+        margin-top: 8px;
       }
       .edit-icon,
       .delete-icon {
@@ -156,7 +185,7 @@
         font-size: 0.8rem;
         cursor: pointer;
         color: #fff;
-        z-index: 2;
+        z-index: 3;
       }
       .edit-icon {
         top: 12px;
@@ -183,7 +212,8 @@
         flex-wrap: wrap;
         align-items: flex-end;
       }
-      .admin-controls input {
+      .admin-controls input,
+      .admin-controls textarea {
         background: #1f2329;
         border: 1px solid #2d3138;
         padding: 10px 12px;
@@ -231,9 +261,10 @@
         border-radius: 24px;
         padding: 24px;
         width: 90%;
-        max-width: 400px;
+        max-width: 500px;
       }
-      .modal-content input {
+      .modal-content input,
+      .modal-content textarea {
         width: 100%;
         padding: 10px;
         margin-bottom: 12px;
@@ -258,6 +289,16 @@
         }
         .nav-links {
           justify-content: center;
+        }
+        .products-grid {
+          grid-template-columns: 1fr;
+        }
+        .product-card {
+          flex-direction: column;
+        }
+        .product-image {
+          flex: 0 0 200px;
+          width: 100%;
         }
       }
     </style>
@@ -287,9 +328,7 @@
       <div class="container">
         <div class="page-header"><h1 id="gameTitle">Загрузка...</h1></div>
         <div id="adminPanel" style="display: none"></div>
-        <div id="productsContainer" class="products-grid">
-          Загрузка товаров...
-        </div>
+        <div id="productsContainer" class="products-grid"></div>
       </div>
     </main>
     <footer class="footer">
@@ -325,7 +364,14 @@
           type="text"
           id="editPrice"
           placeholder="Цена"
-        />
+        /><input type="file" id="editImageFile" accept="image/*" /><textarea
+          id="editDescription"
+          rows="4"
+          placeholder="Описание товара"
+        ></textarea>
+        <div style="margin: 8px 0; font-size: 0.75rem; color: #9ca3af">
+          Оставьте изображение пустым, чтобы не менять
+        </div>
         <div style="display: flex; justify-content: flex-end">
           <button id="saveEditBtn">Сохранить</button
           ><button id="cancelEditBtn" style="background: #4b5563">
@@ -357,78 +403,65 @@
           .eq("id", currentGameId)
           .single();
         if (error) {
-          console.error("Ошибка загрузки игры:", error);
+          console.error(error);
           document.getElementById("gameTitle").innerText = "Игра не найдена";
           return;
         }
         document.getElementById("gameTitle").innerText =
           data.name + " — товары и услуги";
       }
+      async function uploadProductImage(file, productId) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `product_${productId}_${Date.now()}.${fileExt}`;
+        const { error } = await supabaseClient.storage
+          .from("game_images")
+          .upload(fileName, file);
+        if (error) throw error;
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
+        return publicUrl;
+      }
       async function loadProducts() {
-        console.log("Загрузка товаров для game_id:", currentGameId);
         const { data, error } = await supabaseClient
           .from("game_products")
           .select("*")
           .eq("game_id", currentGameId)
           .order("id");
         if (error) {
-          console.error("Ошибка загрузки товаров:", error);
+          console.error(error);
           return;
         }
         products = data || [];
-        console.log("Товары:", products);
         renderProducts();
       }
-      async function addToCart(product) {
-        if (!currentUser) {
-          alert("Войдите в аккаунт");
-          window.location.href = "login.html";
-          return;
+      async function saveProduct(product, imageFile = null) {
+        let imageUrl = product.image;
+        if (imageFile) {
+          const tempId = product.id || Date.now();
+          imageUrl = await uploadProductImage(imageFile, tempId);
         }
-        const { data: existing, error: checkError } = await supabaseClient
-          .from("cart")
-          .select("id, quantity")
-          .eq("user_id", currentUser.id)
-          .eq("product_id", product.id)
-          .maybeSingle();
-        if (checkError && checkError.code !== "PGRST116") {
-          alert("Ошибка проверки корзины: " + checkError.message);
-          return;
-        }
-        if (existing) {
-          const { error: updateError } = await supabaseClient
-            .from("cart")
-            .update({ quantity: existing.quantity + 1 })
-            .eq("id", existing.id);
-          if (updateError) alert("Ошибка обновления: " + updateError.message);
-          else alert("Товар добавлен в корзину!");
-        } else {
-          const { error: insertError } = await supabaseClient
-            .from("cart")
-            .insert({
-              user_id: currentUser.id,
-              game_id: currentGameId,
-              product_id: product.id,
-              product_name: product.name,
-              product_price: product.price,
-              quantity: 1,
-            });
-          if (insertError) alert("Ошибка добавления: " + insertError.message);
-          else alert("Товар добавлен в корзину!");
-        }
-      }
-      async function saveProduct(product) {
-        if (product.id)
-          await supabaseClient
+        if (product.id) {
+          const { error } = await supabaseClient
             .from("game_products")
-            .update({ name: product.name, price: product.price })
+            .update({
+              name: product.name,
+              price: product.price,
+              image: imageUrl,
+              description: product.description,
+            })
             .eq("id", product.id);
-        else
-          await supabaseClient.from("game_products").insert({
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from("game_products").insert({
             game_id: currentGameId,
             name: product.name,
             price: product.price,
+            image: imageUrl,
+            description: product.description,
           });
+          if (error) throw error;
+        }
       }
       async function deleteProduct(id) {
         await supabaseClient.from("game_products").delete().eq("id", id);
@@ -443,20 +476,39 @@
         container.innerHTML = products
           .map(
             (prod) => `
-                <div class="product-card">
-                    ${isAdmin ? `<div class="edit-icon" data-id="${prod.id}" data-name="${escapeHtml(prod.name)}" data-price="${escapeHtml(prod.price)}">✏️</div><div class="delete-icon" data-id="${prod.id}">🗑️</div>` : ""}
-                    <div class="product-name">${escapeHtml(prod.name)}</div>
-                    <div class="product-price">${escapeHtml(prod.price)}</div>
-                    <button class="btn-buy" data-id="${prod.id}">Купить</button>
+                <div class="product-card" data-product-id="${prod.id}">
+                    ${isAdmin ? `<div class="edit-icon" data-id="${prod.id}" data-name="${escapeHtml(prod.name)}" data-price="${escapeHtml(prod.price)}" data-image="${escapeHtml(prod.image || "")}" data-description="${escapeHtml(prod.description || "")}">✏️</div><div class="delete-icon" data-id="${prod.id}">🗑️</div>` : ""}
+                    <div class="product-image">${prod.image ? `<img src="${prod.image}" alt="${escapeHtml(prod.name)}">` : '<div class="no-image">🖼️</div>'}</div>
+                    <div class="product-details">
+                        <div class="product-name">${escapeHtml(prod.name)}</div>
+                        <div class="product-price">${escapeHtml(prod.price)}</div>
+                        <button class="btn-buy" data-id="${prod.id}">Купить</button>
+                    </div>
                 </div>
             `,
           )
           .join("");
+        // Клик по карточке (кроме кнопки и иконок) -> страница товара
+        document.querySelectorAll(".product-card").forEach((card) => {
+          card.addEventListener("click", (e) => {
+            if (
+              e.target.classList.contains("btn-buy") ||
+              e.target.classList.contains("edit-icon") ||
+              e.target.classList.contains("delete-icon")
+            )
+              return;
+            const productId = card.dataset.productId;
+            if (productId)
+              window.location.href = `product.html?id=${productId}`;
+          });
+        });
+        // Кнопка "Купить" -> добавление в корзину
         document.querySelectorAll(".btn-buy").forEach((btn) => {
-          btn.addEventListener("click", async () => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
             const productId = parseInt(btn.dataset.id);
             const product = products.find((p) => p.id === productId);
-            if (product) await addToCart(product);
+            if (product) addToCart(product);
           });
         });
         if (isAdmin) {
@@ -467,6 +519,8 @@
                 parseInt(icon.dataset.id),
                 icon.dataset.name,
                 icon.dataset.price,
+                icon.dataset.image,
+                icon.dataset.description,
               );
             }),
           );
@@ -481,16 +535,54 @@
           );
         }
       }
+      async function addToCart(product) {
+        if (!currentUser) {
+          alert("Войдите в аккаунт");
+          window.location.href = "login.html";
+          return;
+        }
+        const { data: existing, error: checkError } = await supabaseClient
+          .from("cart")
+          .select("id, quantity")
+          .eq("user_id", currentUser.id)
+          .eq("product_id", product.id)
+          .maybeSingle();
+        if (checkError && checkError.code !== "PGRST116") {
+          alert("Ошибка проверки корзины");
+          return;
+        }
+        if (existing) {
+          const { error } = await supabaseClient
+            .from("cart")
+            .update({ quantity: existing.quantity + 1 })
+            .eq("id", existing.id);
+          if (error) alert("Ошибка обновления");
+          else alert("Товар добавлен в корзину!");
+        } else {
+          const { error } = await supabaseClient.from("cart").insert({
+            user_id: currentUser.id,
+            game_id: currentGameId,
+            product_id: product.id,
+            product_name: product.name,
+            product_price: product.price,
+            quantity: 1,
+          });
+          if (error) alert("Ошибка добавления");
+          else alert("Товар добавлен в корзину!");
+        }
+      }
       function renderAdminPanel() {
         const container = document.getElementById("adminPanel");
         container.style.display = "block";
         container.innerHTML = `
-        <div class="admin-controls">
-            <input type="text" id="newProductName" placeholder="Название товара">
-            <input type="text" id="newProductPrice" placeholder="Цена (например, 1000 ₽)">
-            <button id="addProductBtn">➕ Добавить товар</button>
-        </div>
-    `;
+                <div class="admin-controls">
+                    <input type="text" id="newProductName" placeholder="Название товара">
+                    <input type="text" id="newProductPrice" placeholder="Цена (например, 1000 ₽)">
+                    <input type="file" id="newProductImage" accept="image/*">
+                    <textarea id="newProductDescription" rows="2" placeholder="Описание товара"></textarea>
+                    <button id="addProductBtn">➕ Добавить товар</button>
+                </div>
+            `;
         document
           .getElementById("addProductBtn")
           .addEventListener("click", async () => {
@@ -498,19 +590,72 @@
             const price = document
               .getElementById("newProductPrice")
               .value.trim();
+            const imageFile =
+              document.getElementById("newProductImage").files[0];
+            const description = document
+              .getElementById("newProductDescription")
+              .value.trim();
             if (!name || !price) {
-              alert("Заполните поля");
+              alert("Заполните название и цену");
               return;
             }
             try {
-              await saveProduct({ name, price });
+              const tempId = Date.now();
+              let imageUrl = null;
+              if (imageFile)
+                imageUrl = await uploadProductImage(imageFile, tempId);
+              await saveProduct(
+                { name, price, image: imageUrl, description },
+                null,
+              );
               await loadProducts();
               document.getElementById("newProductName").value = "";
               document.getElementById("newProductPrice").value = "";
+              document.getElementById("newProductImage").value = "";
+              document.getElementById("newProductDescription").value = "";
             } catch (err) {
               alert("Ошибка добавления: " + err.message);
             }
           });
+      }
+      function openEditModal(id, name, price, imageUrl, description) {
+        editingProductId = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editPrice").value = price;
+        document.getElementById("editImageFile").value = "";
+        document.getElementById("editDescription").value = description || "";
+        document.getElementById("editModal").classList.add("active");
+      }
+      async function saveEdit() {
+        const newName = document.getElementById("editName").value.trim();
+        const newPrice = document.getElementById("editPrice").value.trim();
+        const imageFile = document.getElementById("editImageFile").files[0];
+        const newDescription = document
+          .getElementById("editDescription")
+          .value.trim();
+        if (!newName || !newPrice) {
+          alert("Заполните название и цену");
+          return;
+        }
+        try {
+          let imageUrl = null;
+          if (imageFile)
+            imageUrl = await uploadProductImage(imageFile, editingProductId);
+          await saveProduct(
+            {
+              id: editingProductId,
+              name: newName,
+              price: newPrice,
+              image: imageUrl,
+              description: newDescription,
+            },
+            null,
+          );
+          await loadProducts();
+          document.getElementById("editModal").classList.remove("active");
+        } catch (err) {
+          alert("Ошибка обновления: " + err.message);
+        }
       }
       async function checkAuth() {
         const {
