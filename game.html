@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Товары игры</title>
     <style>
+      /* стили как в предыдущей версии (они уже есть) */
       * {
         margin: 0;
         padding: 0;
@@ -441,12 +442,17 @@
           const tempId = product.id || Date.now();
           imageUrl = await uploadProductImage(imageFile, tempId);
         }
+        // Добавляем символ рубля, если его нет
+        let priceWithRub = product.price;
+        if (priceWithRub && !priceWithRub.includes("₽")) {
+          priceWithRub = priceWithRub + " ₽";
+        }
         if (product.id) {
           const { error } = await supabaseClient
             .from("game_products")
             .update({
               name: product.name,
-              price: product.price,
+              price: priceWithRub,
               image: imageUrl,
               description: product.description,
             })
@@ -456,7 +462,7 @@
           const { error } = await supabaseClient.from("game_products").insert({
             game_id: currentGameId,
             name: product.name,
-            price: product.price,
+            price: priceWithRub,
             image: imageUrl,
             description: product.description,
           });
@@ -577,7 +583,7 @@
         container.innerHTML = `
                 <div class="admin-controls">
                     <input type="text" id="newProductName" placeholder="Название товара">
-                    <input type="text" id="newProductPrice" placeholder="Цена (например, 1000 ₽)">
+                    <input type="text" id="newProductPrice" placeholder="Цена (например, 1000)">
                     <input type="file" id="newProductImage" accept="image/*">
                     <textarea id="newProductDescription" rows="2" placeholder="Описание товара"></textarea>
                     <button id="addProductBtn">➕ Добавить товар</button>
@@ -587,9 +593,7 @@
           .getElementById("addProductBtn")
           .addEventListener("click", async () => {
             const name = document.getElementById("newProductName").value.trim();
-            const price = document
-              .getElementById("newProductPrice")
-              .value.trim();
+            let price = document.getElementById("newProductPrice").value.trim();
             const imageFile =
               document.getElementById("newProductImage").files[0];
             const description = document
@@ -599,6 +603,7 @@
               alert("Заполните название и цену");
               return;
             }
+            if (price && !price.includes("₽")) price = price + " ₽";
             try {
               const tempId = Date.now();
               let imageUrl = null;
@@ -621,14 +626,14 @@
       function openEditModal(id, name, price, imageUrl, description) {
         editingProductId = id;
         document.getElementById("editName").value = name;
-        document.getElementById("editPrice").value = price;
+        document.getElementById("editPrice").value = price.replace(" ₽", "");
         document.getElementById("editImageFile").value = "";
         document.getElementById("editDescription").value = description || "";
         document.getElementById("editModal").classList.add("active");
       }
       async function saveEdit() {
         const newName = document.getElementById("editName").value.trim();
-        const newPrice = document.getElementById("editPrice").value.trim();
+        let newPrice = document.getElementById("editPrice").value.trim();
         const imageFile = document.getElementById("editImageFile").files[0];
         const newDescription = document
           .getElementById("editDescription")
@@ -637,6 +642,7 @@
           alert("Заполните название и цену");
           return;
         }
+        if (newPrice && !newPrice.includes("₽")) newPrice = newPrice + " ₽";
         try {
           let imageUrl = null;
           if (imageFile)
