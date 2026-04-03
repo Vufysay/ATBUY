@@ -11,7 +11,7 @@
         box-sizing: border-box;
       }
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", sans-serif;
         background: #0a0c10;
         color: #eef2ff;
       }
@@ -58,7 +58,7 @@
       }
       .youtube-link {
         background: #ff0000;
-        color: white !important;
+        color: #fff !important;
         padding: 6px 14px;
         border-radius: 30px;
       }
@@ -66,7 +66,7 @@
         background: #3b82f6;
         padding: 8px 22px;
         border-radius: 30px;
-        color: white;
+        color: #fff;
         font-weight: 600;
         text-decoration: none;
       }
@@ -75,9 +75,10 @@
         align-items: center;
         gap: 12px;
         color: #9ca3af;
+        cursor: pointer;
       }
       .logout-btn {
-        background: none;
+        background: 0 0;
         border: 1px solid #3b82f6;
         color: #3b82f6;
         padding: 5px 12px;
@@ -93,7 +94,6 @@
       }
       .reviews-header h1 {
         font-size: 2.5rem;
-        margin-bottom: 16px;
         background: linear-gradient(135deg, #fff, #3b82f6);
         -webkit-background-clip: text;
         background-clip: text;
@@ -115,7 +115,7 @@
       }
       .average-rating .value {
         font-size: 1.8rem;
-        font-weight: bold;
+        font-weight: 700;
         margin: 8px 0;
       }
       .review-form {
@@ -158,7 +158,7 @@
         background: #1f2329;
         border: 1px solid #2d3138;
         border-radius: 16px;
-        color: white;
+        color: #fff;
         font-size: 1rem;
         resize: vertical;
         margin-bottom: 20px;
@@ -168,13 +168,9 @@
         border: none;
         padding: 12px 28px;
         border-radius: 40px;
-        color: white;
+        color: #fff;
         font-weight: 600;
         cursor: pointer;
-      }
-      .review-form button:disabled {
-        background: #4b5563;
-        cursor: not-allowed;
       }
       .reviews-list {
         display: flex;
@@ -217,13 +213,13 @@
         position: absolute;
         top: 16px;
         right: 16px;
-        background: rgba(0, 0, 0, 0.6);
+        background: #0009;
         backdrop-filter: blur(4px);
         border-radius: 30px;
         padding: 4px 10px;
         font-size: 0.8rem;
         cursor: pointer;
-        color: white;
+        color: #fff;
         z-index: 2;
       }
       .edit-review-icon:hover {
@@ -253,7 +249,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: #000c;
         align-items: center;
         justify-content: center;
         z-index: 1000;
@@ -268,9 +264,6 @@
         width: 90%;
         max-width: 450px;
       }
-      .modal-content h3 {
-        margin-bottom: 20px;
-      }
       .modal-content textarea {
         width: 100%;
         padding: 12px;
@@ -278,17 +271,17 @@
         background: #1f2329;
         border: 1px solid #2d3138;
         border-radius: 12px;
-        color: white;
+        color: #fff;
       }
       .modal-content .stars-input {
         margin-bottom: 16px;
       }
       .modal-content button {
         background: #3b82f6;
-        border: none;
-        padding: 10px 20px;
+        border: 0;
+        padding: 8px 16px;
         border-radius: 30px;
-        color: white;
+        color: #fff;
         cursor: pointer;
         margin-right: 12px;
       }
@@ -296,9 +289,6 @@
         .navbar {
           flex-direction: column;
           text-align: center;
-        }
-        .nav-links {
-          justify-content: center;
         }
       }
     </style>
@@ -310,11 +300,9 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a>
-            <a href="cart.html">🛒 Корзина</a>
-            <!-- ← добавить эту строку -->
-            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
-            <a
+            <a href="reviews.html">Отзывы</a><a href="cart.html">🛒 Корзина</a
+            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
+            ><a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -325,27 +313,20 @@
         </div>
       </div>
     </header>
-
     <main class="main">
       <div class="container">
-        <div class="reviews-header">
-          <h1>Отзывы наших клиентов</h1>
-        </div>
-
+        <div class="reviews-header"><h1>Отзывы наших клиентов</h1></div>
         <div id="averageContainer" class="average-rating">
           <div class="stars">★★★★★</div>
           <div class="value">Загрузка...</div>
           <div>средняя оценка</div>
         </div>
-
         <div id="reviewFormContainer"></div>
-
         <div id="reviewsList" class="reviews-list">
           <div class="no-reviews">Загрузка отзывов...</div>
         </div>
       </div>
     </main>
-
     <footer class="footer">
       <div class="container">
         <div class="footer-content">
@@ -355,44 +336,32 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            >
-            <a
+            ><a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            >
-            <a
+            ><a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            >
-            <a
+            ><a
               href="requisites.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Реквизиты</a
-            >
-            <a
-              href="https://t.me/your_telegram"
               style="color: #9ca3af; text-decoration: none"
-              >Telegram</a
+              >Реквизиты</a
             >
           </div>
         </div>
       </div>
     </footer>
-
-    <!-- Модальное окно редактирования отзыва -->
     <div id="editModal" class="modal">
       <div class="modal-content">
         <h3>Редактировать отзыв</h3>
         <div class="rating-input">
           <label>Оценка:</label>
           <div class="stars-input" id="editStarsInput">
-            <span data-rating="1">★</span>
-            <span data-rating="2">★</span>
-            <span data-rating="3">★</span>
-            <span data-rating="4">★</span>
-            <span data-rating="5">★</span>
+            <span data-rating="1">★</span><span data-rating="2">★</span
+            ><span data-rating="3">★</span><span data-rating="4">★</span
+            ><span data-rating="5">★</span>
           </div>
         </div>
         <textarea
@@ -401,14 +370,14 @@
           placeholder="Текст отзыва"
         ></textarea>
         <div style="display: flex; justify-content: flex-end">
-          <button id="saveEditBtn">Сохранить</button>
-          <button id="cancelEditBtn" style="background: #4b5563">Отмена</button>
+          <button id="saveEditBtn">Сохранить</button
+          ><button id="cancelEditBtn" style="background: #4b5563">
+            Отмена
+          </button>
         </div>
       </div>
     </div>
-
     <script>
-      // Используем уникальное имя переменной, чтобы избежать конфликта с глобальным supabase
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
@@ -416,12 +385,12 @@
         SUPABASE_URL,
         SUPABASE_ANON_KEY,
       );
-
-      let currentUser = null;
-      let isAdmin = false;
-      let selectedRating = 0;
-      let editingReviewId = null;
-      let editingCurrentRating = 0;
+      let currentUser = null,
+        isAdmin = false,
+        selectedRating = 0,
+        editingReviewId = null,
+        editingCurrentRating = 0,
+        existingReview = null;
 
       async function getUserName(userId) {
         const { data, error } = await supabaseClient
@@ -432,26 +401,24 @@
         if (error || !data || !data.name) return "Пользователь";
         return data.name;
       }
-
       async function loadReviews() {
         const { data: reviews, error } = await supabaseClient
           .from("reviews")
           .select("*")
           .order("created_at", { ascending: false });
         if (error) {
-          console.error("Ошибка загрузки отзывов:", error);
+          console.error(error);
           return;
         }
         const reviewsWithNames = await Promise.all(
-          reviews.map(async (rev) => {
-            const name = await getUserName(rev.user_id);
-            return { ...rev, userName: name };
-          }),
+          reviews.map(async (rev) => ({
+            ...rev,
+            userName: await getUserName(rev.user_id),
+          })),
         );
         displayReviews(reviewsWithNames);
         calculateAverage(reviewsWithNames);
       }
-
       function displayReviews(reviews) {
         const container = document.getElementById("reviewsList");
         if (!reviews.length) {
@@ -464,151 +431,191 @@
             (rev) => `
                 <div class="review-card" data-review-id="${rev.id}">
                     ${isAdmin ? `<div class="edit-review-icon" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️ Редактировать</div>` : ""}
-                    <div class="review-header">
-                        <span class="review-author">${escapeHtml(rev.userName)}</span>
-                        <span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span>
-                        <span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span>
-                    </div>
+                    <div class="review-header"><span class="review-author">${escapeHtml(rev.userName)}</span><span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span><span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span></div>
                     <div class="review-comment">${escapeHtml(rev.comment)}</div>
                 </div>
             `,
           )
           .join("");
-
         if (isAdmin) {
           document.querySelectorAll(".edit-review-icon").forEach((icon) => {
             icon.addEventListener("click", (e) => {
-              const id = parseInt(icon.dataset.id);
-              const rating = parseInt(icon.dataset.rating);
-              const comment = icon.dataset.comment;
+              const id = parseInt(icon.dataset.id),
+                rating = parseInt(icon.dataset.rating),
+                comment = icon.dataset.comment;
               openEditModal(id, rating, comment);
             });
           });
         }
       }
-
       function calculateAverage(reviews) {
         if (!reviews.length) {
-          document.getElementById("averageContainer").innerHTML = `
-                    <div class="stars">★★★★★</div>
-                    <div class="value">Нет оценок</div>
-                    <div>средняя оценка</div>
-                `;
+          document.getElementById("averageContainer").innerHTML =
+            `<div class="stars">★★★★★</div><div class="value">Нет оценок</div><div>средняя оценка</div>`;
           return;
         }
-        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
-        const avg = (sum / reviews.length).toFixed(1);
-        const fullStars = Math.floor(avg);
-        const halfStar = avg % 1 >= 0.5 ? "½" : "";
+        const sum = reviews.reduce((acc, r) => acc + r.rating, 0),
+          avg = (sum / reviews.length).toFixed(1);
+        const fullStars = Math.floor(avg),
+          halfStar = avg % 1 >= 0.5 ? "½" : "";
         const starsString =
           "★".repeat(fullStars) +
           halfStar +
           "☆".repeat(5 - fullStars - (halfStar ? 1 : 0));
-        document.getElementById("averageContainer").innerHTML = `
-                <div class="stars">${starsString}</div>
-                <div class="value">${avg} / 5</div>
-                <div>средняя оценка (${reviews.length} отзывов)</div>
-            `;
+        document.getElementById("averageContainer").innerHTML =
+          `<div class="stars">${starsString}</div><div class="value">${avg} / 5</div><div>средняя оценка (${reviews.length} отзывов)</div>`;
       }
-
-      function renderReviewForm() {
+      async function loadExistingReview() {
+        if (!currentUser) return null;
+        const { data, error } = await supabaseClient
+          .from("reviews")
+          .select("*")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+        if (error) console.error(error);
+        return data;
+      }
+      async function renderReviewForm() {
         const container = document.getElementById("reviewFormContainer");
         if (!currentUser) {
-          container.innerHTML = `<div style="background:#15181f; border-radius:24px; padding:28px; text-align:center; border:1px solid #2d3138;">
-                    <p>Чтобы оставить отзыв, пожалуйста, <a href="login.html" style="color:#3b82f6;">войдите</a>.</p>
-                </div>`;
+          container.innerHTML = `<div style="background:#15181f; border-radius:24px; padding:28px; text-align:center; border:1px solid #2d3138;"><p>Чтобы оставить отзыв, пожалуйста, <a href="login.html" style="color:#3b82f6;">войдите</a>.</p></div>`;
           return;
         }
-        container.innerHTML = `
-                <div class="review-form">
-                    <h3>Оставить отзыв</h3>
-                    <div class="rating-input">
-                        <label>Ваша оценка:</label>
-                        <div class="stars-input" id="starsInput">
-                            <span data-rating="1">★</span>
-                            <span data-rating="2">★</span>
-                            <span data-rating="3">★</span>
-                            <span data-rating="4">★</span>
-                            <span data-rating="5">★</span>
+        existingReview = await loadExistingReview();
+        if (existingReview) {
+          container.innerHTML = `
+                    <div class="review-form">
+                        <h3>Ваш отзыв (редактирование)</h3>
+                        <div class="rating-input">
+                            <label>Ваша оценка:</label>
+                            <div class="stars-input" id="starsInput">
+                                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
+                            </div>
                         </div>
+                        <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями...">${escapeHtml(existingReview.comment)}</textarea>
+                        <button id="submitReviewBtn">Обновить отзыв</button>
                     </div>
-                    <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями..."></textarea>
-                    <button id="submitReviewBtn">Отправить отзыв</button>
-                </div>
-            `;
-        const starsSpans = document.querySelectorAll("#starsInput span");
-        function updateStars(rating) {
-          starsSpans.forEach((span, idx) => {
-            if (idx < rating) span.classList.add("active");
-            else span.classList.remove("active");
-          });
-          selectedRating = rating;
+                `;
+          const starsSpans = document.querySelectorAll("#starsInput span");
+          function updateStars(rating) {
+            starsSpans.forEach((span, idx) =>
+              idx < rating
+                ? span.classList.add("active")
+                : span.classList.remove("active"),
+            );
+            selectedRating = rating;
+          }
+          starsSpans.forEach((span) =>
+            span.addEventListener("click", () =>
+              updateStars(parseInt(span.dataset.rating)),
+            ),
+          );
+          updateStars(existingReview.rating);
+          document
+            .getElementById("submitReviewBtn")
+            .addEventListener("click", async () => {
+              const comment = document
+                .getElementById("reviewComment")
+                .value.trim();
+              if (selectedRating === 0) {
+                alert("Пожалуйста, выберите оценку");
+                return;
+              }
+              if (!comment) {
+                alert("Напишите текст отзыва");
+                return;
+              }
+              const { error } = await supabaseClient
+                .from("reviews")
+                .update({ rating: selectedRating, comment: comment })
+                .eq("id", existingReview.id);
+              if (error) alert("Ошибка обновления: " + error.message);
+              else {
+                alert("Отзыв обновлён");
+                loadReviews();
+              }
+            });
+        } else {
+          container.innerHTML = `
+                    <div class="review-form">
+                        <h3>Оставить отзыв</h3>
+                        <div class="rating-input">
+                            <label>Ваша оценка:</label>
+                            <div class="stars-input" id="starsInput">
+                                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
+                            </div>
+                        </div>
+                        <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями..."></textarea>
+                        <button id="submitReviewBtn">Отправить отзыв</button>
+                    </div>
+                `;
+          const starsSpans = document.querySelectorAll("#starsInput span");
+          function updateStars(rating) {
+            starsSpans.forEach((span, idx) =>
+              idx < rating
+                ? span.classList.add("active")
+                : span.classList.remove("active"),
+            );
+            selectedRating = rating;
+          }
+          starsSpans.forEach((span) =>
+            span.addEventListener("click", () =>
+              updateStars(parseInt(span.dataset.rating)),
+            ),
+          );
+          updateStars(0);
+          document
+            .getElementById("submitReviewBtn")
+            .addEventListener("click", async () => {
+              const comment = document
+                .getElementById("reviewComment")
+                .value.trim();
+              if (selectedRating === 0) {
+                alert("Пожалуйста, выберите оценку");
+                return;
+              }
+              if (!comment) {
+                alert("Напишите текст отзыва");
+                return;
+              }
+              const { error } = await supabaseClient
+                .from("reviews")
+                .insert({
+                  user_id: currentUser.id,
+                  rating: selectedRating,
+                  comment: comment,
+                });
+              if (error) alert("Ошибка при отправке отзыва: " + error.message);
+              else {
+                alert("Спасибо за отзыв!");
+                loadReviews();
+                renderReviewForm();
+              }
+            });
         }
-        starsSpans.forEach((span) => {
-          span.addEventListener("click", () => {
-            const rating = parseInt(span.dataset.rating);
-            updateStars(rating);
-          });
-        });
-        updateStars(0);
-        document
-          .getElementById("submitReviewBtn")
-          .addEventListener("click", submitReview);
       }
-
-      async function submitReview() {
-        const comment = document.getElementById("reviewComment").value.trim();
-        if (selectedRating === 0) {
-          alert("Пожалуйста, выберите оценку");
-          return;
-        }
-        if (!comment) {
-          alert("Напишите текст отзыва");
-          return;
-        }
-        const { error } = await supabaseClient.from("reviews").insert({
-          user_id: currentUser.id,
-          rating: selectedRating,
-          comment: comment,
-        });
-        if (error) {
-          alert("Ошибка при отправке отзыва: " + error.message);
-          return;
-        }
-        alert("Спасибо за отзыв!");
-        document.getElementById("reviewComment").value = "";
-        selectedRating = 0;
-        const starsSpans = document.querySelectorAll("#starsInput span");
-        starsSpans.forEach((span) => span.classList.remove("active"));
-        loadReviews();
-      }
-
       function openEditModal(id, rating, comment) {
         editingReviewId = id;
         editingCurrentRating = rating;
         document.getElementById("editComment").value = comment;
         const starsSpans = document.querySelectorAll("#editStarsInput span");
         function updateStars(r) {
-          starsSpans.forEach((span, idx) => {
-            if (idx < r) span.classList.add("active");
-            else span.classList.remove("active");
-          });
+          starsSpans.forEach((span, idx) =>
+            idx < r
+              ? span.classList.add("active")
+              : span.classList.remove("active"),
+          );
         }
-        // Удаляем старые обработчики, чтобы не накапливались
-        starsSpans.forEach((span) => {
-          span.removeEventListener("click", starsSpans.clickHandler);
-          const handler = () => {
+        starsSpans.forEach((span) =>
+          span.addEventListener("click", () => {
             const newRating = parseInt(span.dataset.rating);
             updateStars(newRating);
             editingCurrentRating = newRating;
-          };
-          span.addEventListener("click", handler);
-          starsSpans.clickHandler = handler; // сохраняем для возможного удаления, но не обязательно
-        });
+          }),
+        );
         updateStars(rating);
         document.getElementById("editModal").classList.add("active");
       }
-
       async function saveEdit() {
         const newComment = document.getElementById("editComment").value.trim();
         if (!newComment) {
@@ -627,35 +634,24 @@
         document.getElementById("editModal").classList.remove("active");
         loadReviews();
       }
-
       async function checkAuth() {
         const {
           data: { session },
         } = await supabaseClient.auth.getSession();
         if (session) {
           currentUser = session.user;
-          const { data: userData, error } = await supabaseClient
+          const { data: userData } = await supabaseClient
             .from("users")
             .select("is_admin")
             .eq("id", currentUser.id)
             .single();
-          if (!error && userData) {
-            isAdmin = userData.is_admin;
-          } else {
-            isAdmin = currentUser.email === "vufysay@gmail.com";
-          }
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
           const authSection = document.getElementById("auth-section");
-          authSection.innerHTML = `
-    <div class="user-info" id="userMenu">
-        <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
-        <button id="logoutBtn" class="logout-btn">Выйти</button>
-    </div>
-`;
-          // Клик по блоку (кроме кнопки выхода) ведёт в профиль
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
           document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn") {
+            if (e.target.id !== "logoutBtn")
               window.location.href = "profile.html";
-            }
           });
           document
             .getElementById("logoutBtn")
@@ -673,16 +669,12 @@
         renderReviewForm();
         loadReviews();
       }
-
       function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function (m) {
-          if (m === "&") return "&amp;";
-          if (m === "<") return "&lt;";
-          if (m === ">") return "&gt;";
-          return m;
-        });
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
       }
-
       window.addEventListener("load", async () => {
         await checkAuth();
         document
@@ -690,9 +682,9 @@
           .addEventListener("click", saveEdit);
         document
           .getElementById("cancelEditBtn")
-          .addEventListener("click", () => {
-            document.getElementById("editModal").classList.remove("active");
-          });
+          .addEventListener("click", () =>
+            document.getElementById("editModal").classList.remove("active"),
+          );
       });
     </script>
   </body>
