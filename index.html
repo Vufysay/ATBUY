@@ -106,6 +106,40 @@
         background-clip: text;
         color: transparent;
       }
+      .hero p {
+        color: #9ca3af;
+      }
+      .stats {
+        background: #15181f;
+        border-radius: 30px;
+        padding: 20px;
+        margin-bottom: 48px;
+        border: 1px solid #2d3138;
+      }
+      .stats h2 {
+        font-size: 1.4rem;
+        margin-bottom: 16px;
+        color: #3b82f6;
+        text-align: center;
+      }
+      .stats-grid {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+      .stat-item {
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fbbf24;
+      }
+      .stat-label {
+        color: #9ca3af;
+        margin-top: 4px;
+      }
       .search-box {
         max-width: 600px;
         margin: 0 auto 48px;
@@ -261,6 +295,9 @@
         .nav-links {
           justify-content: center;
         }
+        .stats-grid {
+          gap: 20px;
+        }
         .games-grid {
           grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         }
@@ -293,6 +330,23 @@
         <div class="hero">
           <h1>ИГРЫ</h1>
           <p>Цифровые товары для геймеров</p>
+        </div>
+        <div class="stats">
+          <h2>Нас уже выбрали</h2>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">10 000+</div>
+              <div class="stat-label">Довольных клиентов</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">50+</div>
+              <div class="stat-label">Игр в каталоге</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Поддержка</div>
+            </div>
+          </div>
         </div>
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="Поиск игры..." />
@@ -357,7 +411,6 @@
         isAdmin = false,
         games = [],
         editingGameId = null;
-
       async function uploadImage(file, gameId) {
         const fileExt = file.name.split(".").pop();
         const fileName = `${gameId}_${Date.now()}.${fileExt}`;
@@ -370,7 +423,6 @@
         } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
         return publicUrl;
       }
-
       async function loadGames() {
         const { data, error } = await supabaseClient
           .from("games")
@@ -385,7 +437,6 @@
         games = data || [];
         renderGames();
       }
-
       async function saveGame(game, imageFile = null) {
         let imageUrl = game.image;
         if (imageFile) {
@@ -407,7 +458,6 @@
           return data[0];
         }
       }
-
       async function deleteGame(id) {
         const game = games.find((g) => g.id === id);
         if (game && game.image && game.image.includes("game_images")) {
@@ -420,7 +470,6 @@
           .eq("id", id);
         if (error) throw error;
       }
-
       function renderGames(filter = "") {
         const container = document.getElementById("gamesContainer");
         const filtered = games.filter((g) =>
@@ -436,17 +485,12 @@
             const isImageUrl =
               game.image &&
               (game.image.startsWith("http") || game.image.startsWith("https"));
-            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">
-                    ${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}
-                    <div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div>
-                    <div class="game-title">${escapeHtml(game.name)}</div>
-                </div>`;
+            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}<div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div><div class="game-title">${escapeHtml(game.name)}</div></div>`;
           })
           .join("");
         if (isAdmin)
           html += `<div class="game-card admin-add-card" id="addGameCard"><div class="card-image">➕</div><div class="game-title">Добавить игру</div></div>`;
         container.innerHTML = html;
-
         document
           .querySelectorAll(".game-card:not(.admin-add-card)")
           .forEach((card) =>
@@ -507,7 +551,6 @@
             });
         }
       }
-
       function openEditModal(id, name, img) {
         editingGameId = id;
         document.getElementById("editName").value = name;
@@ -529,7 +572,6 @@
           alert(err.message);
         }
       }
-
       async function checkAuth() {
         const {
           data: { session },
@@ -544,12 +586,7 @@
             .single();
           isAdmin =
             userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          authSection.innerHTML = `
-            <div class="user-info" id="userMenu">
-                <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
-                <button id="logoutBtn" class="logout-btn">Выйти</button>
-            </div>
-        `;
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
           document
             .getElementById("userMenu")
             ?.addEventListener("click", (e) => {
@@ -569,7 +606,6 @@
         }
         await loadGames();
       }
-
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
