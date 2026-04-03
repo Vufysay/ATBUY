@@ -162,16 +162,7 @@
       .option-quantity {
         display: flex;
         align-items: center;
-        gap: 6px;
-      }
-      .option-quantity input {
-        width: 50px;
-        text-align: center;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        color: #fff;
-        border-radius: 8px;
-        padding: 4px;
+        gap: 8px;
       }
       .option-quantity button {
         background: #1f2329;
@@ -181,6 +172,21 @@
         height: 28px;
         border-radius: 6px;
         cursor: pointer;
+      }
+      .option-quantity input {
+        width: 50px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        color: #fff;
+        border-radius: 6px;
+        text-align: center;
+        padding: 4px;
+      }
+      .option-total {
+        color: #fbbf24;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: right;
       }
       .admin-option-controls {
         display: flex;
@@ -450,7 +456,6 @@
           .order("id");
         if (error) console.error(error);
         else productOptions = data || [];
-        // Инициализируем количества, если ещё не заданы
         productOptions.forEach((opt) => {
           if (selectedOptionQuantities[opt.id] === undefined)
             selectedOptionQuantities[opt.id] = 0;
@@ -467,6 +472,7 @@
         const optionsHtml = productOptions
           .map((opt) => {
             const qty = selectedOptionQuantities[opt.id] || 0;
+            const optTotal = opt.price * qty;
             return `
                     <div class="option-item">
                         <span class="option-name">${escapeHtml(opt.name)}</span>
@@ -476,6 +482,7 @@
                             <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
                             <button class="opt-plus" data-id="${opt.id}">+</button>
                         </div>
+                        <span class="option-total">${optTotal > 0 ? `${optTotal} ₽` : ""}</span>
                         ${
                           isAdmin
                             ? `
@@ -516,7 +523,7 @@
                     </div>
                 </div>
             `;
-        // Обработчики кнопок +/-
+        // Обработчики изменения количества (кнопки + ручной ввод)
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
@@ -533,12 +540,11 @@
             renderProductPage(gameLink, gameName);
           });
         });
-        // Обработчики ручного ввода
         document.querySelectorAll(".opt-qty-input").forEach((input) => {
-          input.addEventListener("change", () => {
+          input.addEventListener("change", (e) => {
+            const id = parseInt(input.dataset.id);
             let val = parseInt(input.value);
             if (isNaN(val) || val < 0) val = 0;
-            const id = parseInt(input.dataset.id);
             selectedOptionQuantities[id] = val;
             renderProductPage(gameLink, gameName);
           });
