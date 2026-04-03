@@ -130,6 +130,88 @@
         margin-bottom: 32px;
         color: #cbd5e1;
       }
+      .options-section {
+        background: #1f2329;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .options-section h3 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .option-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 8px;
+        border-radius: 12px;
+        background: #15181f;
+        flex-wrap: wrap;
+      }
+      .option-name {
+        flex: 2;
+        font-weight: 500;
+      }
+      .option-price {
+        color: #3b82f6;
+        font-weight: 600;
+      }
+      .option-quantity {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .option-quantity button {
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        color: #fff;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .admin-option-controls {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .admin-option-controls button {
+        background: #4b5563;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.7rem;
+      }
+      .admin-option-controls button:hover {
+        background: #3b82f6;
+      }
+      .add-option-form {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .add-option-form input {
+        flex: 1;
+        padding: 8px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: #fff;
+      }
+      .add-option-form button {
+        background: #3b82f6;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+      }
       .btn-add-to-cart {
         background: #3b82f6;
         border: none;
@@ -139,6 +221,7 @@
         font-weight: 700;
         cursor: pointer;
         font-size: 1.1rem;
+        width: 100%;
       }
       .edit-icon {
         display: inline-block;
@@ -171,6 +254,7 @@
         width: 90%;
         max-width: 500px;
       }
+      .modal-content input,
       .modal-content textarea {
         width: 100%;
         padding: 12px;
@@ -279,6 +363,26 @@
         </div>
       </div>
     </div>
+    <div id="editOptionModal" class="modal">
+      <div class="modal-content">
+        <h3>Редактировать опцию</h3>
+        <input
+          type="text"
+          id="editOptionName"
+          placeholder="Название опции"
+        /><input
+          type="number"
+          id="editOptionPrice"
+          placeholder="Дополнительная цена (₽)"
+        />
+        <div style="display: flex; justify-content: flex-end">
+          <button id="saveOptionBtn">Сохранить</button
+          ><button id="cancelOptionBtn" style="background: #4b5563">
+            Отмена
+          </button>
+        </div>
+      </div>
+    </div>
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
@@ -289,7 +393,10 @@
       );
       let currentUser = null,
         isAdmin = false,
-        currentProduct = null;
+        currentProduct = null,
+        productOptions = [],
+        selectedOptionQuantities = {};
+
       async function loadProduct() {
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get("id");
@@ -310,7 +417,7 @@
           return;
         }
         currentProduct = data;
-        // Загружаем игру только для ссылки "назад" (необязательно)
+        await loadOptions();
         let gameLink = "#",
           gameName = "игра";
         if (currentProduct.game_id) {
@@ -324,6 +431,68 @@
             gameLink = `game.html?id=${game.id}`;
           }
         }
+        renderProductPage(gameLink, gameName);
+      }
+      async function loadOptions() {
+        const { data, error } = await supabaseClient
+          .from("product_options")
+          .select("*")
+          .eq("product_id", currentProduct.id)
+          .order("id");
+        if (error) console.error(error);
+        else productOptions = data || [];
+        // Инициализируем количества, если ещё не заданы
+        productOptions.forEach((opt) => {
+          if (selectedOptionQuantities[opt.id] === undefined)
+            selectedOptionQuantities[opt.id] = 0;
+        });
+      }
+      function renderProductPage(gameLink, gameName) {
+        const basePrice = parsePrice(currentProduct.price);
+        let totalPrice = basePrice;
+        for (let id in selectedOptionQuantities) {
+          const qty = selectedOptionQuantities[id];
+          const opt = productOptions.find((o) => o.id == id);
+          if (opt && qty > 0) totalPrice += opt.price * qty;
+        }
+        const optionsHtml = productOptions
+          .map((opt) => {
+            const qty = selectedOptionQuantities[opt.id] || 0;
+            return `
+                    <div class="option-item">
+                        <span class="option-name">${escapeHtml(opt.name)}</span>
+                        <span class="option-price">+${opt.price} ₽</span>
+                        <div class="option-quantity">
+                            <button class="opt-minus" data-id="${opt.id}">-</button>
+                            <span class="opt-qty">${qty}</span>
+                            <button class="opt-plus" data-id="${opt.id}">+</button>
+                        </div>
+                        ${
+                          isAdmin
+                            ? `
+                            <div class="admin-option-controls">
+                                <button class="edit-option-btn" data-id="${opt.id}" data-name="${escapeHtml(opt.name)}" data-price="${opt.price}">✏️</button>
+                                <button class="delete-option-btn" data-id="${opt.id}">🗑️</button>
+                            </div>
+                        `
+                            : ""
+                        }
+                    </div>
+                `;
+          })
+          .join("");
+        const addOptionHtml = isAdmin
+          ? `
+                <div class="add-option-form">
+                    <input type="text" id="newOptionName" placeholder="Название опции">
+                    <input type="number" id="newOptionPrice" placeholder="Цена (₽)">
+                    <button id="addOptionBtn">➕ Добавить опцию</button>
+                </div>
+            `
+          : "";
+        const totalPriceHtml = productOptions.length
+          ? `<div style="margin:16px 0; font-size:1.2rem;">Итого: <strong style="color:#fbbf24;">${totalPrice} ₽</strong></div>`
+          : "";
         document.getElementById("productContainer").innerHTML = `
                 <div class="product-container">
                     <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
@@ -331,57 +500,180 @@
                         <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
                         <div class="product-price">${escapeHtml(currentProduct.price)}</div>
                         <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
+                        ${productOptions.length ? `<div class="options-section"><h3>Дополнительные опции</h3>${optionsHtml}${addOptionHtml}</div>` : isAdmin ? `<div class="options-section"><h3>Дополнительные опции</h3>${addOptionHtml}</div>` : ""}
+                        ${totalPriceHtml}
                         <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
                         <div style="margin-top:16px;"><a href="${gameLink}" style="color:#3b82f6;">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
                     </div>
                 </div>
             `;
+        // Обработчики изменения количества опций
+        document.querySelectorAll(".opt-plus").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = parseInt(btn.dataset.id);
+            selectedOptionQuantities[id] =
+              (selectedOptionQuantities[id] || 0) + 1;
+            renderProductPage(gameLink, gameName);
+          });
+        });
+        document.querySelectorAll(".opt-minus").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = parseInt(btn.dataset.id);
+            if (selectedOptionQuantities[id] > 0)
+              selectedOptionQuantities[id]--;
+            renderProductPage(gameLink, gameName);
+          });
+        });
         document
           .getElementById("addToCartBtn")
-          .addEventListener("click", async () => {
-            if (!currentUser) {
-              alert("Войдите в аккаунт");
-              window.location.href = "login.html";
-              return;
-            }
-            const { data: existing, error: checkError } = await supabaseClient
-              .from("cart")
-              .select("id, quantity")
-              .eq("user_id", currentUser.id)
-              .eq("product_id", currentProduct.id)
-              .maybeSingle();
-            if (checkError && checkError.code !== "PGRST116") {
-              alert("Ошибка проверки корзины");
-              return;
-            }
-            if (existing) {
-              const { error } = await supabaseClient
-                .from("cart")
-                .update({ quantity: existing.quantity + 1 })
-                .eq("id", existing.id);
-              if (error) alert("Ошибка обновления");
-              else alert("Товар добавлен в корзину!");
-            } else {
-              const { error } = await supabaseClient.from("cart").insert({
-                user_id: currentUser.id,
-                game_id: currentProduct.game_id,
-                product_id: currentProduct.id,
-                product_name: currentProduct.name,
-                product_price: currentProduct.price,
-                quantity: 1,
-              });
-              if (error) alert("Ошибка добавления");
-              else alert("Товар добавлен в корзину!");
-            }
-          });
+          .addEventListener("click", () => addToCart());
         if (isAdmin) {
           document
             .getElementById("editDescriptionBtn")
-            .addEventListener("click", () => {
+            ?.addEventListener("click", () => {
               document.getElementById("editDescription").value =
                 currentProduct.description || "";
               document.getElementById("editModal").classList.add("active");
             });
+          document.querySelectorAll(".edit-option-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              const id = parseInt(btn.dataset.id);
+              const name = btn.dataset.name;
+              const price = parseInt(btn.dataset.price);
+              openEditOptionModal(id, name, price);
+            });
+          });
+          document.querySelectorAll(".delete-option-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              if (confirm("Удалить опцию?")) {
+                await deleteOption(parseInt(btn.dataset.id));
+                await loadOptions();
+                renderProductPage(gameLink, gameName);
+              }
+            });
+          });
+          const addBtn = document.getElementById("addOptionBtn");
+          if (addBtn)
+            addBtn.addEventListener("click", async () => {
+              const name = document
+                .getElementById("newOptionName")
+                .value.trim();
+              const price = parseInt(
+                document.getElementById("newOptionPrice").value,
+              );
+              if (!name || isNaN(price) || price < 0) {
+                alert("Введите название и корректную цену");
+                return;
+              }
+              await addOption(name, price);
+              await loadOptions();
+              renderProductPage(gameLink, gameName);
+              document.getElementById("newOptionName").value = "";
+              document.getElementById("newOptionPrice").value = "";
+            });
+        }
+      }
+      async function addOption(name, price) {
+        const { error } = await supabaseClient
+          .from("product_options")
+          .insert({ product_id: currentProduct.id, name, price });
+        if (error) alert("Ошибка добавления: " + error.message);
+      }
+      async function updateOption(id, name, price) {
+        const { error } = await supabaseClient
+          .from("product_options")
+          .update({ name, price })
+          .eq("id", id);
+        if (error) alert("Ошибка обновления: " + error.message);
+      }
+      async function deleteOption(id) {
+        const { error } = await supabaseClient
+          .from("product_options")
+          .delete()
+          .eq("id", id);
+        if (error) alert("Ошибка удаления: " + error.message);
+      }
+      function openEditOptionModal(id, name, price) {
+        document.getElementById("editOptionName").value = name;
+        document.getElementById("editOptionPrice").value = price;
+        document.getElementById("editOptionModal").classList.add("active");
+        document.getElementById("saveOptionBtn").onclick = async () => {
+          const newName = document
+            .getElementById("editOptionName")
+            .value.trim();
+          const newPrice = parseInt(
+            document.getElementById("editOptionPrice").value,
+          );
+          if (!newName || isNaN(newPrice)) {
+            alert("Заполните поля");
+            return;
+          }
+          await updateOption(id, newName, newPrice);
+          await loadOptions();
+          renderProductPage("#", "");
+          document.getElementById("editOptionModal").classList.remove("active");
+        };
+        document.getElementById("cancelOptionBtn").onclick = () =>
+          document.getElementById("editOptionModal").classList.remove("active");
+      }
+      async function addToCart() {
+        if (!currentUser) {
+          alert("Войдите в аккаунт");
+          window.location.href = "login.html";
+          return;
+        }
+        let basePrice = parsePrice(currentProduct.price);
+        let totalPrice = basePrice;
+        let selectedOptionsList = [];
+        for (let id in selectedOptionQuantities) {
+          const qty = selectedOptionQuantities[id];
+          if (qty > 0) {
+            const opt = productOptions.find((o) => o.id == id);
+            if (opt) {
+              totalPrice += opt.price * qty;
+              selectedOptionsList.push({
+                id: opt.id,
+                name: opt.name,
+                price: opt.price,
+                quantity: qty,
+              });
+            }
+          }
+        }
+        // Поиск существующего товара в корзине с точно такими же опциями (сравниваем JSON)
+        const { data: existing, error: checkError } = await supabaseClient
+          .from("cart")
+          .select("id, quantity, options")
+          .eq("user_id", currentUser.id)
+          .eq("product_id", currentProduct.id)
+          .maybeSingle();
+        if (checkError && checkError.code !== "PGRST116") {
+          alert("Ошибка проверки корзины");
+          return;
+        }
+        let existingOptions = existing?.options || [];
+        let sameOptions =
+          JSON.stringify(selectedOptionsList) ===
+          JSON.stringify(existingOptions);
+        if (existing && sameOptions) {
+          const { error } = await supabaseClient
+            .from("cart")
+            .update({ quantity: existing.quantity + 1 })
+            .eq("id", existing.id);
+          if (error) alert("Ошибка обновления");
+          else alert("Товар добавлен в корзину!");
+        } else {
+          const { error } = await supabaseClient.from("cart").insert({
+            user_id: currentUser.id,
+            game_id: currentProduct.game_id,
+            product_id: currentProduct.id,
+            product_name: currentProduct.name,
+            product_price: totalPrice.toString() + " ₽",
+            quantity: 1,
+            options: selectedOptionsList,
+          });
+          if (error) alert("Ошибка добавления");
+          else alert("Товар добавлен в корзину!");
         }
       }
       async function saveDescription() {
@@ -397,6 +689,9 @@
           alert("Описание обновлено");
           location.reload();
         }
+      }
+      function parsePrice(priceStr) {
+        return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
       }
       async function checkAuth() {
         const {

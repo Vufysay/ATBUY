@@ -131,6 +131,11 @@
         font-weight: 600;
         margin-bottom: 5px;
       }
+      .item-options {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 4px;
+      }
       .item-price {
         color: #3b82f6;
         font-weight: 600;
@@ -380,10 +385,15 @@
           const priceNum = parsePrice(item.product_price);
           const itemTotal = priceNum * item.quantity;
           total += itemTotal;
+          let optionsHtml = "";
+          if (item.options && item.options.length) {
+            optionsHtml = `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>`;
+          }
           html += `
                     <div class="cart-item" data-id="${item.id}">
                         <div class="item-info">
                             <div class="item-name">${escapeHtml(item.product_name)}</div>
+                            ${optionsHtml}
                             <div class="item-price">${escapeHtml(item.product_price)}</div>
                         </div>
                         <div class="item-quantity">
