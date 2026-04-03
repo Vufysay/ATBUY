@@ -141,16 +141,17 @@
         margin-bottom: 16px;
         color: #3b82f6;
       }
-      .option-search {
+      .options-search {
         margin-bottom: 16px;
       }
-      .option-search input {
+      .options-search input {
         width: 100%;
-        padding: 8px;
+        padding: 10px;
         background: #0f1117;
         border: 1px solid #2d3138;
         border-radius: 12px;
         color: #fff;
+        outline: none;
       }
       .option-item {
         display: flex;
@@ -175,6 +176,15 @@
         align-items: center;
         gap: 8px;
       }
+      .option-quantity input {
+        width: 60px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 8px;
+        color: #fff;
+        text-align: center;
+        padding: 4px;
+      }
       .option-quantity button {
         background: #1f2329;
         border: 1px solid #2d3138;
@@ -184,19 +194,10 @@
         border-radius: 6px;
         cursor: pointer;
       }
-      .option-quantity input {
-        width: 50px;
-        text-align: center;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 6px;
-        color: #fff;
-        padding: 4px;
-      }
       .option-total {
         color: #fbbf24;
         font-weight: 600;
-        min-width: 100px;
+        min-width: 80px;
         text-align: right;
       }
       .admin-option-controls {
@@ -422,7 +423,7 @@
         currentProduct = null,
         productOptions = [],
         selectedOptionQuantities = {},
-        optionSearchTerm = "";
+        optionsSearchTerm = "";
 
       async function loadProduct() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -465,7 +466,7 @@
           .from("product_options")
           .select("*")
           .eq("product_id", currentProduct.id)
-          .order("name"); // сортировка по алфавиту
+          .order("name");
         if (error) console.error(error);
         else productOptions = data || [];
         productOptions.forEach((opt) => {
@@ -476,13 +477,11 @@
       function renderProductPage(gameLink, gameName) {
         const basePrice = parsePrice(currentProduct.price);
         let totalPrice = basePrice;
-        const filteredOptions = productOptions.filter((opt) =>
-          opt.name.toLowerCase().includes(optionSearchTerm.toLowerCase()),
-        );
-        for (let id in selectedOptionQuantities) {
-          const qty = selectedOptionQuantities[id];
-          const opt = productOptions.find((o) => o.id == id);
-          if (opt && qty > 0) totalPrice += opt.price * qty;
+        let filteredOptions = productOptions;
+        if (optionsSearchTerm.trim() !== "") {
+          filteredOptions = productOptions.filter((opt) =>
+            opt.name.toLowerCase().includes(optionsSearchTerm.toLowerCase()),
+          );
         }
         const optionsHtml = filteredOptions
           .map((opt) => {
@@ -512,14 +511,12 @@
                 `;
           })
           .join("");
-        const showSearch = productOptions.length > 5;
-        const searchHtml = showSearch
-          ? `
-                <div class="option-search">
-                    <input type="text" id="optionSearch" placeholder="Поиск опций..." value="${escapeHtml(optionSearchTerm)}">
-                </div>
-            `
-          : "";
+        // Пересчёт итоговой цены
+        for (let id in selectedOptionQuantities) {
+          const qty = selectedOptionQuantities[id];
+          const opt = productOptions.find((o) => o.id == id);
+          if (opt && qty > 0) totalPrice += opt.price * qty;
+        }
         const addOptionHtml = isAdmin
           ? `
                 <div class="add-option-form">
@@ -529,6 +526,14 @@
                 </div>
             `
           : "";
+        const searchHtml =
+          productOptions.length > 0
+            ? `
+                <div class="options-search">
+                    <input type="text" id="optionsSearchInput" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsSearchTerm)}">
+                </div>
+            `
+            : "";
         const totalPriceHtml = productOptions.length
           ? `<div style="margin:16px 0; font-size:1.2rem;">Итого: <strong style="color:#fbbf24;">${totalPrice} ₽</strong></div>`
           : "";
@@ -546,7 +551,15 @@
                     </div>
                 </div>
             `;
-        // Обработчики изменения количества (кнопки и ручной ввод)
+        // Поиск
+        const searchInput = document.getElementById("optionsSearchInput");
+        if (searchInput) {
+          searchInput.addEventListener("input", (e) => {
+            optionsSearchTerm = e.target.value;
+            renderProductPage(gameLink, gameName);
+          });
+        }
+        // Кнопки +/-
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
@@ -563,6 +576,7 @@
             renderProductPage(gameLink, gameName);
           });
         });
+        // Ручной ввод количества
         document.querySelectorAll(".opt-qty-input").forEach((input) => {
           input.addEventListener("change", (e) => {
             const id = parseInt(input.dataset.id);
@@ -572,14 +586,6 @@
             renderProductPage(gameLink, gameName);
           });
         });
-        if (showSearch) {
-          document
-            .getElementById("optionSearch")
-            .addEventListener("input", (e) => {
-              optionSearchTerm = e.target.value;
-              renderProductPage(gameLink, gameName);
-            });
-        }
         document
           .getElementById("addToCartBtn")
           .addEventListener("click", () => addToCart());
