@@ -162,7 +162,16 @@
       .option-quantity {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+      }
+      .option-quantity input {
+        width: 50px;
+        text-align: center;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        color: #fff;
+        border-radius: 8px;
+        padding: 4px;
       }
       .option-quantity button {
         background: #1f2329;
@@ -464,7 +473,7 @@
                         <span class="option-price">+${opt.price} ₽</span>
                         <div class="option-quantity">
                             <button class="opt-minus" data-id="${opt.id}">-</button>
-                            <span class="opt-qty">${qty}</span>
+                            <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
                             <button class="opt-plus" data-id="${opt.id}">+</button>
                         </div>
                         ${
@@ -507,7 +516,7 @@
                     </div>
                 </div>
             `;
-        // Обработчики изменения количества опций
+        // Обработчики кнопок +/-
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
@@ -521,6 +530,16 @@
             const id = parseInt(btn.dataset.id);
             if (selectedOptionQuantities[id] > 0)
               selectedOptionQuantities[id]--;
+            renderProductPage(gameLink, gameName);
+          });
+        });
+        // Обработчики ручного ввода
+        document.querySelectorAll(".opt-qty-input").forEach((input) => {
+          input.addEventListener("change", () => {
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 0) val = 0;
+            const id = parseInt(input.dataset.id);
+            selectedOptionQuantities[id] = val;
             renderProductPage(gameLink, gameName);
           });
         });
@@ -640,7 +659,6 @@
             }
           }
         }
-        // Поиск существующего товара в корзине с точно такими же опциями (сравниваем JSON)
         const { data: existing, error: checkError } = await supabaseClient
           .from("cart")
           .select("id, quantity, options")
