@@ -130,11 +130,16 @@
         margin-bottom: 24px;
         color: #cbd5e1;
       }
+      .action-and-options {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
       .action-block {
+        flex: 1;
         background: #1f2329;
         border-radius: 20px;
         padding: 20px;
-        margin-bottom: 24px;
       }
       .total-price {
         font-size: 1.4rem;
@@ -159,9 +164,9 @@
         display: inline-block;
         color: #3b82f6;
         text-decoration: none;
-        margin-top: 8px;
       }
       .options-section {
+        flex: 2;
         background: #1f2329;
         border-radius: 20px;
         padding: 20px;
@@ -338,6 +343,9 @@
         .product-container {
           flex-direction: column;
         }
+        .action-and-options {
+          flex-direction: column;
+        }
       }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -441,6 +449,8 @@
         productOptions = [],
         selectedOptionQuantities = {},
         optionsFilter = "";
+      let gameLink = "#",
+        gameName = "игра";
 
       async function loadProduct() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -463,8 +473,6 @@
         }
         currentProduct = data;
         await loadOptions();
-        let gameLink = "#",
-          gameName = "игра";
         if (currentProduct.game_id) {
           const { data: game, error: gameError } = await supabaseClient
             .from("games")
@@ -476,7 +484,8 @@
             gameLink = `game.html?id=${game.id}`;
           }
         }
-        renderProductPage(gameLink, gameName);
+        renderStaticPart();
+        renderOptionsList();
       }
       async function loadOptions() {
         const { data, error } = await supabaseClient
@@ -491,7 +500,7 @@
             selectedOptionQuantities[opt.id] = 0;
         });
       }
-      function renderProductPage(gameLink, gameName) {
+      function renderStaticPart() {
         const basePrice = parsePrice(currentProduct.price);
         let totalPrice = basePrice;
         for (let id in selectedOptionQuantities) {
@@ -499,10 +508,80 @@
           const opt = productOptions.find((o) => o.id == id);
           if (opt && qty > 0) totalPrice += opt.price * qty;
         }
-        const filteredOptions = productOptions.filter((opt) =>
+        document.getElementById("productContainer").innerHTML = `
+                <div class="product-container">
+                    <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
+                    <div class="product-details">
+                        <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
+                        <div class="product-price">${escapeHtml(currentProduct.price)}</div>
+                        <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
+                        <div class="action-and-options">
+                            <div class="action-block">
+                                <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
+                                <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
+                                <div style="margin-top:12px;"><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
+                            </div>
+                            <div class="options-section">
+                                <h3>Дополнительные опции</h3>
+                                ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
+                                <div id="optionsList"></div>
+                                ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        document
+          .getElementById("addToCartBtn")
+          .addEventListener("click", () => addToCart());
+        if (isAdmin) {
+          document
+            .getElementById("editDescriptionBtn")
+            ?.addEventListener("click", () => {
+              document.getElementById("editDescription").value =
+                currentProduct.description || "";
+              document.getElementById("editModal").classList.add("active");
+            });
+          const addBtn = document.getElementById("addOptionBtn");
+          if (addBtn)
+            addBtn.addEventListener("click", async () => {
+              const name = document
+                .getElementById("newOptionName")
+                .value.trim();
+              const price = parseInt(
+                document.getElementById("newOptionPrice").value,
+              );
+              if (!name || isNaN(price) || price < 0) {
+                alert("Введите название и корректную цену");
+                return;
+              }
+              await addOption(name, price);
+              await loadOptions();
+              renderOptionsList();
+              document.getElementById("newOptionName").value = "";
+              document.getElementById("newOptionPrice").value = "";
+            });
+        }
+        const searchInput = document.getElementById("searchOptions");
+        if (searchInput) {
+          searchInput.addEventListener("input", (e) => {
+            optionsFilter = e.target.value;
+            renderOptionsList();
+          });
+        }
+      }
+      function renderOptionsList() {
+        const container = document.getElementById("optionsList");
+        if (!container) return;
+        const filtered = productOptions.filter((opt) =>
           opt.name.toLowerCase().includes(optionsFilter.toLowerCase()),
         );
-        const optionsHtml = filteredOptions
+        if (!filtered.length) {
+          container.innerHTML =
+            '<div style="text-align:center; padding:20px;">Опции не найдены</div>';
+          return;
+        }
+        container.innerHTML = filtered
           .map((opt) => {
             const qty = selectedOptionQuantities[opt.id] || 0;
             const optionTotal = opt.price * qty;
@@ -530,41 +609,15 @@
                 `;
           })
           .join("");
-        const addOptionHtml = isAdmin
-          ? `
-                <div class="add-option-form">
-                    <input type="text" id="newOptionName" placeholder="Название опции">
-                    <input type="number" id="newOptionPrice" placeholder="Цена (₽)">
-                    <button id="addOptionBtn">➕ Добавить опцию</button>
-                </div>
-            `
-          : "";
-        const searchHtml = productOptions.length
-          ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>`
-          : "";
-        document.getElementById("productContainer").innerHTML = `
-                <div class="product-container">
-                    <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
-                    <div class="product-details">
-                        <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
-                        <div class="product-price">${escapeHtml(currentProduct.price)}</div>
-                        <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
-                        <div class="action-block">
-                            <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
-                            <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
-                            <a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a>
-                        </div>
-                        ${productOptions.length ? `<div class="options-section"><h3>Дополнительные опции</h3>${searchHtml}<div id="optionsList">${optionsHtml}</div>${addOptionHtml}</div>` : isAdmin ? `<div class="options-section"><h3>Дополнительные опции</h3>${addOptionHtml}</div>` : ""}
-                    </div>
-                </div>
-            `;
-        // Обработчики изменения количества опций
+        attachOptionHandlers();
+      }
+      function attachOptionHandlers() {
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
             selectedOptionQuantities[id] =
               (selectedOptionQuantities[id] || 0) + 1;
-            renderProductPage(gameLink, gameName);
+            updateTotalAndOptions();
           });
         });
         document.querySelectorAll(".opt-minus").forEach((btn) => {
@@ -572,7 +625,7 @@
             const id = parseInt(btn.dataset.id);
             if (selectedOptionQuantities[id] > 0)
               selectedOptionQuantities[id]--;
-            renderProductPage(gameLink, gameName);
+            updateTotalAndOptions();
           });
         });
         document.querySelectorAll(".opt-qty-input").forEach((input) => {
@@ -581,28 +634,10 @@
             let val = parseInt(input.value);
             if (isNaN(val) || val < 0) val = 0;
             selectedOptionQuantities[id] = val;
-            renderProductPage(gameLink, gameName);
+            updateTotalAndOptions();
           });
         });
-        // Поиск
-        const searchInput = document.getElementById("searchOptions");
-        if (searchInput) {
-          searchInput.addEventListener("input", (e) => {
-            optionsFilter = e.target.value;
-            renderProductPage(gameLink, gameName);
-          });
-        }
-        document
-          .getElementById("addToCartBtn")
-          .addEventListener("click", () => addToCart());
         if (isAdmin) {
-          document
-            .getElementById("editDescriptionBtn")
-            ?.addEventListener("click", () => {
-              document.getElementById("editDescription").value =
-                currentProduct.description || "";
-              document.getElementById("editModal").classList.add("active");
-            });
           document.querySelectorAll(".edit-option-btn").forEach((btn) => {
             btn.addEventListener("click", (e) => {
               const id = parseInt(btn.dataset.id);
@@ -616,30 +651,28 @@
               if (confirm("Удалить опцию?")) {
                 await deleteOption(parseInt(btn.dataset.id));
                 await loadOptions();
-                renderProductPage(gameLink, gameName);
+                renderOptionsList();
+                updateTotalPriceDisplay();
               }
             });
           });
-          const addBtn = document.getElementById("addOptionBtn");
-          if (addBtn)
-            addBtn.addEventListener("click", async () => {
-              const name = document
-                .getElementById("newOptionName")
-                .value.trim();
-              const price = parseInt(
-                document.getElementById("newOptionPrice").value,
-              );
-              if (!name || isNaN(price) || price < 0) {
-                alert("Введите название и корректную цену");
-                return;
-              }
-              await addOption(name, price);
-              await loadOptions();
-              renderProductPage(gameLink, gameName);
-              document.getElementById("newOptionName").value = "";
-              document.getElementById("newOptionPrice").value = "";
-            });
         }
+      }
+      function updateTotalAndOptions() {
+        renderOptionsList();
+        updateTotalPriceDisplay();
+      }
+      function updateTotalPriceDisplay() {
+        const basePrice = parsePrice(currentProduct.price);
+        let totalPrice = basePrice;
+        for (let id in selectedOptionQuantities) {
+          const qty = selectedOptionQuantities[id];
+          const opt = productOptions.find((o) => o.id == id);
+          if (opt && qty > 0) totalPrice += opt.price * qty;
+        }
+        const totalDiv = document.querySelector(".total-price");
+        if (totalDiv)
+          totalDiv.innerHTML = `Итого: <strong>${totalPrice} ₽</strong>`;
       }
       async function addOption(name, price) {
         const { error } = await supabaseClient
@@ -678,7 +711,7 @@
           }
           await updateOption(id, newName, newPrice);
           await loadOptions();
-          renderProductPage("#", "");
+          renderOptionsList();
           document.getElementById("editOptionModal").classList.remove("active");
         };
         document.getElementById("cancelOptionBtn").onclick = () =>
