@@ -162,8 +162,10 @@
             <input type="password" id="login-password" placeholder="••••••••" />
           </div>
           <button type="submit" class="action-btn">Войти</button>
-          <div class="forgot-link">
-            <a href="reset-password.html">Забыли пароль?</a>
+          <div style="text-align: center; margin-top: 15px">
+            <a href="#" id="forgotPasswordLink" style="color: #4f46e5"
+              >Забыли пароль?</a
+            >
           </div>
         </form>
         <div class="demo-note">
@@ -329,6 +331,32 @@
           window.location.href = "index.html";
         }, 1000);
       });
+      // Восстановление пароля
+      // Восстановление пароля
+      const forgotLink = document.getElementById("forgotPasswordLink");
+      if (forgotLink) {
+        forgotLink.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const email = prompt("Введите ваш email:");
+          if (!email) return;
+          if (!email.includes("@")) {
+            alert("Введите корректный email");
+            return;
+          }
+          try {
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(
+              email,
+              {
+                redirectTo: `${window.location.origin}/reset-password.html`,
+              },
+            );
+            if (error) throw error;
+            alert("Ссылка для сброса пароля отправлена на ваш email!");
+          } catch (err) {
+            alert("Ошибка: " + err.message);
+          }
+        });
+      }
     </script>
   </body>
 </html>
