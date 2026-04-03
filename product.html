@@ -94,52 +94,36 @@
       .main {
         padding: 48px 0 64px;
       }
-      .product-container {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 32px;
+      .product-wrapper {
         display: flex;
         gap: 32px;
         flex-wrap: wrap;
       }
-      .product-image {
+      .product-left {
         flex: 1;
-        min-width: 200px;
+        min-width: 250px;
+      }
+      .product-right {
+        flex: 2;
+        min-width: 300px;
+      }
+      .product-image {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 20px;
         text-align: center;
+        margin-bottom: 24px;
       }
       .product-image img {
         max-width: 100%;
         max-height: 400px;
         border-radius: 16px;
       }
-      .product-details {
-        flex: 2;
-      }
-      .product-name {
-        font-size: 2rem;
-        margin-bottom: 16px;
-      }
-      .product-price {
-        font-size: 2rem;
-        color: #3b82f6;
-        margin-bottom: 24px;
-      }
-      .product-description {
-        font-size: 1rem;
-        line-height: 1.5;
-        margin-bottom: 24px;
-        color: #cbd5e1;
-      }
-      .action-and-options {
-        display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
-      }
       .action-block {
-        flex: 1;
-        background: #1f2329;
-        border-radius: 20px;
+        background: #15181f;
+        border-radius: 24px;
         padding: 20px;
+        text-align: center;
       }
       .total-price {
         font-size: 1.4rem;
@@ -164,11 +148,31 @@
         display: inline-block;
         color: #3b82f6;
         text-decoration: none;
+        margin-top: 8px;
+      }
+      .product-details {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .product-name {
+        font-size: 2rem;
+        margin-bottom: 16px;
+      }
+      .product-price {
+        font-size: 2rem;
+        color: #3b82f6;
+        margin-bottom: 16px;
+      }
+      .product-description {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #cbd5e1;
       }
       .options-section {
-        flex: 2;
-        background: #1f2329;
-        border-radius: 20px;
+        background: #15181f;
+        border-radius: 24px;
         padding: 20px;
       }
       .options-section h3 {
@@ -182,7 +186,7 @@
       .search-options input {
         width: 100%;
         padding: 10px;
-        background: #0f1117;
+        background: #1f2329;
         border: 1px solid #2d3138;
         border-radius: 12px;
         color: #fff;
@@ -194,7 +198,7 @@
         margin-bottom: 12px;
         padding: 8px;
         border-radius: 12px;
-        background: #15181f;
+        background: #1f2329;
         flex-wrap: wrap;
       }
       .option-name {
@@ -340,10 +344,7 @@
           flex-direction: column;
           text-align: center;
         }
-        .product-container {
-          flex-direction: column;
-        }
-        .action-and-options {
+        .product-wrapper {
           flex-direction: column;
         }
       }
@@ -509,24 +510,26 @@
           if (opt && qty > 0) totalPrice += opt.price * qty;
         }
         document.getElementById("productContainer").innerHTML = `
-                <div class="product-container">
-                    <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
-                    <div class="product-details">
-                        <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
-                        <div class="product-price">${escapeHtml(currentProduct.price)}</div>
-                        <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
-                        <div class="action-and-options">
-                            <div class="action-block">
-                                <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
-                                <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
-                                <div style="margin-top:12px;"><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
-                            </div>
-                            <div class="options-section">
-                                <h3>Дополнительные опции</h3>
-                                ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
-                                <div id="optionsList"></div>
-                                ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
-                            </div>
+                <div class="product-wrapper">
+                    <div class="product-left">
+                        <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
+                        <div class="action-block">
+                            <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
+                            <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
+                            <div><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
+                        </div>
+                    </div>
+                    <div class="product-right">
+                        <div class="product-details">
+                            <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
+                            <div class="product-price">${escapeHtml(currentProduct.price)}</div>
+                            <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
+                        </div>
+                        <div class="options-section">
+                            <h3>Дополнительные опции</h3>
+                            ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
+                            <div id="optionsList"></div>
+                            ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
                         </div>
                     </div>
                 </div>
