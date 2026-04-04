@@ -234,6 +234,7 @@
       .complete-btn {
         background: #22c55e;
         margin-top: 16px;
+        margin-right: 10px;
       }
       .footer {
         background: #0f1117;
@@ -269,6 +270,8 @@
             <a href="reviews.html">Отзывы</a
             ><a href="cart.html" class="cart-link">🛒 Корзина</a
             ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
+            ><a href="support.html" class="cart-link">💬 Поддержка</a
+            ><span id="admin-links"></span
             ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
             ><a
               href="https://www.youtube.com/@atr1but"
@@ -404,7 +407,7 @@
                             <input type="text" id="messageInput" placeholder="Ваше сообщение...">
                             <button id="sendMessageBtn">Отправить</button>
                         </div>
-                        ${isAdmin ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+                        ${isAdmin ? `<div style="margin-top:16px;"><button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button></div>` : ""}
                     </div>
                 `;
         } else {
@@ -470,12 +473,35 @@
           const completeBtn = document.getElementById("completeOrderBtn");
           if (completeBtn) {
             completeBtn.addEventListener("click", async () => {
-              await supabaseClient
+              // Обновляем статус заказа
+              const { error: updateError } = await supabaseClient
                 .from("orders")
                 .update({ status: "completed" })
                 .eq("id", currentOrder.id);
+              if (updateError) {
+                alert("Ошибка обновления статуса: " + updateError.message);
+                return;
+              }
+              // Отправляем уведомление администратору
+              try {
+                const { error: notifyError } =
+                  await supabaseClient.functions.invoke(
+                    "send-admin-notification",
+                    {
+                      body: { order_id: currentOrder.id },
+                    },
+                  );
+                if (notifyError)
+                  console.error("Ошибка отправки уведомления:", notifyError);
+                else console.log("Уведомление отправлено");
+              } catch (err) {
+                console.error("Ошибка вызова функции:", err);
+              }
               currentOrder.status = "completed";
               renderOrderDetails();
+              alert(
+                "Заказ отмечен как выполненный. Уведомление отправлено администратору.",
+              );
             });
           }
           const revertBtn = document.getElementById("revertCompleteBtn");

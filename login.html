@@ -291,6 +291,30 @@
           document.getElementById("login-email").value = "";
         });
 
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("login-email").value.trim();
+          if (!email.includes("@")) {
+            showToast("Введите корректный email", true);
+            return;
+          }
+          showToast("Отправляем ссылку...");
+          const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/index.html`,
+            },
+          });
+          if (error) {
+            showToast("Ошибка: " + error.message, true);
+            return;
+          }
+          showToast("Ссылка для входа отправлена! Проверьте почту.");
+          document.getElementById("login-email").value = "";
+        });
+
       // Восстановление пароля (не нужно, но оставим для совместимости)
       document
         .getElementById("forgotPasswordLink")
