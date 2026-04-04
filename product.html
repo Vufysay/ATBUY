@@ -523,7 +523,7 @@
                         <div class="product-details">
                             <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
                             <div class="product-price">${escapeHtml(currentProduct.price)}</div>
-                            <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует")}</div>
+                            <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует").replace(/\n/g, "<br>")}</div>
                         </div>
                         <div class="options-section">
                             <h3>Дополнительные опции</h3>
