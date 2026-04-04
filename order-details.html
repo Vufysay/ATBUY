@@ -313,216 +313,222 @@
       </div>
     </footer>
     <script>
-            const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-            const SUPABASE_ANON_KEY =
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-            const supabaseClient = window.supabase.createClient(
-              SUPABASE_URL,
-              SUPABASE_ANON_KEY,
-            );
-            let currentUser = null,
-              isAdmin = false,
-              currentOrder = null,
-              messages = [];
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null,
+        isAdmin = false,
+        currentOrder = null,
+        messages = [];
 
-            async function loadOrder() {
-              const urlParams = new URLSearchParams(window.location.search);
-              const orderId = urlParams.get("id");
-              if (!orderId) {
-                document.getElementById("orderContainer").innerHTML =
-                  "<p>Заказ не указан</p>";
-                return;
-              }
-              let query = supabaseClient.from("orders").select("*");
-              if (!isAdmin) query = query.eq("user_id", currentUser.id);
-              const { data, error } = await query.eq("id", orderId).single();
-              if (error || !data) {
-                document.getElementById("orderContainer").innerHTML =
-                  "<p>Заказ не найден</p>";
-                return;
-              }
-              currentOrder = data;
-              await loadMessages();
-              renderOrderDetails();
-            }
-            async function loadMessages() {
-              const { data, error } = await supabaseClient
-                .from("order_messages")
-                .select("*")
-                .eq("order_id", currentOrder.id)
-                .order("created_at", { ascending: true });
-              if (error) console.error(error);
-              else messages = data || [];
-            }
-            function renderOrderDetails() {
-              const statusClass =
-                currentOrder.status === "pending"
-                  ? "pending"
-                  : currentOrder.status === "paid"
-                    ? "paid"
-                    : "completed";
-              const statusText =
-                currentOrder.status === "pending"
-                  ? "⏳ Ожидает оплаты"
-                  : currentOrder.status === "paid"
-                    ? "✅ Оплачен"
-                    : "🎉 Выполнен";
-              const items = currentOrder.items || [];
-              const itemsHtml = items
-                .map(
-                  (item) => `
-                      <div class="item-card">
-                          <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
-                          <div class="item-price">${escapeHtml(item.product_price)}</div>
-                          ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
-                      </div>
-                  `,
-                )
-                .join("");
-              const messagesHtml = messages
-                .map(
-                  (msg) => `
-                      <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
-                          <div class="message-header">
-                              <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
-                              <span>${new Date(msg.created_at).toLocaleString()}</span>
-                              ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
-                          </div>
-                          <div class="message-text">${escapeHtml(msg.message)}</div>
-                      </div>
-                  `,
-                )
-                .join("");
-              document.getElementById("orderContainer").innerHTML = `
-                      <div class="order-details">
-                          <div class="order-header">
-                              <div class="order-id">Заказ #${currentOrder.id}</div>
-                              <div class="order-status status-${statusClass}">${statusText}</div>
-                          </div>
-                          <div class="order-info">
-                              <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
-                              <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
-                              <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
-                              <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
-                          </div>
-                          <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
-                          <div class="chat-section">
-                              <h3>Чат с поддержкой</h3>
-                              <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
-                              <div class="chat-input">
-                                  <input type="text" id="messageInput" placeholder="Ваше сообщение...">
-                                  <button id="sendMessageBtn">Отправить</button>
-                              </div>
-                              ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
-                          </div>
-                      </div>
-                  `;
-              document
-                .getElementById("sendMessageBtn")
-                .addEventListener("click", sendMessage);
-              document
-                .getElementById("messageInput")
-                .addEventListener("keypress", (e) => {
-                  if (e.key === "Enter") sendMessage();
-                });
-              if (isAdmin) {
-                document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
-                  btn.addEventListener("click", async (e) => {
-                    const msgId = parseInt(btn.dataset.id);
-                    if (confirm("Удалить сообщение?")) {
-                      await supabaseClient
-                        .from("order_messages")
-                        .delete()
-                        .eq("id", msgId);
-                      await loadMessages();
-                      renderOrderDetails();
-                    }
-                  });
-                });
-                const completeBtn = document.getElementById('completeOrderBtn');
-      if (completeBtn) {
-          completeBtn.addEventListener('click', async () => {
-              // Обновляем статус
-              const { error: updateError } = await supabaseClient
-                  .from('orders')
-                  .update({ status: 'completed' })
-                  .eq('id', currentOrder.id);
-              if (updateError) {
-                  alert('Ошибка обновления статуса: ' + updateError.message);
-                  return;
-              }
-              // Отправляем уведомление
-              const { error: notifyError } = await supabaseClient.functions.invoke('send-admin-notification', {
-                  body: { order_id: currentOrder.id }
-              });
-              if (notifyError) {
-                  console.error('Ошибка отправки уведомления:', notifyError);
-                  alert('Ошибка отправки уведомления: ' + notifyError.message);
-              } else {
-                  alert('Статус заказа обновлён, уведомление отправлено!');
-              }
-              currentOrder.status = 'completed';
-              renderOrderDetails();
-          });
+      async function loadOrder() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get("id");
+        if (!orderId) {
+          document.getElementById("orderContainer").innerHTML =
+            "<p>Заказ не указан</p>";
+          return;
+        }
+        let query = supabaseClient.from("orders").select("*");
+        if (!isAdmin) query = query.eq("user_id", currentUser.id);
+        const { data, error } = await query.eq("id", orderId).single();
+        if (error || !data) {
+          document.getElementById("orderContainer").innerHTML =
+            "<p>Заказ не найден</p>";
+          return;
+        }
+        currentOrder = data;
+        await loadMessages();
+        renderOrderDetails();
       }
-              const chatDiv = document.getElementById("chatMessages");
-              if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
-            }
-            async function sendMessage() {
-              const input = document.getElementById("messageInput");
-              const text = input.value.trim();
-              if (!text) return;
-              const { error } = await supabaseClient.from("order_messages").insert({
-                order_id: currentOrder.id,
-                user_id: currentUser.id,
-                message: text,
-                is_admin: isAdmin,
-              });
-              if (error) alert("Ошибка отправки: " + error.message);
-              else {
-                input.value = "";
+      async function loadMessages() {
+        const { data, error } = await supabaseClient
+          .from("order_messages")
+          .select("*")
+          .eq("order_id", currentOrder.id)
+          .order("created_at", { ascending: true });
+        if (error) console.error(error);
+        else messages = data || [];
+      }
+      function renderOrderDetails() {
+        const statusClass =
+          currentOrder.status === "pending"
+            ? "pending"
+            : currentOrder.status === "paid"
+              ? "paid"
+              : "completed";
+        const statusText =
+          currentOrder.status === "pending"
+            ? "⏳ Ожидает оплаты"
+            : currentOrder.status === "paid"
+              ? "✅ Оплачен"
+              : "🎉 Выполнен";
+        const items = currentOrder.items || [];
+        const itemsHtml = items
+          .map(
+            (item) => `
+                <div class="item-card">
+                    <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
+                    <div class="item-price">${escapeHtml(item.product_price)}</div>
+                    ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
+                </div>
+            `,
+          )
+          .join("");
+        const messagesHtml = messages
+          .map(
+            (msg) => `
+                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+                    <div class="message-header">
+                        <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
+                        <span>${new Date(msg.created_at).toLocaleString()}</span>
+                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
+                    </div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                </div>
+            `,
+          )
+          .join("");
+        document.getElementById("orderContainer").innerHTML = `
+                <div class="order-details">
+                    <div class="order-header">
+                        <div class="order-id">Заказ #${currentOrder.id}</div>
+                        <div class="order-status status-${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="order-info">
+                        <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
+                        <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
+                        <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
+                        <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
+                    <div class="chat-section">
+                        <h3>Чат с поддержкой</h3>
+                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                            <button id="sendMessageBtn">Отправить</button>
+                        </div>
+                        ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+                    </div>
+                </div>
+            `;
+        document
+          .getElementById("sendMessageBtn")
+          .addEventListener("click", sendMessage);
+        document
+          .getElementById("messageInput")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+          });
+        if (isAdmin) {
+          document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              const msgId = parseInt(btn.dataset.id);
+              if (confirm("Удалить сообщение?")) {
+                await supabaseClient
+                  .from("order_messages")
+                  .delete()
+                  .eq("id", msgId);
                 await loadMessages();
                 renderOrderDetails();
               }
-            }
-            async function checkAuth() {
-              const {
-                data: { session },
-              } = await supabaseClient.auth.getSession();
-              if (session) {
-                currentUser = session.user;
-                const { data: userData } = await supabaseClient
-                  .from("users")
-                  .select("is_admin")
-                  .eq("id", currentUser.id)
-                  .single();
-                isAdmin =
-                  userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-                const authSection = document.getElementById("auth-section");
-                authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-                document.getElementById("userMenu").addEventListener("click", (e) => {
-                  if (e.target.id !== "logoutBtn")
-                    window.location.href = "profile.html";
-                });
-                document
-                  .getElementById("logoutBtn")
-                  .addEventListener("click", async (e) => {
-                    e.stopPropagation();
-                    await supabaseClient.auth.signOut();
-                    window.location.reload();
-                  });
-                await loadOrder();
-              } else {
-                window.location.href = "login.html";
+            });
+          });
+          const completeBtn = document.getElementById("completeOrderBtn");
+          if (completeBtn) {
+            completeBtn.addEventListener("click", async () => {
+              console.log("Кнопка нажата, заказ ID:", currentOrder.id);
+              // Обновляем статус заказа
+              const { error: updateError } = await supabaseClient
+                .from("orders")
+                .update({ status: "completed" })
+                .eq("id", currentOrder.id);
+              if (updateError) {
+                alert("Ошибка обновления статуса: " + updateError.message);
+                return;
               }
-            }
-            function escapeHtml(str) {
-              return str.replace(
-                /[&<>]/g,
-                (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-              );
-            }
-            window.addEventListener("load", checkAuth);
+              // Отправляем уведомление администратору
+              const { error: notifyError } =
+                await supabaseClient.functions.invoke(
+                  "send-admin-notification",
+                  {
+                    body: { order_id: currentOrder.id },
+                  },
+                );
+              if (notifyError) {
+                console.error("Ошибка отправки уведомления:", notifyError);
+                alert("Ошибка отправки уведомления: " + notifyError.message);
+              } else {
+                alert("Статус заказа обновлён, уведомление отправлено!");
+              }
+              currentOrder.status = "completed";
+              renderOrderDetails();
+            });
+          }
+        }
+        const chatDiv = document.getElementById("chatMessages");
+        if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+      }
+      async function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text) return;
+        const { error } = await supabaseClient.from("order_messages").insert({
+          order_id: currentOrder.id,
+          user_id: currentUser.id,
+          message: text,
+          is_admin: isAdmin,
+        });
+        if (error) alert("Ошибка отправки: " + error.message);
+        else {
+          input.value = "";
+          await loadMessages();
+          renderOrderDetails();
+        }
+      }
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          await loadOrder();
+        } else {
+          window.location.href = "login.html";
+        }
+      }
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
+      window.addEventListener("load", checkAuth);
     </script>
   </body>
 </html>
