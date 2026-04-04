@@ -3,15 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ATBUY — Вход и регистрация</title>
+    <title>ATBUY — Вход по ссылке</title>
     <style>
+      /* стили как в предыдущей версии */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
         display: flex;
@@ -20,9 +21,9 @@
         padding: 20px;
       }
       .auth-container {
-        background: rgba(255, 255, 255, 0.95);
+        background: #fff;
         border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 40px #0003;
         width: 100%;
         max-width: 460px;
         overflow: hidden;
@@ -34,24 +35,23 @@
       }
       .tab-btn {
         flex: 1;
-        background: transparent;
+        background: 0 0;
         border: none;
         padding: 18px 0;
         font-size: 1.1rem;
         font-weight: 600;
         cursor: pointer;
         color: #6c757d;
-        transition: all 0.2s;
       }
       .tab-btn.active {
         color: #4f46e5;
-        background: white;
+        background: #fff;
         border-bottom: 3px solid #4f46e5;
       }
       .form-panel {
         display: none;
         padding: 32px 28px 36px;
-        animation: fadeIn 0.3s ease;
+        animation: fadeIn 0.3s;
       }
       .form-panel.active {
         display: block;
@@ -88,12 +88,12 @@
         font-size: 1rem;
         border: 1.5px solid #e2e8f0;
         border-radius: 16px;
-        transition: all 0.2s;
-        outline: none;
+        transition: 0.2s;
+        outline: 0;
       }
       .input-group input:focus {
         border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        box-shadow: 0 0 0 3px #4f46e533;
       }
       .action-btn {
         width: 100%;
@@ -101,7 +101,7 @@
         border: none;
         padding: 14px;
         border-radius: 40px;
-        color: white;
+        color: #fff;
         font-weight: 700;
         font-size: 1rem;
         cursor: pointer;
@@ -124,7 +124,7 @@
         left: 50%;
         transform: translateX(-50%) translateY(20px);
         background: #1f2937;
-        color: white;
+        color: #fff;
         padding: 12px 24px;
         border-radius: 40px;
         opacity: 0;
@@ -136,6 +136,25 @@
         opacity: 1;
         transform: translateX(-50%) translateY(0);
       }
+      .forgot-link {
+        text-align: center;
+        margin-top: 16px;
+      }
+      .forgot-link a {
+        color: #4f46e5;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .resend-link {
+        margin-top: 12px;
+        text-align: center;
+      }
+      .resend-link a {
+        color: #4f46e5;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.85rem;
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -143,25 +162,12 @@
     <div class="auth-container">
       <div class="tabs">
         <button class="tab-btn active" data-tab="login">Вход</button>
-        <!-- Форма для ввода кода 2FA -->
-        <div id="mfa-form" style="display: none">
-          <div class="input-group">
-            <label>Код из приложения-аутентификатора</label>
-            <input
-              type="text"
-              id="mfa-code"
-              placeholder="6-значный код"
-              autocomplete="off"
-            />
-          </div>
-          <button id="verify-mfa-btn" class="action-btn">Подтвердить</button>
-          <div id="mfa-message" class="message" style="display: none"></div>
-        </div>
         <button class="tab-btn" data-tab="register">Регистрация</button>
       </div>
 
+      <!-- Панель входа (магическая ссылка) -->
       <div class="form-panel active" id="login-panel">
-        <h2>Добро пожаловать</h2>
+        <h2>Вход по ссылке</h2>
         <form id="login-form">
           <div class="input-group">
             <label>Электронная почта</label>
@@ -169,50 +175,29 @@
               type="email"
               id="login-email"
               placeholder="example@mail.ru"
+              required
             />
           </div>
-          <div class="input-group">
-            <label>Пароль</label>
-            <input type="password" id="login-password" placeholder="••••••••" />
-          </div>
-          <button type="submit" class="action-btn">Войти</button>
-          <div style="text-align: center; margin-top: 15px">
-            <a href="#" id="forgotPasswordLink" style="color: #4f46e5"
-              >Забыли пароль?</a
-            >
-          </div>
+          <button type="submit" class="action-btn">
+            Отправить ссылку для входа
+          </button>
         </form>
         <div class="demo-note">
-          После регистрации подтвердите email — письмо придёт на почту.
+          На ваш email придёт ссылка. Перейдите по ней, чтобы войти.
         </div>
       </div>
 
+      <!-- Панель регистрации (создание аккаунта) -->
       <div class="form-panel" id="register-panel">
         <h2>Создать аккаунт</h2>
         <form id="register-form">
           <div class="input-group">
-            <label>Имя пользователя</label>
-            <input type="text" id="reg-name" placeholder="Алексей" />
+            <label>Имя пользователя</label
+            ><input type="text" id="reg-name" placeholder="Алексей" />
           </div>
           <div class="input-group">
-            <label>Электронная почта</label>
-            <input type="email" id="reg-email" placeholder="hello@site.com" />
-          </div>
-          <div class="input-group">
-            <label>Пароль</label>
-            <input
-              type="password"
-              id="reg-password"
-              placeholder="минимум 6 символов"
-            />
-          </div>
-          <div class="input-group">
-            <label>Подтвердите пароль</label>
-            <input
-              type="password"
-              id="reg-password-confirm"
-              placeholder="повторите пароль"
-            />
+            <label>Электронная почта</label
+            ><input type="email" id="reg-email" placeholder="hello@site.com" />
           </div>
           <button type="submit" class="action-btn">Зарегистрироваться</button>
         </form>
@@ -221,7 +206,6 @@
         </div>
       </div>
     </div>
-
     <div id="toast-message" class="toast"></div>
 
     <script>
@@ -233,202 +217,84 @@
         SUPABASE_ANON_KEY,
       );
 
-      const tabBtns = document.querySelectorAll(".tab-btn");
-      const loginPanel = document.getElementById("login-panel");
-      const registerPanel = document.getElementById("register-panel");
-      const loginForm = document.getElementById("login-form");
-      const registerForm = document.getElementById("register-form");
-      const toastEl = document.getElementById("toast-message");
-
       function showToast(message, isError = false) {
-        toastEl.textContent = message;
-        toastEl.classList.add("show");
-        if (isError) toastEl.style.backgroundColor = "rgba(220, 38, 38, 0.9)";
-        else toastEl.style.backgroundColor = "rgba(31, 41, 55, 0.9)";
-        setTimeout(() => toastEl.classList.remove("show"), 3000);
+        const toast = document.getElementById("toast-message");
+        toast.textContent = message;
+        toast.classList.add("show");
+        if (isError) toast.style.backgroundColor = "#dc2626e6";
+        else toast.style.backgroundColor = "#1f2937e6";
+        setTimeout(() => toast.classList.remove("show"), 3000);
       }
 
       function switchTab(tabId) {
-        tabBtns.forEach((btn) => {
-          if (btn.getAttribute("data-tab") === tabId)
-            btn.classList.add("active");
-          else btn.classList.remove("active");
-        });
-        if (tabId === "login") {
-          loginPanel.classList.add("active");
-          registerPanel.classList.remove("active");
-        } else {
-          loginPanel.classList.remove("active");
-          registerPanel.classList.add("active");
-        }
-      }
-
-      tabBtns.forEach((btn) => {
-        btn.addEventListener("click", () =>
-          switchTab(btn.getAttribute("data-tab")),
+        const btns = document.querySelectorAll(".tab-btn");
+        btns.forEach((btn) =>
+          btn.classList.toggle("active", btn.dataset.tab === tabId),
         );
-      });
+        document.getElementById("login-panel").style.display =
+          tabId === "login" ? "block" : "none";
+        document.getElementById("register-panel").style.display =
+          tabId === "register" ? "block" : "none";
+      }
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((btn) =>
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab)),
+        );
 
       // Регистрация
-      registerForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const name = document.getElementById("reg-name").value.trim();
-        const email = document.getElementById("reg-email").value.trim();
-        const password = document.getElementById("reg-password").value;
-        const confirm = document.getElementById("reg-password-confirm").value;
-
-        if (!name || name.length < 2) {
-          showToast("Имя должно быть не менее 2 символов", true);
-          return;
-        }
-        if (!email.includes("@")) {
-          showToast("Введите корректный email", true);
-          return;
-        }
-        if (password.length < 6) {
-          showToast("Пароль должен быть не менее 6 символов", true);
-          return;
-        }
-        if (password !== confirm) {
-          showToast("Пароли не совпадают", true);
-          return;
-        }
-
-        const { data, error } = await supabaseClient.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: { name: name },
-          },
-        });
-
-        if (error) {
-          showToast(error.message, true);
-          return;
-        }
-
-        showToast("Письмо с подтверждением отправлено на почту!");
-        setTimeout(() => switchTab("login"), 2000);
-        registerForm.reset();
-      });
-
-      // Вход
-      // Переменные для хранения данных сессии
-      let pendingSession = null;
-      let pendingEmail = null;
-      let pendingFactorId = null;
-
-      // Обработчик отправки формы входа
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = document.getElementById("login-email").value.trim();
-        const password = document.getElementById("login-password").value;
-
-        if (!email || !password) {
-          showToast("Заполните все поля", true);
-          return;
-        }
-
-        try {
-          // Пытаемся войти
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password,
-          });
-
-          if (error) {
-            if (
-              error.message.includes("verify your identity") ||
-              error.status === 422
-            ) {
-              // Если сервер вернул ошибку с требованием MFA
-              console.log("Требуется MFA");
-              const factors = await supabaseClient.auth.mfa.listFactors();
-              if (
-                factors.data &&
-                factors.data.totp &&
-                factors.data.totp.length > 0
-              ) {
-                pendingEmail = email;
-                pendingFactorId = factors.data.totp[0].id;
-                // Показываем форму для кода 2FA и скрываем форму логина
-                document.getElementById("login-panel").style.display = "none";
-                document.getElementById("mfa-form").style.display = "block";
-              } else {
-                showToast("Ошибка: не найден активный фактор 2FA", true);
-              }
-            } else {
-              showToast("Неверный email или пароль", true);
-            }
-            return;
-          }
-
-          // Если MFA не требуется, вход успешен
-          showToast("Вход выполнен! Перенаправление...");
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: data.user.email,
-              name: data.user.user_metadata.name,
-            }),
-          );
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1000);
-        } catch (err) {
-          console.error("Ошибка:", err);
-          showToast("Произошла ошибка", true);
-        }
-      });
-
-      // Обработчик для подтверждения кода 2FA
       document
-        .getElementById("verify-mfa-btn")
-        ?.addEventListener("click", async () => {
-          const code = document.getElementById("mfa-code").value.trim();
-          const messageDiv = document.getElementById("mfa-message");
-          if (!code || code.length !== 6) {
-            messageDiv.textContent = "Введите 6-значный код";
-            messageDiv.className = "message error";
-            messageDiv.style.display = "block";
+        .getElementById("register-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("reg-name").value.trim();
+          const email = document.getElementById("reg-email").value.trim();
+          if (!name || name.length < 2) {
+            showToast("Имя не менее 2 символов", true);
             return;
           }
-
-          try {
-            const { data, error } = await supabaseClient.auth.mfa.verify({
-              factorId: pendingFactorId,
-              code: code,
-            });
-
-            if (error) {
-              messageDiv.textContent = "Неверный код. Попробуйте ещё раз.";
-              messageDiv.className = "message error";
-              messageDiv.style.display = "block";
-              return;
-            }
-
-            // Успешный вход с MFA
-            showToast("Вход выполнен! Перенаправление...");
-            localStorage.setItem(
-              "atbuy_current_user",
-              JSON.stringify({
-                email: pendingEmail,
-                name: data.user.user_metadata.name,
-              }),
-            );
-            setTimeout(() => {
-              window.location.href = "index.html";
-            }, 1000);
-          } catch (err) {
-            messageDiv.textContent = "Ошибка проверки кода";
-            messageDiv.className = "message error";
-            messageDiv.style.display = "block";
+          if (!email.includes("@")) {
+            showToast("Введите корректный email", true);
+            return;
           }
+          const { error } = await supabaseClient.auth.signUp({
+            email,
+            password: Math.random().toString(36),
+            options: { data: { name } },
+          });
+          if (error) {
+            showToast(error.message, true);
+            return;
+          }
+          showToast("Письмо с подтверждением отправлено!");
+          setTimeout(() => switchTab("login"), 2000);
+          document.getElementById("register-form").reset();
         });
-      // Восстановление пароля
+
+      // Отправка магической ссылки
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("login-email").value.trim();
+          if (!email.includes("@")) {
+            showToast("Введите корректный email", true);
+            return;
+          }
+          showToast("Отправляем ссылку...");
+          const { error } = await supabaseClient.auth.signInWithOtp({ email });
+          if (error) {
+            showToast("Ошибка: " + error.message, true);
+            return;
+          }
+          showToast("Ссылка для входа отправлена! Проверьте почту.");
+          document.getElementById("login-email").value = "";
+        });
+
+      // Восстановление пароля (не нужно, но оставим для совместимости)
       document
         .getElementById("forgotPasswordLink")
-        .addEventListener("click", (e) => {
+        ?.addEventListener("click", (e) => {
           e.preventDefault();
           window.location.href = "reset-password.html";
         });

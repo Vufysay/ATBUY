@@ -652,58 +652,38 @@
         loadReviews();
       }
       async function checkAuth() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (session) {
-          const aal = session.user?.factors?.aal || "aal1";
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_2fa_enabled")
-            .eq("id", session.user.id)
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const authSection = document.getElementById('auth-section');
+    const adminLinks = document.getElementById('admin-links');
+    if (session) {
+        currentUser = session.user;
+        const { data: userAdmin } = await supabaseClient
+            .from('users')
+            .select('is_admin')
+            .eq('id', currentUser.id)
             .single();
-          if (userData?.is_2fa_enabled && aal !== "aal2") {
-            window.location.href = "mfa-verify.html";
-            return;
-          }
-          currentUser = session.user;
-          const { data: userData2 } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData2?.is_admin || currentUser.email === "vufysay@gmail.com";
-          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn")
-              window.location.href = "profile.html";
-          });
-          document
-            .getElementById("logoutBtn")
-            .addEventListener("click", async (e) => {
-              e.stopPropagation();
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
-          if (adminLinks) {
-            adminLinks.innerHTML = isAdmin
-              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
-              : "";
-          }
-          renderReviewForm();
-          loadReviews();
-        } else {
-          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          currentUser = null;
-          isAdmin = false;
-          if (adminLinks) adminLinks.innerHTML = "";
-          renderReviewForm();
-          loadReviews();
-        }
-      }
+        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
+        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
+        });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        });
+        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
+        renderReviewForm();
+        loadReviews();
+    } else {
+        authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+        currentUser = null;
+        isAdmin = false;
+        if (adminLinks) adminLinks.innerHTML = '';
+        renderReviewForm();
+        loadReviews();
+    }
+}
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,

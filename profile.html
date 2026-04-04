@@ -171,12 +171,17 @@
       }
       .users-table,
       .orders-table {
+        width: 100%;
         overflow-x: auto;
+        margin-top: 16px;
       }
       .users-table table,
       .orders-table table {
         width: 100%;
         border-collapse: collapse;
+        background: #1f2329;
+        border-radius: 12px;
+        overflow: hidden;
       }
       .users-table th,
       .orders-table th,
@@ -188,11 +193,21 @@
       }
       .users-table th,
       .orders-table th {
+        background: #15181f;
         color: #3b82f6;
+        font-weight: 600;
+      }
+      .users-table tr:last-child td,
+      .orders-table tr:last-child td {
+        border-bottom: none;
       }
       .ban-btn {
         background: #ef4444;
+        border: none;
         padding: 5px 12px;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
         font-size: 0.8rem;
       }
       .ban-btn:hover {
@@ -350,8 +365,6 @@
         isAdmin = false;
 
       const SESSIONS_STORAGE_KEY = "atbuy_saved_sessions";
-
-      // --- Управление аккаунтами ---
       async function saveCurrentSession() {
         const {
           data: { session },
@@ -378,11 +391,9 @@
         localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
         renderAccountsList();
       }
-
       function getSavedAccounts() {
         return JSON.parse(localStorage.getItem(SESSIONS_STORAGE_KEY) || "[]");
       }
-
       async function switchToAccount(sessionData) {
         const { error } = await supabaseClient.auth.setSession({
           access_token: sessionData.access_token,
@@ -397,14 +408,12 @@
           alert(`Переключено на ${sessionData.user.email}`);
         }
       }
-
       function removeAccount(userId) {
         let sessions = getSavedAccounts();
         sessions = sessions.filter((s) => s.user.id !== userId);
         localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
         renderAccountsList();
       }
-
       function renderAccountsList() {
         const container = document.getElementById("accountsList");
         if (!container) return;
@@ -442,152 +451,10 @@
           });
         });
       }
-
       function addAccount() {
         window.location.href = "login.html?return_to=profile";
       }
 
-      // --- 2FA ---
-      let currentFactorId = null;
-      async function load2FAStatus() {
-        if (!currentUser) return;
-        const { data, error } = await supabaseClient
-          .from("users")
-          .select("is_2fa_enabled")
-          .eq("id", currentUser.id)
-          .single();
-        if (error) {
-          console.error("Ошибка загрузки статуса 2FA:", error);
-          document.getElementById("twofa-status").innerHTML =
-            '<p class="message error">Ошибка загрузки статуса 2FA</p>';
-          return;
-        }
-        const isEnabled = data?.is_2fa_enabled || false;
-        const twofaStatusDiv = document.getElementById("twofa-status");
-        const twofaSetupDiv = document.getElementById("twofa-setup");
-        if (isEnabled) {
-          twofaStatusDiv.innerHTML = `
-                    <div class="info-row">
-                        <span class="info-label">Статус:</span>
-                        <span class="info-value" style="color: #22c55e;">✅ Активна</span>
-                        <button id="disable-2fa-btn" class="ban-btn" style="background-color: #ef4444; margin-left: 10px;">Отключить 2FA</button>
-                    </div>
-                `;
-          document
-            .getElementById("disable-2fa-btn")
-            ?.addEventListener("click", disable2FA);
-          twofaSetupDiv.style.display = "none";
-        } else {
-          twofaStatusDiv.innerHTML = `
-                    <div class="info-row">
-                        <span class="info-label">Статус:</span>
-                        <span class="info-value" style="color: #9ca3af;">⭕ Не активна</span>
-                        <button id="setup-2fa-btn" class="action-btn" style="background-color: #3b82f6; padding: 5px 10px; margin-left: 10px;">Настроить 2FA</button>
-                    </div>
-                `;
-          document
-            .getElementById("setup-2fa-btn")
-            ?.addEventListener("click", start2FASetup);
-          twofaSetupDiv.style.display = "none";
-        }
-      }
-
-      async function start2FASetup() {
-        const { data, error } = await supabaseClient.auth.mfa.enroll({
-          factorType: "totp",
-          issuer: "ATBUY",
-        });
-        if (error) {
-          document.getElementById("setup-message").innerHTML =
-            `<div class="message error">Ошибка: ${error.message}</div>`;
-          document.getElementById("setup-message").style.display = "block";
-          return;
-        }
-        currentFactorId = data.id;
-        const qrCodeSvg = data.totp.qr_code;
-        const secret = data.totp.secret;
-        document.getElementById("qr-container").innerHTML = `
-                <p>1. Отсканируйте QR-код в приложении-аутентификаторе (Google Authenticator, Яндекс Ключ и т.д.)</p>
-                <div style="background: white; padding: 10px; display: inline-block; margin: 10px 0;">${qrCodeSvg}</div>
-                <p>2. Или введите этот код вручную: <strong>${secret}</strong></p>
-                <p>3. После добавления введите код из приложения ниже:</p>
-            `;
-        document.getElementById("twofa-setup").style.display = "block";
-        document.getElementById("twofa-status").style.display = "none";
-      }
-
-      async function enable2FA() {
-        const code = document.getElementById("totp-code").value.trim();
-        if (!code || code.length !== 6) {
-          document.getElementById("setup-message").innerHTML =
-            '<div class="message error">Введите 6-значный код</div>';
-          document.getElementById("setup-message").style.display = "block";
-          return;
-        }
-        const { data: challengeData, error: challengeError } =
-          await supabaseClient.auth.mfa.challenge({
-            factorId: currentFactorId,
-          });
-        if (challengeError) {
-          document.getElementById("setup-message").innerHTML =
-            `<div class="message error">Ошибка: ${challengeError.message}</div>`;
-          document.getElementById("setup-message").style.display = "block";
-          return;
-        }
-        const { error: verifyError } = await supabaseClient.auth.mfa.verify({
-          factorId: currentFactorId,
-          challengeId: challengeData.id,
-          code: code,
-        });
-        if (verifyError) {
-          document.getElementById("setup-message").innerHTML =
-            `<div class="message error">Неверный код: ${verifyError.message}</div>`;
-          document.getElementById("setup-message").style.display = "block";
-          return;
-        }
-        const { error: updateError } = await supabaseClient
-          .from("users")
-          .update({ is_2fa_enabled: true })
-          .eq("id", currentUser.id);
-        if (updateError) {
-          document.getElementById("setup-message").innerHTML =
-            '<div class="message error">Ошибка сохранения настроек 2FA</div>';
-          document.getElementById("setup-message").style.display = "block";
-          return;
-        }
-        document.getElementById("setup-message").innerHTML =
-          '<div class="message success">2FA успешно включена!</div>';
-        document.getElementById("setup-message").style.display = "block";
-        document.getElementById("twofa-setup").style.display = "none";
-        load2FAStatus();
-      }
-
-      async function disable2FA() {
-        if (
-          !confirm(
-            "Вы уверены, что хотите отключить двухфакторную аутентификацию?",
-          )
-        )
-          return;
-        const { error: updateError } = await supabaseClient
-          .from("users")
-          .update({ is_2fa_enabled: false })
-          .eq("id", currentUser.id);
-        if (updateError) {
-          alert("Ошибка отключения 2FA: " + updateError.message);
-          return;
-        }
-        const { data: factors } = await supabaseClient.auth.mfa.listFactors();
-        if (factors && factors.totp && factors.totp.length) {
-          await supabaseClient.auth.mfa.unenroll({
-            factorId: factors.totp[0].id,
-          });
-        }
-        load2FAStatus();
-        alert("2FA отключена");
-      }
-
-      // --- Остальные функции ---
       async function handlePasswordReset() {
         const urlParams = new URLSearchParams(window.location.search);
         const accessToken = urlParams.get("access_token");
@@ -651,7 +518,6 @@
                 <div class="section"><h2>Информация об аккаунте</h2><div class="info-row"><span class="info-label">Email:</span><span>${escapeHtml(currentUser.email)}</span></div><div class="info-row"><span class="info-label">Имя:</span><span id="currentNameDisplay">${escapeHtml(currentName)}</span></div></div>
                 <div class="section"><h2>Изменить имя</h2><div class="input-group"><input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}"></div><button id="updateNameBtn">Сохранить имя</button><div id="nameMessage" class="message" style="display:none;"></div></div>
                 <div class="section"><h2>Изменить пароль</h2><p style="margin-bottom:16px;font-size:.9rem;color:#9ca3af;">На вашу почту будет отправлена ссылка для сброса пароля.</p><button id="resetPasswordBtn">Отправить ссылку</button><div id="passwordMessage" class="message" style="display:none;"></div></div>
-                <div class="section"><h2>Двухфакторная аутентификация (2FA)</h2><div id="twofa-status"></div><div id="twofa-setup" style="display: none;"><div id="qr-container"></div><div class="input-group"><label>Код из приложения-аутентификатора</label><input type="text" id="totp-code" placeholder="6-значный код" autocomplete="off"></div><button id="enable-2fa-btn">Подтвердить и включить</button><div id="setup-message" class="message" style="display: none;"></div></div></div>
                 <div class="section"><h2>Управление аккаунтами</h2><button id="addAccountBtn" class="action-btn" style="background:#3b82f6;">➕ Добавить аккаунт</button><div id="accountsList" class="accounts-list"></div></div>
             `;
         document
@@ -663,11 +529,7 @@
         document
           .getElementById("addAccountBtn")
           .addEventListener("click", addAccount);
-        document
-          .getElementById("enable-2fa-btn")
-          ?.addEventListener("click", enable2FA);
         renderAccountsList();
-        load2FAStatus();
         if (isAdmin) {
           document.getElementById("adminPanel").style.display = "block";
           document.getElementById("adminOrdersPanel").style.display = "block";
@@ -850,6 +712,45 @@
         }
       }
 
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          currentUser = session.user;
+          const { data: userAdmin } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userAdmin?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          await loadProfile();
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+          window.location.href = "login.html";
+        }
+      }
+
       function escapeHtml(str) {
         if (!str) return "";
         return str.replace(
@@ -859,12 +760,7 @@
       }
 
       window.addEventListener("load", async () => {
-        await updateAuthHeader();
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get("return_to") === "profile")
-          await saveCurrentSession();
-        const isResetMode = await handlePasswordReset();
-        if (!isResetMode) await loadProfile();
+        await checkAuth();
       });
     </script>
   </body>

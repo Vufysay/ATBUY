@@ -273,54 +273,36 @@
       }
 
       async function checkAuth() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (session) {
-          const aal = session.user?.factors?.aal || "aal1";
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_2fa_enabled")
-            .eq("id", session.user.id)
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const authSection = document.getElementById('auth-section');
+    const adminLinks = document.getElementById('admin-links');
+    if (session) {
+        currentUser = session.user;
+        const { data: userAdmin } = await supabaseClient
+            .from('users')
+            .select('is_admin')
+            .eq('id', currentUser.id)
             .single();
-          if (userData?.is_2fa_enabled && aal !== "aal2") {
-            window.location.href = "mfa-verify.html";
+        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
+        if (!isAdmin) {
+            window.location.href = 'support.html';
             return;
-          }
-          currentUser = session.user;
-          const { data: userData2 } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData2?.is_admin || currentUser.email === "vufysay@gmail.com";
-          if (!isAdmin) {
-            window.location.href = "index.html";
-            return;
-          }
-          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn")
-              window.location.href = "profile.html";
-          });
-          document
-            .getElementById("logoutBtn")
-            .addEventListener("click", async (e) => {
-              e.stopPropagation();
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
-          if (adminLinks) {
-            adminLinks.innerHTML = `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`;
-          }
-          await loadChats();
-        } else {
-          window.location.href = "login.html";
         }
-      }
+        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
+        });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        });
+        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
+        await loadChats();
+    } else {
+        window.location.href = 'login.html';
+    }
+}
 
       function escapeHtml(str) {
         return str.replace(
