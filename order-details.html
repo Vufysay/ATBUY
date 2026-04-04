@@ -234,7 +234,6 @@
       .complete-btn {
         background: #22c55e;
         margin-top: 16px;
-        margin-right: 10px;
       }
       .footer {
         background: #0f1117;
@@ -372,90 +371,60 @@
         const itemsHtml = items
           .map(
             (item) => `
-                <div class="item-card">
-                    <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
-                    <div class="item-price">${escapeHtml(item.product_price)}</div>
-                    ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
-                </div>
-            `,
+                      <div class="item-card">
+                          <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
+                          <div class="item-price">${escapeHtml(item.product_price)}</div>
+                          ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
+                      </div>
+                  `,
           )
           .join("");
         const messagesHtml = messages
           .map(
             (msg) => `
-                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
-                    <div class="message-header">
-                        <span>${msg.is_admin ? "Администратор" : msg.user_name || "Пользователь"}</span>
-                        <span>${new Date(msg.created_at).toLocaleString()}</span>
-                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
-                    </div>
-                    <div class="message-text">${escapeHtml(msg.message)}</div>
-                </div>
-            `,
+                      <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+                          <div class="message-header">
+                              <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
+                              <span>${new Date(msg.created_at).toLocaleString()}</span>
+                              ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
+                          </div>
+                          <div class="message-text">${escapeHtml(msg.message)}</div>
+                      </div>
+                  `,
           )
           .join("");
-
-        let chatHtml = "";
-        if (currentOrder.status === "pending") {
-          chatHtml = `<div class="chat-section"><h3>Чат с поддержкой</h3><p>💬 Чат станет доступен после оплаты заказа.</p></div>`;
-        } else if (currentOrder.status === "paid") {
-          chatHtml = `
-                    <div class="chat-section">
-                        <h3>Чат с поддержкой</h3>
-                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
-                        <div class="chat-input">
-                            <input type="text" id="messageInput" placeholder="Ваше сообщение...">
-                            <button id="sendMessageBtn">Отправить</button>
-                        </div>
-                        ${isAdmin ? `<div style="margin-top:16px;"><button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button></div>` : ""}
-                    </div>
-                `;
-        } else {
-          chatHtml = `
-                    <div class="chat-section">
-                        <h3>Чат с поддержкой (заказ выполнен)</h3>
-                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений.</div>'}</div>
-                        ${
-                          isAdmin
-                            ? `
-                            <div class="chat-input">
-                                <input type="text" id="messageInput" placeholder="Ваше сообщение...">
-                                <button id="sendMessageBtn">Отправить</button>
-                            </div>
-                            <button id="revertCompleteBtn" class="complete-btn" style="background:#f59e0b;">↩️ Вернуть в статус "Оплачен"</button>
-                        `
-                            : "<p>🔒 Заказ выполнен. Чат доступен только для чтения. Если у вас остались вопросы, свяжитесь с администратором через Telegram или почту.</p>"
-                        }
-                    </div>
-                `;
-        }
-
         document.getElementById("orderContainer").innerHTML = `
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-id">Заказ #${currentOrder.id}</div>
-                        <div class="order-status status-${statusClass}">${statusText}</div>
-                    </div>
-                    <div class="order-info">
-                        <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
-                        <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
-                        <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
-                        <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
-                    </div>
-                    <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
-                    ${chatHtml}
-                </div>
-            `;
-
-        if (currentOrder.status !== "pending") {
-          const sendBtn = document.getElementById("sendMessageBtn");
-          if (sendBtn) sendBtn.addEventListener("click", sendMessage);
-          const input = document.getElementById("messageInput");
-          if (input)
-            input.addEventListener("keypress", (e) => {
-              if (e.key === "Enter") sendMessage();
-            });
-        }
+                      <div class="order-details">
+                          <div class="order-header">
+                              <div class="order-id">Заказ #${currentOrder.id}</div>
+                              <div class="order-status status-${statusClass}">${statusText}</div>
+                          </div>
+                          <div class="order-info">
+                              <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
+                              <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
+                              <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
+                              <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
+                          </div>
+                          <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
+                          <div class="chat-section">
+                              <h3>Чат с поддержкой</h3>
+                              <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
+                              <div class="chat-input">
+                                  <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                                  <button id="sendMessageBtn">Отправить</button>
+                              </div>
+                              ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+                          </div>
+                      </div>
+                  `;
+        document
+          .getElementById("sendMessageBtn")
+          .addEventListener("click", sendMessage);
+        document
+          .getElementById("messageInput")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+          });
         if (isAdmin) {
           document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
             btn.addEventListener("click", async (e) => {
@@ -482,36 +451,32 @@
                 alert("Ошибка обновления статуса: " + updateError.message);
                 return;
               }
+
+              // Получаем токен сессии
+              const {
+                data: { session },
+              } = await supabaseClient.auth.getSession();
+              const accessToken = session?.access_token;
+
               // Отправляем уведомление администратору
-              try {
-                const { error: notifyError } =
-                  await supabaseClient.functions.invoke(
-                    "send-admin-notification",
-                    {
-                      body: { order_id: currentOrder.id },
+              const { error: notifyError } =
+                await supabaseClient.functions.invoke(
+                  "send-admin-notification",
+                  {
+                    body: { order_id: currentOrder.id },
+                    headers: {
+                      Authorization: `Bearer ${accessToken}`,
                     },
-                  );
-                if (notifyError)
-                  console.error("Ошибка отправки уведомления:", notifyError);
-                else console.log("Уведомление отправлено");
-              } catch (err) {
-                console.error("Ошибка вызова функции:", err);
+                  },
+                );
+              if (notifyError) {
+                console.error("Ошибка отправки уведомления:", notifyError);
+                alert("Ошибка отправки уведомления: " + notifyError.message);
+              } else {
+                alert("Статус заказа обновлён, уведомление отправлено!");
               }
+
               currentOrder.status = "completed";
-              renderOrderDetails();
-              alert(
-                "Заказ отмечен как выполненный. Уведомление отправлено администратору.",
-              );
-            });
-          }
-          const revertBtn = document.getElementById("revertCompleteBtn");
-          if (revertBtn) {
-            revertBtn.addEventListener("click", async () => {
-              await supabaseClient
-                .from("orders")
-                .update({ status: "paid" })
-                .eq("id", currentOrder.id);
-              currentOrder.status = "paid";
               renderOrderDetails();
             });
           }
@@ -520,13 +485,6 @@
         if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
       }
       async function sendMessage() {
-        if (!currentUser) return;
-        if (currentOrder.status === "completed" && !isAdmin) {
-          alert(
-            "Заказ выполнен, отправка сообщений отключена. Свяжитесь с администратором через Telegram или почту.",
-          );
-          return;
-        }
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text) return;

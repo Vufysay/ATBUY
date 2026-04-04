@@ -1,0 +1,3 @@
+# Отключаем проверку JWT для функции send-admin-notification
+[functions.send-admin-notification]
+verify_jwt = false
