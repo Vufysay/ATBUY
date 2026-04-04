@@ -289,6 +289,9 @@
           <div class="nav-links">
             <a href="reviews.html">Отзывы</a>
             <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
             <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
             <a
               href="https://www.youtube.com/@atr1but"
@@ -429,6 +432,7 @@
             `;
         container.innerHTML = html;
 
+        // Обработчики изменения количества
         document.querySelectorAll(".quantity-btn").forEach((btn) => {
           btn.addEventListener("click", async (e) => {
             const id = parseInt(btn.dataset.id);
@@ -450,6 +454,7 @@
           });
         });
 
+        // Удаление товара
         document.querySelectorAll(".remove-item").forEach((btn) => {
           btn.addEventListener("click", async (e) => {
             const id = parseInt(btn.dataset.id);
@@ -465,6 +470,7 @@
           });
         });
 
+        // Оформление заказа
         const checkoutBtn = document.getElementById("checkout-btn");
         if (checkoutBtn) {
           checkoutBtn.addEventListener("click", () => {
@@ -502,6 +508,15 @@
           0,
         );
 
+        // Сохраняем товары с опциями
+        const items = cartItems.map((item) => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          product_price: item.product_price,
+          quantity: item.quantity,
+          options: item.options || [],
+        }));
+
         // Создаём заказ
         const { data: order, error: orderError } = await supabaseClient
           .from("orders")
@@ -511,6 +526,7 @@
             phone: phone,
             telegram: telegram,
             status: "pending",
+            items: items,
           })
           .select()
           .single();
@@ -521,7 +537,13 @@
           return;
         }
 
-        // Вызываем Edge Function для создания платежа (полный URL)
+        // Очищаем корзину
+        await supabaseClient
+          .from("cart")
+          .delete()
+          .eq("user_id", currentUser.id);
+
+        // Вызываем Edge Function для создания платежа (если настроена)
         try {
           const response = await fetch(
             `${SUPABASE_URL}/functions/v1/create-payment`,
@@ -549,6 +571,8 @@
         } catch (err) {
           console.error("Ошибка создания платежа:", err);
           alert("Ошибка при подключении к платежной системе: " + err.message);
+          // Если оплата не настроена, просто очистим корзину и покажем сообщение
+          window.location.href = "my-orders.html";
         }
       }
 
@@ -556,19 +580,31 @@
         const {
           data: { session },
         } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
         if (session) {
+          const aal = session.user?.factors?.aal || "aal1";
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_2fa_enabled")
+            .eq("id", session.user.id)
+            .single();
+          if (userData?.is_2fa_enabled && aal !== "aal2") {
+            window.location.href = "mfa-verify.html";
+            return;
+          }
           currentUser = session.user;
-          const authSection = document.getElementById("auth-section");
-          authSection.innerHTML = `
-                    <div class="user-info" id="userMenu">
-                        <span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span>
-                        <button id="logoutBtn" class="logout-btn">Выйти</button>
-                    </div>
-                `;
+          const { data: userData2 } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          const isAdmin =
+            userData2?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
           document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn") {
+            if (e.target.id !== "logoutBtn")
               window.location.href = "profile.html";
-            }
           });
           document
             .getElementById("logoutBtn")
@@ -577,12 +613,17 @@
               await supabaseClient.auth.signOut();
               window.location.reload();
             });
+          if (adminLinks) {
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          }
           await loadCart();
         } else {
-          document.getElementById("auth-section").innerHTML =
-            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
           document.getElementById("cart-container").innerHTML =
             '<div class="empty-cart">🔒 Войдите, чтобы увидеть корзину</div>';
+          if (adminLinks) adminLinks.innerHTML = "";
         }
       }
 
@@ -595,8 +636,9 @@
         });
       }
 
-      window.addEventListener("load", () => {
-        checkAuth();
+      // Инициализация
+      window.addEventListener("load", async () => {
+        await checkAuth();
       });
     </script>
   </body>

@@ -359,6 +359,9 @@
           <div class="nav-links">
             <a href="reviews.html">Отзывы</a
             ><a href="cart.html" class="cart-link">🛒 Корзина</a
+            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a
+            ><span id="admin-links"></span
             ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
             ><a
               href="https://www.youtube.com/@atr1but"
@@ -510,30 +513,30 @@
           if (opt && qty > 0) totalPrice += opt.price * qty;
         }
         document.getElementById("productContainer").innerHTML = `
-                <div class="product-wrapper">
-                    <div class="product-left">
-                        <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
-                        <div class="action-block">
-                            <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
-                            <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
-                            <div><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
-                        </div>
-                    </div>
-                    <div class="product-right">
-                        <div class="product-details">
-                            <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
-                            <div class="product-price">${escapeHtml(currentProduct.price)}</div>
-                            <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует").replace(/\n/g, "<br>")}</div>
-                        </div>
-                        <div class="options-section">
-                            <h3>Дополнительные опции</h3>
-                            ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
-                            <div id="optionsList"></div>
-                            ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
-                        </div>
-                    </div>
-                </div>
-            `;
+                      <div class="product-wrapper">
+                          <div class="product-left">
+                              <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
+                              <div class="action-block">
+                                  <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
+                                  <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
+                                  <div><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
+                              </div>
+                          </div>
+                          <div class="product-right">
+                              <div class="product-details">
+                                  <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
+                                  <div class="product-price">${escapeHtml(currentProduct.price)}</div>
+                                  <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует").replace(/\n/g, "<br>")}</div>
+                              </div>
+                              <div class="options-section">
+                                  <h3>Дополнительные опции</h3>
+                                  ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
+                                  <div id="optionsList"></div>
+                                  ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
+                              </div>
+                          </div>
+                      </div>
+                  `;
         document
           .getElementById("addToCartBtn")
           .addEventListener("click", () => addToCart());
@@ -589,27 +592,27 @@
             const qty = selectedOptionQuantities[opt.id] || 0;
             const optionTotal = opt.price * qty;
             return `
-                    <div class="option-item">
-                        <span class="option-name">${escapeHtml(opt.name)}</span>
-                        <span class="option-price">${opt.price} ₽</span>
-                        <span class="option-total">${optionTotal} ₽</span>
-                        <div class="option-quantity">
-                            <button class="opt-minus" data-id="${opt.id}">-</button>
-                            <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
-                            <button class="opt-plus" data-id="${opt.id}">+</button>
-                        </div>
-                        ${
-                          isAdmin
-                            ? `
-                            <div class="admin-option-controls">
-                                <button class="edit-option-btn" data-id="${opt.id}" data-name="${escapeHtml(opt.name)}" data-price="${opt.price}">✏️</button>
-                                <button class="delete-option-btn" data-id="${opt.id}">🗑️</button>
-                            </div>
-                        `
-                            : ""
-                        }
-                    </div>
-                `;
+                          <div class="option-item">
+                              <span class="option-name">${escapeHtml(opt.name)}</span>
+                              <span class="option-price">${opt.price} ₽</span>
+                              <span class="option-total">${optionTotal} ₽</span>
+                              <div class="option-quantity">
+                                  <button class="opt-minus" data-id="${opt.id}">-</button>
+                                  <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
+                                  <button class="opt-plus" data-id="${opt.id}">+</button>
+                              </div>
+                              ${
+                                isAdmin
+                                  ? `
+                                  <div class="admin-option-controls">
+                                      <button class="edit-option-btn" data-id="${opt.id}" data-name="${escapeHtml(opt.name)}" data-price="${opt.price}">✏️</button>
+                                      <button class="delete-option-btn" data-id="${opt.id}">🗑️</button>
+                                  </div>
+                              `
+                                  : ""
+                              }
+                          </div>
+                      `;
           })
           .join("");
         attachOptionHandlers();
@@ -697,6 +700,7 @@
           .eq("id", id);
         if (error) alert("Ошибка удаления: " + error.message);
       }
+
       function openEditOptionModal(id, name, price) {
         document.getElementById("editOptionName").value = name;
         document.getElementById("editOptionPrice").value = price;
@@ -800,6 +804,8 @@
         const {
           data: { session },
         } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
         if (session) {
           currentUser = session.user;
           const { data: userData } = await supabaseClient
@@ -809,7 +815,6 @@
             .single();
           isAdmin =
             userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          const authSection = document.getElementById("auth-section");
           authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
           document.getElementById("userMenu").addEventListener("click", (e) => {
             if (e.target.id !== "logoutBtn")
@@ -822,11 +827,20 @@
               await supabaseClient.auth.signOut();
               window.location.reload();
             });
+          if (adminLinks) {
+            if (isAdmin) {
+              adminLinks.innerHTML = `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`;
+            } else {
+              adminLinks.innerHTML = "";
+            }
+          }
+          await loadProduct();
         } else {
-          document.getElementById("auth-section").innerHTML =
-            `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          document.getElementById("productContainer").innerHTML =
+            '<div class="empty-cart">Войдите, чтобы увидеть товар</div>';
+          if (adminLinks) adminLinks.innerHTML = "";
         }
-        await loadProduct();
       }
       function escapeHtml(str) {
         return str.replace(

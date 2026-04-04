@@ -143,6 +143,20 @@
     <div class="auth-container">
       <div class="tabs">
         <button class="tab-btn active" data-tab="login">Вход</button>
+        <!-- Форма для ввода кода 2FA -->
+        <div id="mfa-form" style="display: none">
+          <div class="input-group">
+            <label>Код из приложения-аутентификатора</label>
+            <input
+              type="text"
+              id="mfa-code"
+              placeholder="6-значный код"
+              autocomplete="off"
+            />
+          </div>
+          <button id="verify-mfa-btn" class="action-btn">Подтвердить</button>
+          <div id="mfa-message" class="message" style="display: none"></div>
+        </div>
         <button class="tab-btn" data-tab="register">Регистрация</button>
       </div>
 
@@ -299,6 +313,12 @@
       });
 
       // Вход
+      // Переменные для хранения данных сессии
+      let pendingSession = null;
+      let pendingEmail = null;
+      let pendingFactorId = null;
+
+      // Обработчик отправки формы входа
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = document.getElementById("login-email").value.trim();
@@ -309,28 +329,102 @@
           return;
         }
 
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password,
-        });
+        try {
+          // Пытаемся войти
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
 
-        if (error) {
-          showToast("Неверный email или пароль", true);
-          return;
+          if (error) {
+            if (
+              error.message.includes("verify your identity") ||
+              error.status === 422
+            ) {
+              // Если сервер вернул ошибку с требованием MFA
+              console.log("Требуется MFA");
+              const factors = await supabaseClient.auth.mfa.listFactors();
+              if (
+                factors.data &&
+                factors.data.totp &&
+                factors.data.totp.length > 0
+              ) {
+                pendingEmail = email;
+                pendingFactorId = factors.data.totp[0].id;
+                // Показываем форму для кода 2FA и скрываем форму логина
+                document.getElementById("login-panel").style.display = "none";
+                document.getElementById("mfa-form").style.display = "block";
+              } else {
+                showToast("Ошибка: не найден активный фактор 2FA", true);
+              }
+            } else {
+              showToast("Неверный email или пароль", true);
+            }
+            return;
+          }
+
+          // Если MFA не требуется, вход успешен
+          showToast("Вход выполнен! Перенаправление...");
+          localStorage.setItem(
+            "atbuy_current_user",
+            JSON.stringify({
+              email: data.user.email,
+              name: data.user.user_metadata.name,
+            }),
+          );
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        } catch (err) {
+          console.error("Ошибка:", err);
+          showToast("Произошла ошибка", true);
         }
-
-        showToast("Вход выполнен! Перенаправление...");
-        localStorage.setItem(
-          "atbuy_current_user",
-          JSON.stringify({
-            email: data.user.email,
-            name: data.user.user_metadata.name,
-          }),
-        );
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1000);
       });
+
+      // Обработчик для подтверждения кода 2FA
+      document
+        .getElementById("verify-mfa-btn")
+        ?.addEventListener("click", async () => {
+          const code = document.getElementById("mfa-code").value.trim();
+          const messageDiv = document.getElementById("mfa-message");
+          if (!code || code.length !== 6) {
+            messageDiv.textContent = "Введите 6-значный код";
+            messageDiv.className = "message error";
+            messageDiv.style.display = "block";
+            return;
+          }
+
+          try {
+            const { data, error } = await supabaseClient.auth.mfa.verify({
+              factorId: pendingFactorId,
+              code: code,
+            });
+
+            if (error) {
+              messageDiv.textContent = "Неверный код. Попробуйте ещё раз.";
+              messageDiv.className = "message error";
+              messageDiv.style.display = "block";
+              return;
+            }
+
+            // Успешный вход с MFA
+            showToast("Вход выполнен! Перенаправление...");
+            localStorage.setItem(
+              "atbuy_current_user",
+              JSON.stringify({
+                email: pendingEmail,
+                name: data.user.user_metadata.name,
+              }),
+            );
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 1000);
+          } catch (err) {
+            messageDiv.textContent = "Ошибка проверки кода";
+            messageDiv.className = "message error";
+            messageDiv.style.display = "block";
+          }
+        });
       // Восстановление пароля
       document
         .getElementById("forgotPasswordLink")

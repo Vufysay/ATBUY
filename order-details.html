@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Детали заказа — ATBUY</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: #fff !important;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: #fff !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: 0 0;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .order-details {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 30px;
+      }
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .order-id {
+        font-size: 1.2rem;
+        color: #9ca3af;
+      }
+      .order-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+      }
+      .status-pending {
+        background: #f59e0b33;
+        color: #fbbf24;
+      }
+      .status-paid {
+        background: #3b82f633;
+        color: #3b82f6;
+      }
+      .status-completed {
+        background: #22c55e33;
+        color: #22c55e;
+      }
+      .order-info {
+        margin-bottom: 24px;
+      }
+      .order-info p {
+        margin: 8px 0;
+      }
+      .items-list {
+        background: #1f2329;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .items-list h3 {
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .item-card {
+        background: #15181f;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid #2d3138;
+      }
+      .item-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+      .item-price {
+        color: #3b82f6;
+      }
+      .item-options {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-top: 8px;
+      }
+      .chat-section {
+        background: #1f2329;
+        border-radius: 20px;
+        padding: 20px;
+      }
+      .chat-section h3 {
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .message {
+        background: #15181f;
+        border-radius: 16px;
+        padding: 12px;
+        max-width: 80%;
+        align-self: flex-start;
+      }
+      .message.admin {
+        background: #1e3a5f;
+        align-self: flex-end;
+      }
+      .message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      .message-text {
+        word-break: break-word;
+      }
+      .delete-msg-btn {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 0.7rem;
+        margin-left: 10px;
+      }
+      .chat-input {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .chat-input input {
+        flex: 1;
+        padding: 12px;
+        background: #0f1117;
+        border: 1px solid #2d3138;
+        border-radius: 30px;
+        color: #fff;
+      }
+      .chat-input button {
+        background: #3b82f6;
+        border: none;
+        padding: 0 24px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+      }
+      .complete-btn {
+        background: #22c55e;
+        margin-top: 16px;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+        margin-top: 40px;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .message {
+          max-width: 95%;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a
+            ><a href="cart.html" class="cart-link">🛒 Корзина</a
+            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
+            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
+            ><a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="main">
+      <div class="container"><div id="orderContainer">Загрузка...</div></div>
+    </main>
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            ><a
+              href="terms.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Оферта</a
+            ><a
+              href="delivery.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Доставка</a
+            ><a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none"
+              >Реквизиты</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null,
+        isAdmin = false,
+        currentOrder = null,
+        messages = [];
+
+      async function loadOrder() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get("id");
+        if (!orderId) {
+          document.getElementById("orderContainer").innerHTML =
+            "<p>Заказ не указан</p>";
+          return;
+        }
+        let query = supabaseClient.from("orders").select("*");
+        if (!isAdmin) query = query.eq("user_id", currentUser.id);
+        const { data, error } = await query.eq("id", orderId).single();
+        if (error || !data) {
+          document.getElementById("orderContainer").innerHTML =
+            "<p>Заказ не найден</p>";
+          return;
+        }
+        currentOrder = data;
+        await loadMessages();
+        renderOrderDetails();
+      }
+      async function loadMessages() {
+        const { data, error } = await supabaseClient
+          .from("order_messages")
+          .select("*")
+          .eq("order_id", currentOrder.id)
+          .order("created_at", { ascending: true });
+        if (error) console.error(error);
+        else messages = data || [];
+      }
+      function renderOrderDetails() {
+        const statusClass =
+          currentOrder.status === "pending"
+            ? "pending"
+            : currentOrder.status === "paid"
+              ? "paid"
+              : "completed";
+        const statusText =
+          currentOrder.status === "pending"
+            ? "⏳ Ожидает оплаты"
+            : currentOrder.status === "paid"
+              ? "✅ Оплачен"
+              : "🎉 Выполнен";
+        const items = currentOrder.items || [];
+        const itemsHtml = items
+          .map(
+            (item) => `
+                <div class="item-card">
+                    <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
+                    <div class="item-price">${escapeHtml(item.product_price)}</div>
+                    ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
+                </div>
+            `,
+          )
+          .join("");
+        const messagesHtml = messages
+          .map(
+            (msg) => `
+                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+                    <div class="message-header">
+                        <span>${msg.is_admin ? "Администратор" : msg.user_name || "Пользователь"}</span>
+                        <span>${new Date(msg.created_at).toLocaleString()}</span>
+                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
+                    </div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                </div>
+            `,
+          )
+          .join("");
+
+        let chatHtml = "";
+        if (currentOrder.status === "pending") {
+          chatHtml = `<div class="chat-section"><h3>Чат с поддержкой</h3><p>💬 Чат станет доступен после оплаты заказа.</p></div>`;
+        } else if (currentOrder.status === "paid") {
+          chatHtml = `
+                    <div class="chat-section">
+                        <h3>Чат с поддержкой</h3>
+                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                            <button id="sendMessageBtn">Отправить</button>
+                        </div>
+                        ${isAdmin ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+                    </div>
+                `;
+        } else {
+          chatHtml = `
+                    <div class="chat-section">
+                        <h3>Чат с поддержкой (заказ выполнен)</h3>
+                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений.</div>'}</div>
+                        ${
+                          isAdmin
+                            ? `
+                            <div class="chat-input">
+                                <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                                <button id="sendMessageBtn">Отправить</button>
+                            </div>
+                            <button id="revertCompleteBtn" class="complete-btn" style="background:#f59e0b;">↩️ Вернуть в статус "Оплачен"</button>
+                        `
+                            : "<p>🔒 Заказ выполнен. Чат доступен только для чтения. Если у вас остались вопросы, свяжитесь с администратором через Telegram или почту.</p>"
+                        }
+                    </div>
+                `;
+        }
+
+        document.getElementById("orderContainer").innerHTML = `
+                <div class="order-details">
+                    <div class="order-header">
+                        <div class="order-id">Заказ #${currentOrder.id}</div>
+                        <div class="order-status status-${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="order-info">
+                        <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
+                        <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
+                        <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
+                        <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
+                    ${chatHtml}
+                </div>
+            `;
+
+        if (currentOrder.status !== "pending") {
+          const sendBtn = document.getElementById("sendMessageBtn");
+          if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+          const input = document.getElementById("messageInput");
+          if (input)
+            input.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") sendMessage();
+            });
+        }
+        if (isAdmin) {
+          document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+              const msgId = parseInt(btn.dataset.id);
+              if (confirm("Удалить сообщение?")) {
+                await supabaseClient
+                  .from("order_messages")
+                  .delete()
+                  .eq("id", msgId);
+                await loadMessages();
+                renderOrderDetails();
+              }
+            });
+          });
+          const completeBtn = document.getElementById("completeOrderBtn");
+          if (completeBtn) {
+            completeBtn.addEventListener("click", async () => {
+              await supabaseClient
+                .from("orders")
+                .update({ status: "completed" })
+                .eq("id", currentOrder.id);
+              currentOrder.status = "completed";
+              renderOrderDetails();
+            });
+          }
+          const revertBtn = document.getElementById("revertCompleteBtn");
+          if (revertBtn) {
+            revertBtn.addEventListener("click", async () => {
+              await supabaseClient
+                .from("orders")
+                .update({ status: "paid" })
+                .eq("id", currentOrder.id);
+              currentOrder.status = "paid";
+              renderOrderDetails();
+            });
+          }
+        }
+        const chatDiv = document.getElementById("chatMessages");
+        if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+      }
+      async function sendMessage() {
+        if (!currentUser) return;
+        if (currentOrder.status === "completed" && !isAdmin) {
+          alert(
+            "Заказ выполнен, отправка сообщений отключена. Свяжитесь с администратором через Telegram или почту.",
+          );
+          return;
+        }
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text) return;
+        const { error } = await supabaseClient.from("order_messages").insert({
+          order_id: currentOrder.id,
+          user_id: currentUser.id,
+          message: text,
+          is_admin: isAdmin,
+        });
+        if (error) alert("Ошибка отправки: " + error.message);
+        else {
+          input.value = "";
+          await loadMessages();
+          renderOrderDetails();
+        }
+      }
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          await loadOrder();
+        } else {
+          window.location.href = "login.html";
+        }
+      }
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
+      window.addEventListener("load", checkAuth);
+    </script>
+  </body>
+</html>

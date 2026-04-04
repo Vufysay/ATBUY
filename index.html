@@ -313,6 +313,9 @@
           <div class="nav-links">
             <a href="reviews.html">Отзывы</a
             ><a href="cart.html" class="cart-link">🛒 Корзина</a
+            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a
+            ><span id="admin-links"></span
             ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
             ><a
               href="https://www.youtube.com/@atr1but"
@@ -577,6 +580,7 @@
           data: { session },
         } = await supabaseClient.auth.getSession();
         const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
         if (session) {
           currentUser = session.user;
           const { data: userData } = await supabaseClient
@@ -587,24 +591,27 @@
           isAdmin =
             userData?.is_admin || currentUser.email === "vufysay@gmail.com";
           authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
           document
             .getElementById("logoutBtn")
-            ?.addEventListener("click", async (e) => {
+            .addEventListener("click", async (e) => {
               e.stopPropagation();
               await supabaseClient.auth.signOut();
               window.location.reload();
             });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          await loadGames();
         } else {
           authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          isAdmin = false;
+          if (adminLinks) adminLinks.innerHTML = "";
+          await loadGames();
         }
-        await loadGames();
       }
       function escapeHtml(str) {
         return str.replace(

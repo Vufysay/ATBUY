@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Чат с пользователем — Админ</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: #fff !important;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: #fff !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: 0 0;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .chat-container {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 24px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .chat-header {
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #2d3138;
+      }
+      .chat-header h2 {
+        color: #3b82f6;
+      }
+      .chat-messages {
+        max-height: 500px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .message {
+        background: #1f2329;
+        border-radius: 16px;
+        padding: 12px;
+        max-width: 80%;
+        align-self: flex-start;
+      }
+      .message.admin {
+        background: #1e3a5f;
+        align-self: flex-end;
+      }
+      .message-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      .message-text {
+        word-break: break-word;
+      }
+      .delete-msg-btn {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 0.7rem;
+        margin-left: 10px;
+      }
+      .chat-input {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .chat-input input {
+        flex: 1;
+        padding: 12px;
+        background: #0f1117;
+        border: 1px solid #2d3138;
+        border-radius: 30px;
+        color: #fff;
+      }
+      .chat-input button {
+        background: #3b82f6;
+        border: none;
+        padding: 0 24px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+        margin-top: 40px;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .message {
+          max-width: 95%;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a
+            ><a href="cart.html" class="cart-link">🛒 Корзина</a
+            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
+            ><a href="support.html" class="cart-link">💬 Поддержка</a
+            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
+            ><a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="main">
+      <div class="container">
+        <div class="chat-container">
+          <div id="chatHeader" class="chat-header"><h2>Загрузка...</h2></div>
+          <div id="chatMessages" class="chat-messages">Загрузка...</div>
+          <div class="chat-input">
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Ваше сообщение..."
+            /><button id="sendBtn">Отправить</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            ><a
+              href="terms.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Оферта</a
+            ><a
+              href="delivery.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Доставка</a
+            ><a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none"
+              >Реквизиты</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null,
+        isAdmin = false,
+        targetUserId = null,
+        messages = [];
+
+      async function loadMessages() {
+        const { data, error } = await supabaseClient
+          .from("support_messages")
+          .select("*")
+          .eq("user_id", targetUserId)
+          .order("created_at", { ascending: true });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        messages = data || [];
+        renderMessages();
+      }
+      function renderMessages() {
+        const container = document.getElementById("chatMessages");
+        if (!messages.length) {
+          container.innerHTML =
+            '<div class="message">Нет сообщений. Напишите что-нибудь...</div>';
+          return;
+        }
+        container.innerHTML = messages
+          .map(
+            (msg) => `
+                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+                    <div class="message-header">
+                        <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
+                        <span>${new Date(msg.created_at).toLocaleString()}</span>
+                        <button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>
+                    </div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                </div>
+            `,
+          )
+          .join("");
+        document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const msgId = parseInt(btn.dataset.id);
+            if (confirm("Удалить сообщение?")) {
+              await supabaseClient
+                .from("support_messages")
+                .delete()
+                .eq("id", msgId);
+              await loadMessages();
+            }
+          });
+        });
+        const chatDiv = document.getElementById("chatMessages");
+        if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+      }
+      async function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if (!text) return;
+        const { error } = await supabaseClient.from("support_messages").insert({
+          user_id: targetUserId,
+          message: text,
+          is_admin: true,
+        });
+        if (error) alert("Ошибка отправки: " + error.message);
+        else {
+          input.value = "";
+          await loadMessages();
+        }
+      }
+      async function loadUserInfo() {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("name")
+          .eq("id", targetUserId)
+          .single();
+        if (error) console.error(error);
+        const userName = data?.name || "Пользователь";
+        document.getElementById("chatHeader").innerHTML =
+          `<h2>Чат с ${escapeHtml(userName)}</h2>`;
+      }
+      async function checkAuth() {
+        const urlParams = new URLSearchParams(window.location.search);
+        targetUserId = urlParams.get("user_id");
+        if (!targetUserId) {
+          window.location.href = "admin-chats.html";
+          return;
+        }
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          const aal = session.user?.factors?.aal || "aal1";
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_2fa_enabled")
+            .eq("id", session.user.id)
+            .single();
+          if (userData?.is_2fa_enabled && aal !== "aal2") {
+            window.location.href = "mfa-verify.html";
+            return;
+          }
+          currentUser = session.user;
+          const { data: userData2 } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userData2?.is_admin || currentUser.email === "vufysay@gmail.com";
+          if (!isAdmin) {
+            window.location.href = "index.html";
+            return;
+          }
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks) {
+            adminLinks.innerHTML = `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`;
+          }
+          await loadUserInfo();
+          await loadMessages();
+        } else {
+          window.location.href = "login.html";
+        }
+      }
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
+      window.addEventListener("load", () => {
+        checkAuth();
+        document
+          .getElementById("sendBtn")
+          .addEventListener("click", sendMessage);
+        document
+          .getElementById("messageInput")
+          .addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+          });
+      });
+    </script>
+  </body>
+</html>
