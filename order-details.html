@@ -371,52 +371,52 @@
         const itemsHtml = items
           .map(
             (item) => `
-                      <div class="item-card">
-                          <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
-                          <div class="item-price">${escapeHtml(item.product_price)}</div>
-                          ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
-                      </div>
-                  `,
+                <div class="item-card">
+                    <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
+                    <div class="item-price">${escapeHtml(item.product_price)}</div>
+                    ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
+                </div>
+            `,
           )
           .join("");
         const messagesHtml = messages
           .map(
             (msg) => `
-                      <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
-                          <div class="message-header">
-                              <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
-                              <span>${new Date(msg.created_at).toLocaleString()}</span>
-                              ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
-                          </div>
-                          <div class="message-text">${escapeHtml(msg.message)}</div>
-                      </div>
-                  `,
+                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+                    <div class="message-header">
+                        <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
+                        <span>${new Date(msg.created_at).toLocaleString()}</span>
+                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
+                    </div>
+                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                </div>
+            `,
           )
           .join("");
         document.getElementById("orderContainer").innerHTML = `
-                      <div class="order-details">
-                          <div class="order-header">
-                              <div class="order-id">Заказ #${currentOrder.id}</div>
-                              <div class="order-status status-${statusClass}">${statusText}</div>
-                          </div>
-                          <div class="order-info">
-                              <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
-                              <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
-                              <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
-                              <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
-                          </div>
-                          <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
-                          <div class="chat-section">
-                              <h3>Чат с поддержкой</h3>
-                              <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
-                              <div class="chat-input">
-                                  <input type="text" id="messageInput" placeholder="Ваше сообщение...">
-                                  <button id="sendMessageBtn">Отправить</button>
-                              </div>
-                              ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
-                          </div>
-                      </div>
-                  `;
+                <div class="order-details">
+                    <div class="order-header">
+                        <div class="order-id">Заказ #${currentOrder.id}</div>
+                        <div class="order-status status-${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="order-info">
+                        <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
+                        <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
+                        <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
+                        <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
+                    <div class="chat-section">
+                        <h3>Чат с поддержкой</h3>
+                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                            <button id="sendMessageBtn">Отправить</button>
+                        </div>
+                        ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+                    </div>
+                </div>
+            `;
         document
           .getElementById("sendMessageBtn")
           .addEventListener("click", sendMessage);
@@ -451,22 +451,12 @@
                 alert("Ошибка обновления статуса: " + updateError.message);
                 return;
               }
-
-              // Получаем токен сессии
-              const {
-                data: { session },
-              } = await supabaseClient.auth.getSession();
-              const accessToken = session?.access_token;
-
               // Отправляем уведомление администратору
               const { error: notifyError } =
                 await supabaseClient.functions.invoke(
                   "send-admin-notification",
                   {
                     body: { order_id: currentOrder.id },
-                    headers: {
-                      Authorization: `Bearer ${accessToken}`,
-                    },
                   },
                 );
               if (notifyError) {
@@ -475,7 +465,6 @@
               } else {
                 alert("Статус заказа обновлён, уведомление отправлено!");
               }
-
               currentOrder.status = "completed";
               renderOrderDetails();
             });
