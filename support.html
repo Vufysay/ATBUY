@@ -141,18 +141,17 @@
       .message-text {
         word-break: break-word;
       }
-      .delete-msg-btn {
-        background: none;
-        border: none;
-        color: #ef4444;
-        cursor: pointer;
-        font-size: 0.7rem;
-        margin-left: 10px;
+      .message img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 8px;
       }
       .chat-input {
         display: flex;
         gap: 12px;
         margin-top: 16px;
+        align-items: center;
       }
       .chat-input input {
         flex: 1;
@@ -169,6 +168,15 @@
         border-radius: 30px;
         color: #fff;
         cursor: pointer;
+      }
+      .attach-btn {
+        background: #4b5563;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
       }
       .footer {
         background: #0f1117;
@@ -205,6 +213,7 @@
             ><a href="cart.html" class="cart-link">🛒 Корзина</a
             ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
             ><a href="support.html" class="cart-link">💬 Поддержка</a
+            ><span id="admin-links"></span
             ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
             ><a
               href="https://www.youtube.com/@atr1but"
@@ -227,7 +236,13 @@
               type="text"
               id="messageInput"
               placeholder="Ваше сообщение..."
-            /><button id="sendBtn">Отправить</button>
+            /><input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              style="display: none"
+            /><button id="attachImageBtn" class="attach-btn">📎</button
+            ><button id="sendBtn">Отправить</button>
           </div>
         </div>
       </div>
@@ -277,7 +292,7 @@
           .eq("user_id", currentUser.id)
           .order("created_at", { ascending: true });
         if (error) {
-          console.error(error);
+          console.error("Ошибка загрузки сообщений:", error);
           return;
         }
         messages = data || [];
@@ -295,45 +310,26 @@
             (msg) => `
                 <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
                     <div class="message-header">
-                        <span>${msg.is_admin ? "Администратор" : escapeHtml(msg.user_name || "Пользователь")}</span>
+                        <span>${msg.is_admin ? "Администратор" : "Вы"}</span>
                         <span>${new Date(msg.created_at).toLocaleString()}</span>
-                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
                     </div>
                     <div class="message-text">${escapeHtml(msg.message)}</div>
+                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image">` : ""}
                 </div>
             `,
           )
           .join("");
-        if (isAdmin) {
-          document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
-              const msgId = parseInt(btn.dataset.id);
-              if (confirm("Удалить сообщение?")) {
-                await supabaseClient
-                  .from("support_messages")
-                  .delete()
-                  .eq("id", msgId);
-                await loadMessages();
-              }
-            });
-          });
-        }
         const chatDiv = document.getElementById("chatMessages");
         if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
       }
       async function sendMessage() {
-        if (!currentUser) {
-          alert("Войдите в аккаунт");
-          window.location.href = "login.html";
-          return;
-        }
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text) return;
         const { error } = await supabaseClient.from("support_messages").insert({
           user_id: currentUser.id,
           message: text,
-          is_admin: isAdmin,
+          is_admin: false,
         });
         if (error) alert("Ошибка отправки: " + error.message);
         else {
@@ -341,35 +337,68 @@
           await loadMessages();
         }
       }
-     async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const authSection = document.getElementById('auth-section');
-    const adminLinks = document.getElementById('admin-links');
-    if (session) {
-        currentUser = session.user;
-        const { data: userAdmin } = await supabaseClient
-            .from('users')
-            .select('is_admin')
-            .eq('id', currentUser.id)
+      async function sendImage(file) {
+        const fileName = `chat_${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from("chat_images")
+          .upload(fileName, file);
+        if (uploadError) {
+          alert("Ошибка загрузки: " + uploadError.message);
+          return;
+        }
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("chat_images").getPublicUrl(fileName);
+        const { error: insertError } = await supabaseClient
+          .from("support_messages")
+          .insert({
+            user_id: currentUser.id,
+            message: "",
+            is_admin: false,
+            image_url: publicUrl,
+          });
+        if (insertError) alert("Ошибка отправки: " + insertError.message);
+        else await loadMessages();
+      }
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          currentUser = session.user;
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
             .single();
-        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-        document.getElementById('userMenu').addEventListener('click', (e) => {
-            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await supabaseClient.auth.signOut();
-            window.location.reload();
-        });
-        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-        await loadMessages();
-    } else {
-        authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-        document.getElementById('chatMessages').innerHTML = '<div class="message">Войдите, чтобы начать чат</div>';
-        if (adminLinks) adminLinks.innerHTML = '';
-    }
-}
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          await loadMessages();
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          document.getElementById("chatMessages").innerHTML =
+            '<div class="message">Войдите, чтобы начать чат</div>';
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
@@ -385,6 +414,17 @@
           .getElementById("messageInput")
           .addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
+          });
+        document
+          .getElementById("attachImageBtn")
+          .addEventListener("click", () =>
+            document.getElementById("imageInput").click(),
+          );
+        document
+          .getElementById("imageInput")
+          .addEventListener("change", async (e) => {
+            if (e.target.files.length) await sendImage(e.target.files[0]);
+            e.target.value = "";
           });
       });
     </script>

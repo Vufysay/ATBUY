@@ -202,6 +202,12 @@
       .message-text {
         word-break: break-word;
       }
+      .message img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 8px;
+      }
       .delete-msg-btn {
         background: none;
         border: none;
@@ -214,6 +220,7 @@
         display: flex;
         gap: 12px;
         margin-top: 16px;
+        align-items: center;
       }
       .chat-input input {
         flex: 1;
@@ -230,6 +237,15 @@
         border-radius: 30px;
         color: #fff;
         cursor: pointer;
+      }
+      .attach-btn {
+        background: #4b5563;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
       }
       .complete-btn {
         background: #22c55e;
@@ -395,6 +411,7 @@
                         ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
                     </div>
                     <div class="message-text">${escapeHtml(msg.message)}</div>
+                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image">` : ""}
                 </div>
             `,
           )
@@ -417,6 +434,8 @@
                         <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
                         <div class="chat-input">
                             <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            <button id="attachImageBtn" class="attach-btn">📎</button>
                             <button id="sendMessageBtn">Отправить</button>
                         </div>
                         ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
@@ -430,6 +449,17 @@
           .getElementById("messageInput")
           .addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
+          });
+        document
+          .getElementById("attachImageBtn")
+          .addEventListener("click", () =>
+            document.getElementById("imageInput").click(),
+          );
+        document
+          .getElementById("imageInput")
+          .addEventListener("change", async (e) => {
+            if (e.target.files.length) await sendImage(e.target.files[0]);
+            e.target.value = "";
           });
         if (isAdmin) {
           document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
@@ -478,6 +508,33 @@
         if (error) alert("Ошибка отправки: " + error.message);
         else {
           input.value = "";
+          await loadMessages();
+          renderOrderDetails();
+        }
+      }
+      async function sendImage(file) {
+        const fileName = `order_${currentOrder.id}_${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from("chat_images")
+          .upload(fileName, file);
+        if (uploadError) {
+          alert("Ошибка загрузки: " + uploadError.message);
+          return;
+        }
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("chat_images").getPublicUrl(fileName);
+        const { error: insertError } = await supabaseClient
+          .from("order_messages")
+          .insert({
+            order_id: currentOrder.id,
+            user_id: currentUser.id,
+            message: "",
+            is_admin: isAdmin,
+            image_url: publicUrl,
+          });
+        if (insertError) alert("Ошибка отправки: " + insertError.message);
+        else {
           await loadMessages();
           renderOrderDetails();
         }

@@ -138,6 +138,12 @@
       .message-text {
         word-break: break-word;
       }
+      .message img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 8px;
+      }
       .delete-msg-btn {
         background: none;
         border: none;
@@ -150,6 +156,7 @@
         display: flex;
         gap: 12px;
         margin-top: 16px;
+        align-items: center;
       }
       .chat-input input {
         flex: 1;
@@ -166,6 +173,15 @@
         border-radius: 30px;
         color: #fff;
         cursor: pointer;
+      }
+      .attach-btn {
+        background: #4b5563;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 30px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 1.2rem;
       }
       .footer {
         background: #0f1117;
@@ -202,6 +218,7 @@
             ><a href="cart.html" class="cart-link">🛒 Корзина</a
             ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
             ><a href="support.html" class="cart-link">💬 Поддержка</a
+            ><span id="admin-links"></span
             ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
             ><a
               href="https://www.youtube.com/@atr1but"
@@ -224,7 +241,13 @@
               type="text"
               id="messageInput"
               placeholder="Ваше сообщение..."
-            /><button id="sendBtn">Отправить</button>
+            /><input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              style="display: none"
+            /><button id="attachImageBtn" class="attach-btn">📎</button
+            ><button id="sendBtn">Отправить</button>
           </div>
         </div>
       </div>
@@ -275,7 +298,7 @@
           .eq("user_id", targetUserId)
           .order("created_at", { ascending: true });
         if (error) {
-          console.error(error);
+          console.error("Ошибка загрузки сообщений:", error);
           return;
         }
         messages = data || [];
@@ -298,6 +321,7 @@
                         <button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>
                     </div>
                     <div class="message-text">${escapeHtml(msg.message)}</div>
+                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image">` : ""}
                 </div>
             `,
           )
@@ -332,6 +356,29 @@
           await loadMessages();
         }
       }
+      async function sendImage(file) {
+        const fileName = `chat_${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from("chat_images")
+          .upload(fileName, file);
+        if (uploadError) {
+          alert("Ошибка загрузки: " + uploadError.message);
+          return;
+        }
+        const {
+          data: { publicUrl },
+        } = supabaseClient.storage.from("chat_images").getPublicUrl(fileName);
+        const { error: insertError } = await supabaseClient
+          .from("support_messages")
+          .insert({
+            user_id: targetUserId,
+            message: "",
+            is_admin: true,
+            image_url: publicUrl,
+          });
+        if (insertError) alert("Ошибка отправки: " + insertError.message);
+        else await loadMessages();
+      }
       async function loadUserInfo() {
         const { data, error } = await supabaseClient
           .from("users")
@@ -343,38 +390,48 @@
         document.getElementById("chatHeader").innerHTML =
           `<h2>Чат с ${escapeHtml(userName)}</h2>`;
       }
-     async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const authSection = document.getElementById('auth-section');
-    const adminLinks = document.getElementById('admin-links');
-    if (session) {
-        currentUser = session.user;
-        const { data: userAdmin } = await supabaseClient
-            .from('users')
-            .select('is_admin')
-            .eq('id', currentUser.id)
-            .single();
-        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-        if (!isAdmin) {
-            window.location.href = 'support.html';
-            return;
+      async function checkAuth() {
+        const urlParams = new URLSearchParams(window.location.search);
+        targetUserId = urlParams.get("user_id");
+        if (!targetUserId) {
+          window.location.href = "admin-chats.html";
+          return;
         }
-        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-        document.getElementById('userMenu').addEventListener('click', (e) => {
-            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await supabaseClient.auth.signOut();
-            window.location.reload();
-        });
-        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-        await loadMessages();
-        await loadUserInfo();
-    } else {
-        window.location.href = 'login.html';
-    }
-}
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+          if (!isAdmin) {
+            window.location.href = "support.html";
+            return;
+          }
+          const authSection = document.getElementById("auth-section");
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          await loadUserInfo();
+          await loadMessages();
+        } else {
+          window.location.href = "login.html";
+        }
+      }
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
@@ -390,6 +447,17 @@
           .getElementById("messageInput")
           .addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
+          });
+        document
+          .getElementById("attachImageBtn")
+          .addEventListener("click", () =>
+            document.getElementById("imageInput").click(),
+          );
+        document
+          .getElementById("imageInput")
+          .addEventListener("change", async (e) => {
+            if (e.target.files.length) await sendImage(e.target.files[0]);
+            e.target.value = "";
           });
       });
     </script>
