@@ -165,7 +165,6 @@
         <button class="tab-btn" data-tab="register">Регистрация</button>
       </div>
 
-      <!-- Панель входа (магическая ссылка) -->
       <div class="form-panel active" id="login-panel">
         <h2>Вход по ссылке</h2>
         <form id="login-form">
@@ -187,7 +186,6 @@
         </div>
       </div>
 
-      <!-- Панель регистрации (создание аккаунта) -->
       <div class="form-panel" id="register-panel">
         <h2>Создать аккаунт</h2>
         <form id="register-form">
@@ -271,7 +269,7 @@
           document.getElementById("register-form").reset();
         });
 
-      // Отправка магической ссылки
+      // Отправка магической ссылки (один вызов)
       document
         .getElementById("login-form")
         .addEventListener("submit", async (e) => {
@@ -289,38 +287,6 @@
           }
           showToast("Ссылка для входа отправлена! Проверьте почту.");
           document.getElementById("login-email").value = "";
-        });
-
-      document
-        .getElementById("login-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const email = document.getElementById("login-email").value.trim();
-          if (!email.includes("@")) {
-            showToast("Введите корректный email", true);
-            return;
-          }
-          showToast("Отправляем ссылку...");
-          const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/index.html`,
-            },
-          });
-          if (error) {
-            showToast("Ошибка: " + error.message, true);
-            return;
-          }
-          showToast("Ссылка для входа отправлена! Проверьте почту.");
-          document.getElementById("login-email").value = "";
-        });
-
-      // Восстановление пароля (не нужно, но оставим для совместимости)
-      document
-        .getElementById("forgotPasswordLink")
-        ?.addEventListener("click", (e) => {
-          e.preventDefault();
-          window.location.href = "reset-password.html";
         });
     </script>
   </body>

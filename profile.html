@@ -213,42 +213,6 @@
       .ban-btn:hover {
         background: #dc2626;
       }
-      .accounts-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 16px;
-      }
-      .account-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #1f2329;
-        padding: 10px 16px;
-        border-radius: 12px;
-      }
-      .account-email {
-        font-weight: 500;
-      }
-      .switch-account-btn {
-        background: #3b82f6;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 20px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-      .remove-account-btn {
-        background: #ef4444;
-        border: none;
-        padding: 6px 12px;
-        border-radius: 20px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 0.8rem;
-        margin-left: 8px;
-      }
       .footer {
         background: #0f1117;
         border-top: 1px solid #1f2329;
@@ -364,97 +328,6 @@
       let currentUser = null,
         isAdmin = false;
 
-      const SESSIONS_STORAGE_KEY = "atbuy_saved_sessions";
-      async function saveCurrentSession() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (!session) return;
-        const sessions = JSON.parse(
-          localStorage.getItem(SESSIONS_STORAGE_KEY) || "[]",
-        );
-        const existingIndex = sessions.findIndex(
-          (s) => s.user.id === session.user.id,
-        );
-        const sessionData = {
-          user: {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.name,
-          },
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          expires_at: session.expires_at,
-        };
-        if (existingIndex !== -1) sessions[existingIndex] = sessionData;
-        else sessions.push(sessionData);
-        localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
-        renderAccountsList();
-      }
-      function getSavedAccounts() {
-        return JSON.parse(localStorage.getItem(SESSIONS_STORAGE_KEY) || "[]");
-      }
-      async function switchToAccount(sessionData) {
-        const { error } = await supabaseClient.auth.setSession({
-          access_token: sessionData.access_token,
-          refresh_token: sessionData.refresh_token,
-        });
-        if (error) {
-          alert("Ошибка переключения: " + error.message);
-          removeAccount(sessionData.user.id);
-        } else {
-          await updateAuthHeader();
-          await loadProfile();
-          alert(`Переключено на ${sessionData.user.email}`);
-        }
-      }
-      function removeAccount(userId) {
-        let sessions = getSavedAccounts();
-        sessions = sessions.filter((s) => s.user.id !== userId);
-        localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
-        renderAccountsList();
-      }
-      function renderAccountsList() {
-        const container = document.getElementById("accountsList");
-        if (!container) return;
-        const sessions = getSavedAccounts();
-        if (!sessions.length) {
-          container.innerHTML =
-            '<p style="color:#9ca3af;">Сохранённых аккаунтов нет. Добавьте новый аккаунт.</p>';
-          return;
-        }
-        let html = "";
-        for (const sess of sessions) {
-          html += `
-                    <div class="account-item">
-                        <div class="account-email">${escapeHtml(sess.user.email)} (${escapeHtml(sess.user.name || "без имени")})</div>
-                        <div>
-                            <button class="switch-account-btn" data-user-id="${sess.user.id}">Переключиться</button>
-                            <button class="remove-account-btn" data-user-id="${sess.user.id}">Удалить</button>
-                        </div>
-                    </div>
-                `;
-        }
-        container.innerHTML = html;
-        document.querySelectorAll(".switch-account-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const userId = btn.dataset.userId;
-            const sessions = getSavedAccounts();
-            const session = sessions.find((s) => s.user.id === userId);
-            if (session) await switchToAccount(session);
-          });
-        });
-        document.querySelectorAll(".remove-account-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const userId = btn.dataset.userId;
-            removeAccount(userId);
-          });
-        });
-      }
-      function addAccount() {
-        window.location.href = "login.html?return_to=profile";
-      }
-
       async function handlePasswordReset() {
         const urlParams = new URLSearchParams(window.location.search);
         const accessToken = urlParams.get("access_token");
@@ -504,7 +377,6 @@
           return;
         }
         currentUser = session.user;
-        await saveCurrentSession();
         const { data: userData } = await supabaseClient
           .from("users")
           .select("is_admin")
@@ -517,15 +389,10 @@
         document.getElementById("profileContent").innerHTML = `
                 <div class="section"><h2>Информация об аккаунте</h2><div class="info-row"><span class="info-label">Email:</span><span>${escapeHtml(currentUser.email)}</span></div><div class="info-row"><span class="info-label">Имя:</span><span id="currentNameDisplay">${escapeHtml(currentName)}</span></div></div>
                 <div class="section"><h2>Изменить имя</h2><div class="input-group"><input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}"></div><button id="updateNameBtn">Сохранить имя</button><div id="nameMessage" class="message" style="display:none;"></div></div>
-                <div class="section"><h2>Управление аккаунтами</h2><button id="addAccountBtn" class="action-btn" style="background:#3b82f6;">➕ Добавить аккаунт</button><div id="accountsList" class="accounts-list"></div></div>
             `;
         document
           .getElementById("updateNameBtn")
           .addEventListener("click", updateName);
-        document
-          .getElementById("addAccountBtn")
-          .addEventListener("click", addAccount);
-        renderAccountsList();
         if (isAdmin) {
           document.getElementById("adminPanel").style.display = "block";
           document.getElementById("adminOrdersPanel").style.display = "block";
