@@ -143,6 +143,7 @@
         max-height: 200px;
         border-radius: 8px;
         margin-top: 8px;
+        cursor: pointer;
       }
       .delete-msg-btn {
         background: none;
@@ -195,6 +196,35 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 20px;
+      }
+      .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+      }
+      .image-modal.active {
+        display: flex;
+      }
+      .image-modal .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+      }
+      .image-modal .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #fff;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
       }
       @media (max-width: 768px) {
         .navbar {
@@ -278,6 +308,10 @@
         </div>
       </div>
     </footer>
+    <div id="imageModal" class="image-modal">
+      <span class="close-modal">&times;</span>
+      <img class="modal-content" id="modalImage" />
+    </div>
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
@@ -321,7 +355,7 @@
                         <button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>
                     </div>
                     <div class="message-text">${escapeHtml(msg.message)}</div>
-                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image">` : ""}
+                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ""}
                 </div>
             `,
           )
@@ -336,6 +370,13 @@
                 .eq("id", msgId);
               await loadMessages();
             }
+          });
+        });
+        document.querySelectorAll(".chat-image").forEach((img) => {
+          img.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("modalImage").src = img.src;
+            document.getElementById("imageModal").classList.add("active");
           });
         });
         const chatDiv = document.getElementById("chatMessages");
@@ -458,6 +499,18 @@
           .addEventListener("change", async (e) => {
             if (e.target.files.length) await sendImage(e.target.files[0]);
             e.target.value = "";
+          });
+        document
+          .getElementById("close-modal")
+          ?.addEventListener("click", () => {
+            document.getElementById("imageModal").classList.remove("active");
+          });
+        document
+          .getElementById("imageModal")
+          ?.addEventListener("click", (e) => {
+            if (e.target === document.getElementById("imageModal")) {
+              document.getElementById("imageModal").classList.remove("active");
+            }
           });
       });
     </script>

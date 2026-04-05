@@ -94,23 +94,20 @@
       .main {
         padding: 48px 0 64px;
       }
-      .support-header {
-        text-align: center;
-        margin-bottom: 40px;
-      }
-      .support-header h1 {
-        font-size: 2.5rem;
-        background: linear-gradient(135deg, #fff, #3b82f6);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
       .chat-container {
         background: #15181f;
         border-radius: 24px;
         padding: 24px;
         max-width: 800px;
         margin: 0 auto;
+      }
+      .chat-header {
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #2d3138;
+      }
+      .chat-header h2 {
+        color: #3b82f6;
       }
       .chat-messages {
         max-height: 500px;
@@ -146,6 +143,7 @@
         max-height: 200px;
         border-radius: 8px;
         margin-top: 8px;
+        cursor: pointer;
       }
       .chat-input {
         display: flex;
@@ -191,6 +189,35 @@
         flex-wrap: wrap;
         gap: 20px;
       }
+      .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+      }
+      .image-modal.active {
+        display: flex;
+      }
+      .image-modal .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+      }
+      .image-modal .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #fff;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+      }
       @media (max-width: 768px) {
         .navbar {
           flex-direction: column;
@@ -228,8 +255,10 @@
     </header>
     <main class="main">
       <div class="container">
-        <div class="support-header"><h1>Поддержка</h1></div>
         <div class="chat-container">
+          <div id="chatHeader" class="chat-header">
+            <h2>Чат с поддержкой</h2>
+          </div>
           <div id="chatMessages" class="chat-messages">Загрузка...</div>
           <div class="chat-input">
             <input
@@ -273,6 +302,10 @@
         </div>
       </div>
     </footer>
+    <div id="imageModal" class="image-modal">
+      <span class="close-modal">&times;</span>
+      <img class="modal-content" id="modalImage" />
+    </div>
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
@@ -302,7 +335,7 @@
         const container = document.getElementById("chatMessages");
         if (!messages.length) {
           container.innerHTML =
-            '<div class="message">Напишите что-нибудь...</div>';
+            '<div class="message">Нет сообщений. Напишите что-нибудь...</div>';
           return;
         }
         container.innerHTML = messages
@@ -314,11 +347,18 @@
                         <span>${new Date(msg.created_at).toLocaleString()}</span>
                     </div>
                     <div class="message-text">${escapeHtml(msg.message)}</div>
-                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image">` : ""}
+                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ""}
                 </div>
             `,
           )
           .join("");
+        document.querySelectorAll(".chat-image").forEach((img) => {
+          img.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("modalImage").src = img.src;
+            document.getElementById("imageModal").classList.add("active");
+          });
+        });
         const chatDiv = document.getElementById("chatMessages");
         if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
       }
@@ -425,6 +465,18 @@
           .addEventListener("change", async (e) => {
             if (e.target.files.length) await sendImage(e.target.files[0]);
             e.target.value = "";
+          });
+        document
+          .getElementById("close-modal")
+          ?.addEventListener("click", () => {
+            document.getElementById("imageModal").classList.remove("active");
+          });
+        document
+          .getElementById("imageModal")
+          ?.addEventListener("click", (e) => {
+            if (e.target === document.getElementById("imageModal")) {
+              document.getElementById("imageModal").classList.remove("active");
+            }
           });
       });
     </script>
