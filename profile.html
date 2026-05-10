@@ -1,312 +1,695 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Личный кабинет</title>
     <style>
-        /* стили как в предыдущей версии (я их сократил для краткости, но вы можете оставить свои) */
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Segoe UI',sans-serif;background:#0a0c10;color:#eef2ff}
-        .header{background:#0f1117;border-bottom:1px solid #1f2329;position:sticky;top:0;z-index:100}
-        .container{max-width:1300px;margin:0 auto;padding:0 24px}
-        .navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;flex-wrap:wrap;gap:16px}
-        .logo a{font-size:1.8rem;font-weight:800;text-decoration:none;color:#3b82f6}
-        .nav-links{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
-        .nav-links a{text-decoration:none;color:#9ca3af;font-weight:500;transition:color .2s}
-        .nav-links a:hover{color:#3b82f6}
-        .cart-link{background:#3b82f6;padding:6px 14px;border-radius:30px;color:#fff!important}
-        .youtube-link{background:#ff0000;color:#fff!important;padding:6px 14px;border-radius:30px}
-        .auth-btn{background:#3b82f6;padding:8px 22px;border-radius:30px;color:#fff;font-weight:600;text-decoration:none}
-        .user-info{display:flex;align-items:center;gap:12px;color:#9ca3af;cursor:pointer}
-        .logout-btn{background:0 0;border:1px solid #3b82f6;color:#3b82f6;padding:5px 12px;border-radius:20px;cursor:pointer}
-        .main{padding:48px 0 64px}
-        .profile-card,.admin-panel{background:#15181f;border-radius:24px;padding:32px;margin-bottom:30px;border:1px solid #2d3138}
-        .profile-card h1,.admin-panel h2{margin-bottom:24px;text-align:center;font-size:1.8rem;background:linear-gradient(135deg,#fff,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
-        .section{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #2d3138}
-        .section h2{font-size:1.3rem;margin-bottom:16px;color:#3b82f6}
-        .info-row{margin-bottom:12px}
-        .info-label{font-weight:600;color:#9ca3af;margin-right:12px}
-        .input-group{margin-bottom:16px}
-        .input-group input{width:100%;padding:10px;background:#1f2329;border:1px solid #2d3138;border-radius:12px;color:#fff}
-        button{background:#3b82f6;border:none;padding:10px 20px;border-radius:30px;color:#fff;font-weight:600;cursor:pointer}
-        button:hover{background:#2563eb}
-        .message{margin-top:12px;padding:8px;border-radius:12px;font-size:.85rem}
-        .message.success{background:#22c55e33;border:1px solid #22c55e;color:#22c55e}
-        .message.error{background:#ef444433;border:1px solid #ef4444;color:#ef4444}
-        .users-table,.orders-table{width:100%;overflow-x:auto;margin-top:16px}
-        .users-table table,.orders-table table{width:100%;border-collapse:collapse;background:#1f2329;border-radius:12px;overflow:hidden}
-        .users-table th,.orders-table th,
-        .users-table td,.orders-table td{padding:12px;text-align:left;border-bottom:1px solid #2d3138}
-        .users-table th,.orders-table th{background:#15181f;color:#3b82f6;font-weight:600}
-        .users-table tr:last-child td,.orders-table tr:last-child td{border-bottom:none}
-        .ban-btn{background:#ef4444;border:none;padding:5px 12px;border-radius:20px;color:#fff;cursor:pointer;font-size:.8rem}
-        .ban-btn:hover{background:#dc2626}
-        .footer{background:#0f1117;border-top:1px solid #1f2329;padding:30px 0}
-        .footer-content{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-        @media (max-width:768px){
-            .navbar{flex-direction:column;text-align:center}.nav-links{justify-content:center}
-            .users-table td,.orders-table td{display:block;text-align:right;padding-left:50%;position:relative}
-            .users-table td::before,.orders-table td::before{content:attr(data-label);position:absolute;left:12px;font-weight:700;color:#3b82f6}
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: #fff !important;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: #fff !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: 0 0;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .profile-card,
+      .admin-panel {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 30px;
+        border: 1px solid #2d3138;
+      }
+      .profile-card h1,
+      .admin-panel h2 {
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .section {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #2d3138;
+      }
+      .section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .info-row {
+        margin-bottom: 12px;
+      }
+      .info-label {
+        font-weight: 600;
+        color: #9ca3af;
+        margin-right: 12px;
+      }
+      .input-group {
+        margin-bottom: 16px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: #fff;
+      }
+      button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      .message {
+        margin-top: 12px;
+        padding: 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+      }
+      .message.success {
+        background: #22c55e33;
+        border: 1px solid #22c55e;
+        color: #22c55e;
+      }
+      .message.error {
+        background: #ef444433;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+      }
+      .users-table,
+      .orders-table {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 16px;
+      }
+      .users-table table,
+      .orders-table table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #1f2329;
+        border-radius: 12px;
+        overflow: hidden;
+        min-width: 600px;
+      }
+      .users-table th,
+      .orders-table th,
+      .users-table td,
+      .orders-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #2d3138;
+        white-space: nowrap;
+      }
+      .users-table th,
+      .orders-table th {
+        background: #15181f;
+        color: #3b82f6;
+        font-weight: 600;
+      }
+      .users-table tr:last-child td,
+      .orders-table tr:last-child td {
+        border-bottom: none;
+      }
+      .ban-btn {
+        background: #ef4444;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+      .ban-btn:hover {
+        background: #dc2626;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      /* Исправление для мобильных: вместо ломания таблицы добавляем горизонтальную прокрутку */
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
         }
+        .nav-links {
+          justify-content: center;
+        }
+        .users-table,
+        .orders-table {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
     <script>
-        (function() {
-            emailjs.init("YIKBw4TxPT9yO7aCd");
-        })();
+      (function () {
+        emailjs.init("YIKBw4TxPT9yO7aCd");
+      })();
     </script>
-</head>
-<body>
-    <header class="header"><div class="container"><div class="navbar"><div class="logo"><a href="index.html">ATBUY</a></div><div class="nav-links"><a href="reviews.html">Отзывы</a><a href="cart.html" class="cart-link">🛒 Корзина</a><a href="my-orders.html" class="cart-link">📦 Мои заказы</a><a href="support.html" class="cart-link">💬 Поддержка</a><span id="admin-links"></span><a href="https://t.me/your_telegram" target="_blank">Telegram</a><a href="https://www.youtube.com/@atr1but" target="_blank" class="youtube-link">🎬 YouTube</a><div id="auth-section"></div></div></div></div></header>
-    <main class="main"><div class="container"><div class="profile-card"><h1>Личный кабинет</h1><div id="profileContent">Загрузка...</div></div><div id="adminPanel" class="admin-panel" style="display: none;"><h2>Управление пользователями</h2><div id="usersList">Загрузка...</div></div><div id="adminOrdersPanel" class="admin-panel" style="display: none;"><h2>Управление заказами</h2><div id="adminOrdersContainer">Загрузка...</div></div></div></main>
-    <footer class="footer"><div class="container"><div class="footer-content"><div>© 2025 ATBUY. Все права защищены.</div><div><a href="reviews.html" style="color:#9ca3af; text-decoration:none; margin-right:20px;">Отзывы</a><a href="terms.html" style="color:#9ca3af; text-decoration:none; margin-right:20px;">Оферта</a><a href="delivery.html" style="color:#9ca3af; text-decoration:none; margin-right:20px;">Доставка</a><a href="requisites.html" style="color:#9ca3af; text-decoration:none;">Реквизиты</a></div></div></div></footer>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="navbar">
+          <div class="logo"><a href="index.html">ATBUY</a></div>
+          <div class="nav-links">
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
+              href="https://www.youtube.com/@atr1but"
+              target="_blank"
+              class="youtube-link"
+              >🎬 YouTube</a
+            >
+            <div id="auth-section"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="main">
+      <div class="container">
+        <div class="profile-card">
+          <h1>Личный кабинет</h1>
+          <div id="profileContent">Загрузка...</div>
+        </div>
+        <div id="adminPanel" class="admin-panel" style="display: none">
+          <h2>Управление пользователями</h2>
+          <div id="usersList">Загрузка...</div>
+        </div>
+        <div id="adminOrdersPanel" class="admin-panel" style="display: none">
+          <h2>Управление заказами</h2>
+          <div id="adminOrdersContainer">Загрузка...</div>
+        </div>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div>© 2025 ATBUY. Все права защищены.</div>
+          <div>
+            <a
+              href="reviews.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Отзывы</a
+            >
+            <a
+              href="terms.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Оферта</a
+            >
+            <a
+              href="delivery.html"
+              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
+              >Доставка</a
+            >
+            <a
+              href="requisites.html"
+              style="color: #9ca3af; text-decoration: none"
+              >Реквизиты</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
     <script>
-        const SUPABASE_URL = 'https://buonqsikukvqbnbpuuco.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUser = null, isAdmin = false;
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+      let currentUser = null,
+        isAdmin = false;
 
-        async function handlePasswordReset() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const accessToken = urlParams.get('access_token');
-            const type = urlParams.get('type');
-            if (accessToken && type === 'recovery') {
-                document.getElementById('profileContent').innerHTML = `
+      async function handlePasswordReset() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get("access_token");
+        const type = urlParams.get("type");
+        if (accessToken && type === "recovery") {
+          document.getElementById("profileContent").innerHTML = `
                     <div class="section"><h2>Восстановление пароля</h2><div class="input-group"><input type="password" id="newPassword" placeholder="Новый пароль (минимум 6 символов)"></div><button id="updatePasswordBtn">Сохранить пароль</button><div id="resetMessage" class="message" style="display:none;"></div></div>
                 `;
-                document.getElementById('updatePasswordBtn').addEventListener('click', async () => {
-                    const newPassword = document.getElementById('newPassword').value;
-                    const msgDiv = document.getElementById('resetMessage');
-                    if (!newPassword || newPassword.length < 6) {
-                        msgDiv.textContent = 'Пароль должен быть не менее 6 символов';
-                        msgDiv.className = 'message error';
-                        msgDiv.style.display = 'block';
-                        return;
-                    }
-                    try {
-                        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-                        if (error) throw error;
-                        msgDiv.textContent = 'Пароль успешно изменён! Перенаправляем...';
-                        msgDiv.className = 'message success';
-                        msgDiv.style.display = 'block';
-                        setTimeout(() => window.location.href = 'login.html', 2000);
-                    } catch (err) {
-                        msgDiv.textContent = 'Ошибка: ' + err.message;
-                        msgDiv.className = 'message error';
-                        msgDiv.style.display = 'block';
-                    }
+          document
+            .getElementById("updatePasswordBtn")
+            .addEventListener("click", async () => {
+              const newPassword = document.getElementById("newPassword").value;
+              const msgDiv = document.getElementById("resetMessage");
+              if (!newPassword || newPassword.length < 6) {
+                msgDiv.textContent = "Пароль должен быть не менее 6 символов";
+                msgDiv.className = "message error";
+                msgDiv.style.display = "block";
+                return;
+              }
+              try {
+                const { error } = await supabaseClient.auth.updateUser({
+                  password: newPassword,
                 });
-                return true;
-            }
-            return false;
+                if (error) throw error;
+                msgDiv.textContent =
+                  "Пароль успешно изменён! Перенаправляем...";
+                msgDiv.className = "message success";
+                msgDiv.style.display = "block";
+                setTimeout(() => (window.location.href = "login.html"), 2000);
+              } catch (err) {
+                msgDiv.textContent = "Ошибка: " + err.message;
+                msgDiv.className = "message error";
+                msgDiv.style.display = "block";
+              }
+            });
+          return true;
         }
+        return false;
+      }
 
-        async function loadProfile() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
-            currentUser = session.user;
-            const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-            isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-            const currentName = currentUser.user_metadata?.name || currentUser.email;
-            document.getElementById('profileContent').innerHTML = `
+      async function loadProfile() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+        currentUser = session.user;
+        const { data: userData } = await supabaseClient
+          .from("users")
+          .select("is_admin")
+          .eq("id", currentUser.id)
+          .single();
+        isAdmin =
+          userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+        const currentName =
+          currentUser.user_metadata?.name || currentUser.email;
+        document.getElementById("profileContent").innerHTML = `
                 <div class="section"><h2>Информация об аккаунте</h2><div class="info-row"><span class="info-label">Email:</span><span>${escapeHtml(currentUser.email)}</span></div><div class="info-row"><span class="info-label">Имя:</span><span id="currentNameDisplay">${escapeHtml(currentName)}</span></div></div>
                 <div class="section"><h2>Изменить имя</h2><div class="input-group"><input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}"></div><button id="updateNameBtn">Сохранить имя</button><div id="nameMessage" class="message" style="display:none;"></div></div>
                 <div class="section"><h2>Двухфакторная аутентификация</h2><div id="twofa-status"></div></div>
             `;
-            document.getElementById('updateNameBtn').addEventListener('click', updateName);
-            load2FAStatus();
-            if (isAdmin) {
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('adminOrdersPanel').style.display = 'block';
-                loadAllUsers();
-                loadAllOrders();
-            }
+        document
+          .getElementById("updateNameBtn")
+          .addEventListener("click", updateName);
+        load2FAStatus();
+        if (isAdmin) {
+          document.getElementById("adminPanel").style.display = "block";
+          document.getElementById("adminOrdersPanel").style.display = "block";
+          loadAllUsers();
+          loadAllOrders();
         }
+      }
 
-        async function updateName() {
-            const newName = document.getElementById('newName').value.trim();
-            const msg = document.getElementById('nameMessage');
-            if (!newName) { msg.textContent = 'Имя не может быть пустым'; msg.className = 'message error'; msg.style.display = 'block'; return; }
-            const { error } = await supabaseClient.auth.updateUser({ data: { name: newName } });
-            if (error) { msg.textContent = 'Ошибка: ' + error.message; msg.className = 'message error'; msg.style.display = 'block'; }
-            else { document.getElementById('currentNameDisplay').textContent = escapeHtml(newName); msg.textContent = 'Имя обновлено!'; msg.className = 'message success'; msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 3000); updateAuthHeader(); }
+      async function updateName() {
+        const newName = document.getElementById("newName").value.trim();
+        const msg = document.getElementById("nameMessage");
+        if (!newName) {
+          msg.textContent = "Имя не может быть пустым";
+          msg.className = "message error";
+          msg.style.display = "block";
+          return;
         }
-
-        async function load2FAStatus() {
-            const { data, error } = await supabaseClient
-                .from('users')
-                .select('is_2fa_enabled')
-                .eq('id', currentUser.id)
-                .single();
-            if (error) return;
-            const isEnabled = data?.is_2fa_enabled;
-            const twofaDiv = document.getElementById('twofa-status');
-            if (twofaDiv) {
-                if (isEnabled) {
-                    twofaDiv.innerHTML = `<button id="disable2faBtn" class="ban-btn">Отключить 2FA</button>`;
-                    document.getElementById('disable2faBtn')?.addEventListener('click', disable2FA);
-                } else {
-                    twofaDiv.innerHTML = `<button id="enable2faBtn" class="action-btn">Включить 2FA</button>`;
-                    document.getElementById('enable2faBtn')?.addEventListener('click', enable2FA);
-                }
-            }
+        const { error } = await supabaseClient.auth.updateUser({
+          data: { name: newName },
+        });
+        if (error) {
+          msg.textContent = "Ошибка: " + error.message;
+          msg.className = "message error";
+          msg.style.display = "block";
+        } else {
+          document.getElementById("currentNameDisplay").textContent =
+            escapeHtml(newName);
+          msg.textContent = "Имя обновлено!";
+          msg.className = "message success";
+          msg.style.display = "block";
+          setTimeout(() => (msg.style.display = "none"), 3000);
+          updateAuthHeader();
         }
+      }
 
-        async function enable2FA() {
-            if (!currentUser) return;
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            sessionStorage.setItem('2fa_code', code);
-            sessionStorage.setItem('2fa_expires', Date.now() + 10 * 60 * 1000);
-            try {
-                await emailjs.send('service_9od2h3e', 'template_w20gqh6', {
-                    to_email: currentUser.email,
-                    message: `Ваш код для включения 2FA: ${code}`,
-                    subject: 'Код подтверждения 2FA'
-                });
-                const enteredCode = prompt('Введите код, отправленный на почту:');
-                if (enteredCode === code && Date.now() < sessionStorage.getItem('2fa_expires')) {
-                    const { error } = await supabaseClient
-                        .from('users')
-                        .update({ is_2fa_enabled: true })
-                        .eq('id', currentUser.id);
-                    if (error) alert('Ошибка включения 2FA');
-                    else {
-                        alert('2FA успешно включена!');
-                        location.reload();
-                    }
-                } else {
-                    alert('Неверный или просроченный код');
-                }
-            } catch (err) {
-                alert('Ошибка отправки кода: ' + err.text);
-            }
+      async function load2FAStatus() {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("is_2fa_enabled")
+          .eq("id", currentUser.id)
+          .single();
+        if (error) return;
+        const isEnabled = data?.is_2fa_enabled;
+        const twofaDiv = document.getElementById("twofa-status");
+        if (twofaDiv) {
+          if (isEnabled) {
+            twofaDiv.innerHTML = `<button id="disable2faBtn" class="ban-btn">Отключить 2FA</button>`;
+            document
+              .getElementById("disable2faBtn")
+              ?.addEventListener("click", disable2FA);
+          } else {
+            twofaDiv.innerHTML = `<button id="enable2faBtn" class="action-btn">Включить 2FA</button>`;
+            document
+              .getElementById("enable2faBtn")
+              ?.addEventListener("click", enable2FA);
+          }
         }
+      }
 
-        async function disable2FA() {
-            if (!confirm('Вы уверены, что хотите отключить двухфакторную аутентификацию?')) return;
+      async function enable2FA() {
+        if (!currentUser) return;
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        sessionStorage.setItem("2fa_code", code);
+        sessionStorage.setItem("2fa_expires", Date.now() + 10 * 60 * 1000);
+        try {
+          // Исправлено: используется шаблон template_2fa
+          await emailjs.send("service_9od2h3e", "template_2fa", {
+            to_email: currentUser.email,
+            message: `Ваш код для включения 2FA: ${code}`,
+            subject: "Код подтверждения 2FA",
+          });
+          const enteredCode = prompt("Введите код, отправленный на почту:");
+          if (
+            enteredCode === code &&
+            Date.now() < sessionStorage.getItem("2fa_expires")
+          ) {
             const { error } = await supabaseClient
-                .from('users')
-                .update({ is_2fa_enabled: false })
-                .eq('id', currentUser.id);
-            if (error) alert('Ошибка отключения 2FA');
+              .from("users")
+              .update({ is_2fa_enabled: true })
+              .eq("id", currentUser.id);
+            if (error) alert("Ошибка включения 2FA");
             else {
-                alert('2FA отключена');
-                location.reload();
+              alert("2FA успешно включена!");
+              location.reload();
             }
+          } else {
+            alert("Неверный или просроченный код");
+          }
+        } catch (err) {
+          alert("Ошибка отправки кода: " + err.text);
         }
+      }
 
-        async function loadAllUsers() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('users')
-                    .select('id, name, email, is_admin, created_at')
-                    .order('created_at', { ascending: false });
-                if (error) throw error;
-                if (!data.length) {
-                    document.getElementById('usersList').innerHTML = '<p>Нет пользователей</p>';
-                    return;
-                }
-                let html = `<div class="users-table"></table><thead><tr><th>Имя</th><th>Email</th><th>Админ</th><th>Действия</th></tr></thead><tbody>`;
-                for (const user of data) {
-                    html += `<tr>
-                        <td data-label="Имя">${escapeHtml(user.name || '—')}</td>
-                        <td data-label="Email">${escapeHtml(user.email || '—')}</td>
-                        <td data-label="Админ">${user.is_admin ? 'Да' : 'Нет'}</td>
+      async function disable2FA() {
+        if (
+          !confirm(
+            "Вы уверены, что хотите отключить двухфакторную аутентификацию?",
+          )
+        )
+          return;
+        const { error } = await supabaseClient
+          .from("users")
+          .update({ is_2fa_enabled: false })
+          .eq("id", currentUser.id);
+        if (error) alert("Ошибка отключения 2FA");
+        else {
+          alert("2FA отключена");
+          location.reload();
+        }
+      }
+
+      async function loadAllUsers() {
+        try {
+          const { data, error } = await supabaseClient
+            .from("users")
+            .select("id, name, email, is_admin, created_at")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          if (!data.length) {
+            document.getElementById("usersList").innerHTML =
+              "<p>Нет пользователей</p>";
+            return;
+          }
+          let html = `<div class="users-table"><table><thead><tr><th>Имя</th><th>Email</th><th>Админ</th><th>Действия</th></tr></thead><tbody>`;
+          for (const user of data) {
+            html += `<tr>
+                        <td data-label="Имя">${escapeHtml(user.name || "—")}</td>
+                        <td data-label="Email">${escapeHtml(user.email || "—")}</td>
+                        <td data-label="Админ">${user.is_admin ? "Да" : "Нет"}</td>
                         <td data-label="Действия"><button class="ban-btn" data-user-id="${user.id}" data-user-email="${escapeHtml(user.email)}">🗑️ Удалить</button></td>
                     </tr>`;
+          }
+          html += `</tbody></table></div>`;
+          document.getElementById("usersList").innerHTML = html;
+          document.querySelectorAll(".ban-btn").forEach((btn) =>
+            btn.addEventListener("click", async () => {
+              const userId = btn.dataset.userId,
+                userEmail = btn.dataset.userEmail;
+              if (
+                confirm(`Удалить пользователя ${userEmail}? Это необратимо.`)
+              ) {
+                const { error } = await supabaseClient.rpc(
+                  "admin_delete_user",
+                  { user_id: userId },
+                );
+                if (error) alert("Ошибка удаления: " + error.message);
+                else {
+                  alert("Пользователь удалён");
+                  loadAllUsers();
                 }
-                html += `</tbody><table></div>`;
-                document.getElementById('usersList').innerHTML = html;
-                document.querySelectorAll('.ban-btn').forEach(btn => btn.addEventListener('click', async () => {
-                    const userId = btn.dataset.userId, userEmail = btn.dataset.userEmail;
-                    if (confirm(`Удалить пользователя ${userEmail}? Это необратимо.`)) {
-                        const { error } = await supabaseClient.rpc('admin_delete_user', { user_id: userId });
-                        if (error) alert('Ошибка удаления: ' + error.message);
-                        else { alert('Пользователь удалён'); loadAllUsers(); }
-                    }
-                }));
-            } catch (err) {
-                console.error(err);
-                document.getElementById('usersList').innerHTML = '<p class="message error">Ошибка загрузки пользователей</p>';
-            }
+              }
+            }),
+          );
+        } catch (err) {
+          console.error(err);
+          document.getElementById("usersList").innerHTML =
+            '<p class="message error">Ошибка загрузки пользователей</p>';
         }
+      }
 
-        async function loadAllOrders() {
-            const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-            if (error) { console.error(error); document.getElementById('adminOrdersContainer').innerHTML = '<p class="message error">Ошибка загрузки заказов</p>'; return; }
-            if (!data.length) { document.getElementById('adminOrdersContainer').innerHTML = '<p>Нет заказов</p>'; return; }
-            let html = `<div class="orders-table"><table><thead><tr><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr></thead><tbody>`;
-            for (const order of data) {
-                const { data: user, error: userError } = await supabaseClient
-                    .from('users')
-                    .select('email')
-                    .eq('id', order.user_id)
-                    .single();
-                let userEmail = 'Неизвестно';
-                if (!userError && user && user.email) userEmail = user.email;
-                html += `
+      async function loadAllOrders() {
+        const { data, error } = await supabaseClient
+          .from("orders")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          document.getElementById("adminOrdersContainer").innerHTML =
+            '<p class="message error">Ошибка загрузки заказов</p>';
+          return;
+        }
+        if (!data.length) {
+          document.getElementById("adminOrdersContainer").innerHTML =
+            "<p>Нет заказов</p>";
+          return;
+        }
+        let html = `<div class="orders-table"><table><thead><tr><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr></thead><tbody>`;
+        for (const order of data) {
+          const { data: user, error: userError } = await supabaseClient
+            .from("users")
+            .select("email")
+            .eq("id", order.user_id)
+            .single();
+          let userEmail = "Неизвестно";
+          if (!userError && user && user.email) userEmail = user.email;
+          html += `
                     <tr>
                         <td data-label="ID">${order.id}</td>
                         <td data-label="Пользователь">${escapeHtml(userEmail)}</td>
                         <td data-label="Сумма">${order.total_amount} ₽</td>
                         <td data-label="Статус">${order.status}</td>
                         <td data-label="Дата">${new Date(order.created_at).toLocaleDateString()}</td>
-                        <td数据-label="Действия"><a href="order-details.html?id=${order.id}" style="color:#3b82f6;">Открыть</a></td>
+                        <td data-label="Действия"><a href="order-details.html?id=${order.id}" style="color:#3b82f6;">Открыть</a></td>
                     </tr>
                 `;
-            }
-            html += `</tbody></table></div>`;
-            document.getElementById('adminOrdersContainer').innerHTML = html;
         }
+        html += `</tbody></table></div>`;
+        document.getElementById("adminOrdersContainer").innerHTML = html;
+      }
 
-        async function updateAuthHeader() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const authSection = document.getElementById('auth-section');
-            const adminLinks = document.getElementById('admin-links');
-            if (session) {
-                const name = session.user.user_metadata?.name || session.user.email;
-                if (authSection) authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(name)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-                document.getElementById('logoutBtn')?.addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.href = 'index.html'; });
-                document.getElementById('userMenu')?.addEventListener('click', (e) => { if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html'; });
-                const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', session.user.id).single();
-                const isAdminUser = (userData?.is_admin) || (session.user.email === 'vufysay@gmail.com');
-                if (adminLinks) adminLinks.innerHTML = isAdminUser ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-            } else {
-                if (authSection) authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-                if (adminLinks) adminLinks.innerHTML = '';
-            }
+      async function updateAuthHeader() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          const name = session.user.user_metadata?.name || session.user.email;
+          if (authSection)
+            authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(name)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document
+            .getElementById("logoutBtn")
+            ?.addEventListener("click", async () => {
+              await supabaseClient.auth.signOut();
+              window.location.href = "index.html";
+            });
+          document
+            .getElementById("userMenu")
+            ?.addEventListener("click", (e) => {
+              if (e.target.id !== "logoutBtn")
+                window.location.href = "profile.html";
+            });
+          const { data: userData } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", session.user.id)
+            .single();
+          const isAdminUser =
+            userData?.is_admin || session.user.email === "vufysay@gmail.com";
+          if (adminLinks)
+            adminLinks.innerHTML = isAdminUser
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          if (authSection)
+            authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
         }
+      }
 
-        async function checkAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const authSection = document.getElementById('auth-section');
-            const adminLinks = document.getElementById('admin-links');
-            if (session) {
-                currentUser = session.user;
-                const { data: userAdmin } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-                isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-                authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-                document.getElementById('userMenu').addEventListener('click', (e) => { if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html'; });
-                document.getElementById('logoutBtn').addEventListener('click', async (e) => { e.stopPropagation(); await supabaseClient.auth.signOut(); window.location.reload(); });
-                if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-                await loadProfile();
-            } else {
-                authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-                if (adminLinks) adminLinks.innerHTML = '';
-                window.location.href = 'login.html';
-            }
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          currentUser = session.user;
+          const { data: userAdmin } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          isAdmin =
+            userAdmin?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          await loadProfile();
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+          window.location.href = "login.html";
         }
+      }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
-        }
+      function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
 
-        window.addEventListener('load', async () => {
-            await checkAuth();
-        });
+      window.addEventListener("load", async () => {
+        await checkAuth();
+      });
     </script>
-</body>
+  </body>
 </html>
