@@ -144,16 +144,6 @@
         text-decoration: none;
         font-size: 0.9rem;
       }
-      .resend-link {
-        margin-top: 12px;
-        text-align: center;
-      }
-      .resend-link a {
-        color: #4f46e5;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 0.85rem;
-      }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script
@@ -172,26 +162,23 @@
         <button class="tab-btn active" data-tab="login">Вход</button>
         <button class="tab-btn" data-tab="register">Регистрация</button>
       </div>
-
       <div class="form-panel active" id="login-panel">
-        <h2>Вход</h2>
+        <h2>Добро пожаловать</h2>
         <form id="login-form">
           <div class="input-group">
-            <label>Электронная почта</label>
-            <input
+            <label>Электронная почта</label
+            ><input
               type="email"
               id="login-email"
               placeholder="example@mail.ru"
-              required
             />
           </div>
           <div class="input-group">
-            <label>Пароль</label>
-            <input
+            <label>Пароль</label
+            ><input
               type="password"
               id="login-password"
               placeholder="••••••••"
-              required
             />
           </div>
           <button type="submit" class="action-btn">Войти</button>
@@ -203,7 +190,6 @@
           После регистрации подтвердите email — письмо придёт на почту.
         </div>
       </div>
-
       <div class="form-panel" id="register-panel">
         <h2>Создать аккаунт</h2>
         <form id="register-form">
@@ -237,29 +223,8 @@
           После регистрации на почту придёт ссылка для подтверждения.
         </div>
       </div>
-
-      <div class="form-panel" id="code-panel" style="display: none">
-        <h2>Подтверждение двухфакторной аутентификации</h2>
-        <form id="code-form">
-          <div class="input-group">
-            <label>Код из письма</label
-            ><input
-              type="text"
-              id="verification-code"
-              placeholder="6-значный код"
-              autocomplete="off"
-            />
-          </div>
-          <button type="submit" class="action-btn">Подтвердить</button>
-          <div class="resend-link">
-            <a href="#" id="resend-code-link">Отправить код повторно</a>
-          </div>
-        </form>
-        <div class="demo-note">Код действителен 10 минут.</div>
-      </div>
     </div>
     <div id="toast-message" class="toast"></div>
-
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
@@ -269,7 +234,9 @@
         SUPABASE_ANON_KEY,
       );
 
-      let currentUser = null;
+      let pending2FACode = null;
+      let pending2FAExpires = null;
+      let pendingUser = null;
 
       function showToast(message, isError = false) {
         const toast = document.getElementById("toast-message");
@@ -289,7 +256,6 @@
           tabId === "login" ? "block" : "none";
         document.getElementById("register-panel").style.display =
           tabId === "register" ? "block" : "none";
-        document.getElementById("code-panel").style.display = "none";
       }
       document
         .querySelectorAll(".tab-btn")
@@ -336,24 +302,6 @@
           document.getElementById("register-form").reset();
         });
 
-      // Отправка кода 2FA через EmailJS
-      async function sendVerificationCode(email, userId) {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-        await supabaseClient.from("email_verification_codes").insert({
-          user_id: userId,
-          code: code,
-          expires_at: expiresAt,
-        });
-        const serviceId = "service_9od2h3e";
-        const templateId = "template_2fa"; // создайте новый шаблон в EmailJS
-        await emailjs.send(serviceId, templateId, {
-          to_email: email,
-          code: code,
-        });
-        return code;
-      }
-
       // Вход
       document
         .getElementById("login-form")
@@ -373,78 +321,56 @@
             showToast("Неверный email или пароль", true);
             return;
           }
-          currentUser = data.user;
           // Проверяем, включена ли 2FA
           const { data: userData } = await supabaseClient
             .from("users")
             .select("is_2fa_enabled")
-            .eq("id", currentUser.id)
+            .eq("id", data.user.id)
             .single();
           if (userData?.is_2fa_enabled) {
-            await sendVerificationCode(email, currentUser.id);
-            showToast("Код подтверждения отправлен на почту!");
-            document.getElementById("login-panel").style.display = "none";
-            document.getElementById("code-panel").style.display = "block";
+            pendingUser = data.user;
+            // Генерируем код
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            pending2FACode = code;
+            pending2FAExpires = Date.now() + 10 * 60 * 1000;
+            // Отправляем код на почту через EmailJS
+            try {
+              await emailjs.send("service_9od2h3e", "template_w20gqh6", {
+                to_email: email,
+                message: `Ваш код для входа: ${code}`,
+                subject: "Код подтверждения 2FA",
+              });
+              const enteredCode = prompt("Введите код, отправленный на почту:");
+              if (
+                enteredCode === pending2FACode &&
+                Date.now() < pending2FAExpires
+              ) {
+                localStorage.setItem(
+                  "atbuy_current_user",
+                  JSON.stringify({
+                    email: data.user.email,
+                    name: data.user.user_metadata.name,
+                  }),
+                );
+                window.location.href = "index.html";
+              } else {
+                showToast("Неверный или просроченный код", true);
+                await supabaseClient.auth.signOut();
+              }
+            } catch (err) {
+              showToast("Ошибка отправки кода: " + err.text, true);
+              await supabaseClient.auth.signOut();
+            }
           } else {
             localStorage.setItem(
               "atbuy_current_user",
               JSON.stringify({
-                email: currentUser.email,
-                name: currentUser.user_metadata.name,
+                email: data.user.email,
+                name: data.user.user_metadata.name,
               }),
             );
             window.location.href = "index.html";
           }
-        });
-
-      // Проверка кода 2FA
-      document
-        .getElementById("code-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const code = document
-            .getElementById("verification-code")
-            .value.trim();
-          if (!code || code.length !== 6) {
-            showToast("Введите 6-значный код", true);
-            return;
-          }
-          const { data, error } = await supabaseClient
-            .from("email_verification_codes")
-            .select("*")
-            .eq("user_id", currentUser.id)
-            .eq("code", code)
-            .gt("expires_at", new Date().toISOString())
-            .order("created_at", { ascending: false })
-            .limit(1);
-          if (error || !data || data.length === 0) {
-            showToast("Неверный или просроченный код", true);
-            return;
-          }
-          await supabaseClient
-            .from("email_verification_codes")
-            .delete()
-            .eq("id", data[0].id);
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: currentUser.email,
-              name: currentUser.user_metadata.name,
-            }),
-          );
-          window.location.href = "index.html";
-        });
-
-      // Повторная отправка кода
-      document
-        .getElementById("resend-code-link")
-        .addEventListener("click", async (e) => {
-          e.preventDefault();
-          if (!currentUser) return;
-          await sendVerificationCode(currentUser.email, currentUser.id);
-          showToast("Новый код отправлен!");
-          document.getElementById("verification-code").value = "";
-          document.getElementById("verification-code").focus();
         });
 
       // Восстановление пароля
