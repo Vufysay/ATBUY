@@ -333,9 +333,9 @@
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             pending2FACode = code;
             pending2FAExpires = Date.now() + 10 * 60 * 1000;
-            // Отправляем код на почту через EmailJS
+            // Отправляем код через EmailJS — ИСПРАВЛЕНО: template_2fa и параметр message
             try {
-              await emailjs.send("service_9od2h3e", "template_w20gqh6", {
+              await emailjs.send("service_9od2h3e", "template_2fa", {
                 to_email: email,
                 message: `Ваш код для входа: ${code}`,
                 subject: "Код подтверждения 2FA",
