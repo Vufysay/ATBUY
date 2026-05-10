@@ -6,6 +6,250 @@
     <title>ATBUY — Личный кабинет</title>
     <style>
       /* ... предыдущие стили ... */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0c10;
+        color: #eef2ff;
+      }
+      .header {
+        background: #0f1117;
+        border-bottom: 1px solid #1f2329;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .logo a {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: #3b82f6;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        flex-wrap: wrap;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: #9ca3af;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #3b82f6;
+      }
+      .cart-link {
+        background: #3b82f6;
+        padding: 6px 14px;
+        border-radius: 30px;
+        color: #fff !important;
+      }
+      .youtube-link {
+        background: #ff0000;
+        color: #fff !important;
+        padding: 6px 14px;
+        border-radius: 30px;
+      }
+      .auth-btn {
+        background: #3b82f6;
+        padding: 8px 22px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #9ca3af;
+        cursor: pointer;
+      }
+      .logout-btn {
+        background: 0 0;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .main {
+        padding: 48px 0 64px;
+      }
+      .profile-card,
+      .admin-panel {
+        background: #15181f;
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 30px;
+        border: 1px solid #2d3138;
+      }
+      .profile-card h1,
+      .admin-panel h2 {
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, #fff, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .section {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid #2d3138;
+      }
+      .section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+        color: #3b82f6;
+      }
+      .info-row {
+        margin-bottom: 12px;
+      }
+      .info-label {
+        font-weight: 600;
+        color: #9ca3af;
+        margin-right: 12px;
+      }
+      .input-group {
+        margin-bottom: 16px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        background: #1f2329;
+        border: 1px solid #2d3138;
+        border-radius: 12px;
+        color: #fff;
+      }
+      button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      .message {
+        margin-top: 12px;
+        padding: 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+      }
+      .message.success {
+        background: #22c55e33;
+        border: 1px solid #22c55e;
+        color: #22c55e;
+      }
+      .message.error {
+        background: #ef444433;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+      }
+      .users-table,
+      .orders-table {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 16px;
+      }
+      .users-table table,
+      .orders-table table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #1f2329;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .users-table th,
+      .orders-table th,
+      .users-table td,
+      .orders-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #2d3138;
+      }
+      .users-table th,
+      .orders-table th {
+        background: #15181f;
+        color: #3b82f6;
+        font-weight: 600;
+      }
+      .users-table tr:last-child td,
+      .orders-table tr:last-child td {
+        border-bottom: none;
+      }
+      .ban-btn {
+        background: #ef4444;
+        border: none;
+        padding: 5px 12px;
+        border-radius: 20px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+      .ban-btn:hover {
+        background: #dc2626;
+      }
+      .footer {
+        background: #0f1117;
+        border-top: 1px solid #1f2329;
+        padding: 30px 0;
+      }
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .navbar {
+          flex-direction: column;
+          text-align: center;
+        }
+        .nav-links {
+          justify-content: center;
+        }
+        .users-table td,
+        .orders-table td {
+          display: block;
+          text-align: right;
+          padding-left: 50%;
+          position: relative;
+        }
+        .users-table td::before,
+        .orders-table td::before {
+          content: attr(data-label);
+          position: absolute;
+          left: 12px;
+          font-weight: 700;
+          color: #3b82f6;
+        }
+      }
       .twofa-toggle {
         margin: 20px 0;
       }
