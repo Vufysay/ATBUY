@@ -333,35 +333,23 @@
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             pending2FACode = code;
             pending2FAExpires = Date.now() + 10 * 60 * 1000;
-            // Отправляем код через EmailJS — ИСПРАВЛЕНО: template_2fa и параметр message
+            // Отправляем код через EmailJS
             try {
               await emailjs.send("service_9od2h3e", "template_2fa", {
                 to_email: email,
                 message: `Ваш код для входа: ${code}`,
                 subject: "Код подтверждения 2FA",
               });
-              const enteredCode = prompt("Введите код, отправленный на почту:");
-              if (
-                enteredCode === pending2FACode &&
-                Date.now() < pending2FAExpires
-              ) {
-                localStorage.setItem(
-                  "atbuy_current_user",
-                  JSON.stringify({
-                    email: data.user.email,
-                    name: data.user.user_metadata.name,
-                  }),
-                );
-                window.location.href = "index.html";
-              } else {
-                showToast("Неверный или просроченный код", true);
-                await supabaseClient.auth.signOut();
-              }
+              // Показываем модальное окно
+              document.getElementById("twofa-modal").style.display = "flex";
+              document.getElementById("2fa-code-input").value = "";
+              document.getElementById("2fa-error").style.display = "none";
             } catch (err) {
               showToast("Ошибка отправки кода: " + err.text, true);
               await supabaseClient.auth.signOut();
             }
           } else {
+            // Вход без 2FA
             localStorage.setItem(
               "atbuy_current_user",
               JSON.stringify({
@@ -373,6 +361,42 @@
           }
         });
 
+      // Обработчик подтверждения 2FA кода
+      document
+        .getElementById("2fa-verify-btn")
+        .addEventListener("click", async () => {
+          const enteredCode = document
+            .getElementById("2fa-code-input")
+            .value.trim();
+          const errorDiv = document.getElementById("2fa-error");
+          if (
+            enteredCode === pending2FACode &&
+            Date.now() < pending2FAExpires
+          ) {
+            localStorage.setItem(
+              "atbuy_current_user",
+              JSON.stringify({
+                email: pendingUser.email,
+                name: pendingUser.user_metadata.name,
+              }),
+            );
+            window.location.href = "index.html";
+          } else {
+            errorDiv.textContent = "Неверный или просроченный код";
+            errorDiv.style.display = "block";
+          }
+        });
+
+      // Закрытие модального окна по клику вне его (опционально)
+      document
+        .getElementById("twofa-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            this.style.display = "none";
+            supabaseClient.auth.signOut(); // если закрыли окно, выходим
+          }
+        });
+
       // Восстановление пароля
       document
         .getElementById("forgotPasswordLink")
@@ -381,5 +405,78 @@
           window.location.href = "reset-password.html";
         });
     </script>
+    <!-- Модальное окно для ввода 2FA кода -->
+    <div
+      id="twofa-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      "
+    >
+      <div
+        style="
+          background: #1f2329;
+          border-radius: 24px;
+          padding: 32px;
+          width: 90%;
+          max-width: 400px;
+          text-align: center;
+          color: #fff;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        "
+      >
+        <h3 style="margin-bottom: 20px; color: #3b82f6">
+          Двухфакторная аутентификация
+        </h3>
+        <p style="margin-bottom: 20px; color: #cbd5e1">
+          Мы отправили код на вашу почту. Введите его ниже.
+        </p>
+        <input
+          type="text"
+          id="2fa-code-input"
+          placeholder="6-значный код"
+          style="
+            width: 100%;
+            padding: 12px;
+            background: #0f1117;
+            border: 1px solid #2d3138;
+            border-radius: 12px;
+            color: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+          "
+          maxlength="6"
+        />
+        <button
+          id="2fa-verify-btn"
+          style="
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          Подтвердить
+        </button>
+        <p
+          id="2fa-error"
+          style="color: #ef4444; margin-top: 12px; display: none"
+        ></p>
+      </div>
+    </div>
   </body>
 </html>
