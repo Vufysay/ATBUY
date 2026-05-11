@@ -234,36 +234,41 @@
         SUPABASE_ANON_KEY,
       );
 
+      let pendingUser = null; // для 2FA
       let pending2FACode = null;
       let pending2FAExpires = null;
-      let pendingUser = null;
 
+      // временное хранилище для регистрации
+      let pendingSignupUser = null; // данные пользователя после signUp
+
+      // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
       function showToast(message, isError = false) {
         const toast = document.getElementById("toast-message");
         toast.textContent = message;
         toast.classList.add("show");
-        if (isError) toast.style.backgroundColor = "#dc2626e6";
-        else toast.style.backgroundColor = "#1f2937e6";
+        toast.style.backgroundColor = isError ? "#dc2626e6" : "#1f2937e6";
         setTimeout(() => toast.classList.remove("show"), 3000);
       }
 
       function switchTab(tabId) {
-        const btns = document.querySelectorAll(".tab-btn");
-        btns.forEach((btn) =>
-          btn.classList.toggle("active", btn.dataset.tab === tabId),
-        );
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelector(".tab-btn[data-tab=" + tabId + "]")
+          .classList.add("active");
         document.getElementById("login-panel").style.display =
           tabId === "login" ? "block" : "none";
         document.getElementById("register-panel").style.display =
           tabId === "register" ? "block" : "none";
       }
-      document
-        .querySelectorAll(".tab-btn")
-        .forEach((btn) =>
-          btn.addEventListener("click", () => switchTab(btn.dataset.tab)),
-        );
 
-      // Регистрация
+      // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      // ========== РЕГИСТРАЦИЯ ==========
       document
         .getElementById("register-form")
         .addEventListener("submit", async (e) => {
@@ -272,6 +277,7 @@
           const email = document.getElementById("reg-email").value.trim();
           const password = document.getElementById("reg-password").value;
           const confirm = document.getElementById("reg-password-confirm").value;
+
           if (!name || name.length < 2) {
             showToast("Имя не менее 2 символов", true);
             return;
@@ -288,7 +294,9 @@
             showToast("Пароли не совпадают", true);
             return;
           }
-          const { error } = await supabaseClient.auth.signUp({
+
+          // Создаём пользователя (email_confirmed станет автоматически true из-за настроек, но мы используем код)
+          const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: { data: { name } },
@@ -297,12 +305,91 @@
             showToast(error.message, true);
             return;
           }
-          showToast("Письмо с подтверждением отправлено!");
-          setTimeout(() => switchTab("login"), 2000);
-          document.getElementById("register-form").reset();
+
+          // Сохраняем данные для последующего подтверждения
+          pendingSignupUser = { userId: data.user.id, email, name };
+
+          // Отправляем код подтверждения через edge-функцию
+          try {
+            const res = await fetch(`${SUPABASE_URL}/functions/v1/send-code`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, type: "signup" }),
+            });
+            if (!res.ok) throw new Error("Ошибка отправки кода");
+            // Показываем окно ввода кода
+            document.getElementById("signup-code-modal").style.display = "flex";
+          } catch (err) {
+            showToast("Ошибка: " + err.message, true);
+          }
         });
 
-      // Вход
+      // Обработчик подтверждения кода регистрации
+      document
+        .getElementById("signup-code-verify-btn")
+        .addEventListener("click", async () => {
+          const code = document
+            .getElementById("signup-code-input")
+            .value.trim();
+          const errorDiv = document.getElementById("signup-code-error");
+          errorDiv.style.display = "none";
+
+          if (!pendingSignupUser) {
+            errorDiv.textContent = "Нет активной регистрации";
+            errorDiv.style.display = "block";
+            return;
+          }
+
+          // Отправляем код на проверку через Edge Function (мы создадим verify-code)
+          try {
+            const res = await fetch(
+              `${SUPABASE_URL}/functions/v1/verify-code`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: pendingSignupUser.email,
+                  type: "signup",
+                  code,
+                }),
+              },
+            );
+            const result = await res.json();
+            if (!result.success) {
+              errorDiv.textContent = result.error || "Неверный код";
+              errorDiv.style.display = "block";
+              return;
+            }
+
+            // Код верен – выполняем вход вручную
+            const { error: signInError } =
+              await supabaseClient.auth.signInWithPassword({
+                email: pendingSignupUser.email,
+                password: document.getElementById("reg-password").value, // пароль ещё в поле
+              });
+            if (signInError) {
+              showToast("Ошибка входа после подтверждения", true);
+              return;
+            }
+
+            document.getElementById("signup-code-modal").style.display = "none";
+            showToast("Регистрация подтверждена!");
+            // Перенаправляем на главную
+            window.location.href = "index.html";
+          } catch (err) {
+            errorDiv.textContent = "Ошибка проверки кода: " + err.message;
+            errorDiv.style.display = "block";
+          }
+        });
+
+      // Закрытие модального окна регистрации по клику вне
+      document
+        .getElementById("signup-code-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) this.style.display = "none";
+        });
+
+      // ========== ВХОД ==========
       document
         .getElementById("login-form")
         .addEventListener("submit", async (e) => {
@@ -313,6 +400,7 @@
             showToast("Заполните все поля", true);
             return;
           }
+
           const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password,
@@ -321,7 +409,8 @@
             showToast("Неверный email или пароль", true);
             return;
           }
-          // Проверяем, включена ли 2FA
+
+          // Проверяем 2FA
           const { data: userData } = await supabaseClient
             .from("users")
             .select("is_2fa_enabled")
@@ -329,79 +418,57 @@
             .single();
           if (userData?.is_2fa_enabled) {
             pendingUser = data.user;
-            // Генерируем код
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             pending2FACode = code;
             pending2FAExpires = Date.now() + 10 * 60 * 1000;
-            // Отправляем код через EmailJS
             try {
               await emailjs.send("service_9od2h3e", "template_2fa", {
                 to_email: email,
                 message: `Ваш код для входа: ${code}`,
                 subject: "Код подтверждения 2FA",
               });
-              // Показываем модальное окно
               document.getElementById("twofa-modal").style.display = "flex";
-              document.getElementById("2fa-code-input").value = "";
-              document.getElementById("2fa-error").style.display = "none";
             } catch (err) {
               showToast("Ошибка отправки кода: " + err.text, true);
               await supabaseClient.auth.signOut();
             }
           } else {
-            // Вход без 2FA
-            localStorage.setItem(
-              "atbuy_current_user",
-              JSON.stringify({
-                email: data.user.email,
-                name: data.user.user_metadata.name,
-              }),
-            );
             window.location.href = "index.html";
           }
         });
 
-      // Обработчик подтверждения 2FA кода
+      // Подтверждение 2FA (уже было)
       document
         .getElementById("2fa-verify-btn")
         .addEventListener("click", async () => {
           const enteredCode = document
             .getElementById("2fa-code-input")
             .value.trim();
-          const errorDiv = document.getElementById("2fa-error");
           if (
             enteredCode === pending2FACode &&
             Date.now() < pending2FAExpires
           ) {
-            localStorage.setItem(
-              "atbuy_current_user",
-              JSON.stringify({
-                email: pendingUser.email,
-                name: pendingUser.user_metadata.name,
-              }),
-            );
             window.location.href = "index.html";
           } else {
-            errorDiv.textContent = "Неверный или просроченный код";
-            errorDiv.style.display = "block";
+            document.getElementById("2fa-error").style.display = "block";
           }
         });
 
-      // Закрытие модального окна по клику вне его (опционально)
       document
         .getElementById("twofa-modal")
         .addEventListener("click", function (e) {
           if (e.target === this) {
             this.style.display = "none";
-            supabaseClient.auth.signOut(); // если закрыли окно, выходим
+            supabaseClient.auth.signOut();
           }
         });
 
-      // Восстановление пароля
+      // ========== СБРОС ПАРОЛЯ (через код) ==========
       document
         .getElementById("forgotPasswordLink")
         .addEventListener("click", (e) => {
           e.preventDefault();
+          // Перенаправляем на новый reset-password.html с кастомной логикой
           window.location.href = "reset-password.html";
         });
     </script>
@@ -474,6 +541,79 @@
         </button>
         <p
           id="2fa-error"
+          style="color: #ef4444; margin-top: 12px; display: none"
+        ></p>
+      </div>
+    </div>
+    <!-- Модальное окно для кода подтверждения регистрации -->
+    <div
+      id="signup-code-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      "
+    >
+      <div
+        style="
+          background: #1f2329;
+          border-radius: 24px;
+          padding: 32px;
+          width: 90%;
+          max-width: 400px;
+          text-align: center;
+          color: #fff;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        "
+      >
+        <h3 style="margin-bottom: 20px; color: #3b82f6">
+          Подтверждение регистрации
+        </h3>
+        <p style="margin-bottom: 20px; color: #cbd5e1">
+          Мы отправили код на вашу почту. Введите его ниже.
+        </p>
+        <input
+          type="text"
+          id="signup-code-input"
+          placeholder="6-значный код"
+          style="
+            width: 100%;
+            padding: 12px;
+            background: #0f1117;
+            border: 1px solid #2d3138;
+            border-radius: 12px;
+            color: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+          "
+          maxlength="6"
+        />
+        <button
+          id="signup-code-verify-btn"
+          style="
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          Подтвердить
+        </button>
+        <p
+          id="signup-code-error"
           style="color: #ef4444; margin-top: 12px; display: none"
         ></p>
       </div>
