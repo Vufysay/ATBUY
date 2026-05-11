@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Отзывы</title>
     <style>
+      /* ... все стили без изменений ... */
       * {
         margin: 0;
         padding: 0;
@@ -308,13 +309,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
-            <a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -348,15 +349,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -371,9 +375,9 @@
         <div class="rating-input">
           <label>Оценка:</label>
           <div class="stars-input" id="editStarsInput">
-            <span data-rating="1">★</span><span data-rating="2">★</span
-            ><span data-rating="3">★</span><span data-rating="4">★</span
-            ><span data-rating="5">★</span>
+            <span data-rating="1">★</span><span data-rating="2">★</span>
+            <span data-rating="3">★</span><span data-rating="4">★</span>
+            <span data-rating="5">★</span>
           </div>
         </div>
         <textarea
@@ -382,13 +386,12 @@
           placeholder="Текст отзыва"
         ></textarea>
         <div style="display: flex; justify-content: flex-end">
-          <button id="saveEditBtn">Сохранить</button
-          ><button id="cancelEditBtn" style="background: #4b5563">
-            Отмена
-          </button>
+          <button id="saveEditBtn">Сохранить</button>
+          <button id="cancelEditBtn" style="background: #4b5563">Отмена</button>
         </div>
       </div>
     </div>
+
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
@@ -413,6 +416,7 @@
         if (error || !data || !data.name) return "Пользователь";
         return data.name;
       }
+
       async function loadReviews() {
         const { data: reviews, error } = await supabaseClient
           .from("reviews")
@@ -431,6 +435,7 @@
         displayReviews(reviewsWithNames);
         calculateAverage(reviewsWithNames);
       }
+
       function displayReviews(reviews) {
         const container = document.getElementById("reviewsList");
         if (!reviews.length) {
@@ -441,33 +446,44 @@
         container.innerHTML = reviews
           .map(
             (rev) => `
-                <div class="review-card" data-review-id="${rev.id}">
-                    ${isAdmin ? `<div class="admin-review-controls"><button class="edit-btn" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️</button><button class="delete-btn" data-id="${rev.id}">🗑️</button></div>` : ""}
-                    <div class="review-header"><span class="review-author">${escapeHtml(rev.userName)}</span><span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span><span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span></div>
-                    <div class="review-comment">${escapeHtml(rev.comment)}</div>
-                </div>
-            `,
+          <div class="review-card" data-review-id="${rev.id}">
+            ${
+              isAdmin
+                ? `<div class="admin-review-controls">
+              <button class="edit-btn" data-id="${rev.id}" data-rating="${rev.rating}" data-comment="${escapeHtml(rev.comment)}">✏️</button>
+              <button class="delete-btn" data-id="${rev.id}">🗑️</button></div>`
+                : ""
+            }
+            <div class="review-header">
+              <span class="review-author">${escapeHtml(rev.userName)}</span>
+              <span class="review-stars">${"★".repeat(rev.rating)}${"☆".repeat(5 - rev.rating)}</span>
+              <span class="review-date">${new Date(rev.created_at).toLocaleDateString()}</span>
+            </div>
+            <div class="review-comment">${escapeHtml(rev.comment)}</div>
+          </div>
+        `,
           )
           .join("");
         if (isAdmin) {
-          document.querySelectorAll(".edit-btn").forEach((btn) => {
+          document.querySelectorAll(".edit-btn").forEach((btn) =>
             btn.addEventListener("click", (e) => {
               const id = parseInt(btn.dataset.id),
                 rating = parseInt(btn.dataset.rating),
                 comment = btn.dataset.comment;
               openEditModal(id, rating, comment);
-            });
-          });
-          document.querySelectorAll(".delete-btn").forEach((btn) => {
+            }),
+          );
+          document.querySelectorAll(".delete-btn").forEach((btn) =>
             btn.addEventListener("click", async (e) => {
               if (confirm("Удалить этот отзыв?")) {
                 await deleteReview(parseInt(btn.dataset.id));
                 await loadReviews();
               }
-            });
-          });
+            }),
+          );
         }
       }
+
       async function deleteReview(id) {
         const { error } = await supabaseClient
           .from("reviews")
@@ -476,6 +492,7 @@
         if (error) alert("Ошибка удаления: " + error.message);
         else alert("Отзыв удалён");
       }
+
       function calculateAverage(reviews) {
         if (!reviews.length) {
           document.getElementById("averageContainer").innerHTML =
@@ -493,6 +510,7 @@
         document.getElementById("averageContainer").innerHTML =
           `<div class="stars">${starsString}</div><div class="value">${avg} / 5</div><div>средняя оценка (${reviews.length} отзывов)</div>`;
       }
+
       async function loadExistingReview() {
         if (!currentUser) return null;
         const { data, error } = await supabaseClient
@@ -503,54 +521,63 @@
         if (error) console.error(error);
         return data;
       }
+
       async function renderReviewForm() {
         const container = document.getElementById("reviewFormContainer");
         if (!currentUser) {
-          container.innerHTML = `<div style="background:#15181f; border-radius:24px; padding:28px; text-align:center; border:1px solid #2d3138;"><p>Чтобы оставить отзыв, пожалуйста, <a href="login.html" style="color:#3b82f6;">войдите</a>.</p></div>`;
+          container.innerHTML = `<div style="background:#15181f;border-radius:24px;padding:28px;text-align:center;border:1px solid #2d3138;"><p>Чтобы оставить отзыв, пожалуйста, <a href="login.html" style="color:#3b82f6;">войдите</a>.</p></div>`;
           return;
         }
         existingReview = await loadExistingReview();
-        if (existingReview) {
-          container.innerHTML = `
-                    <div class="review-form">
-                        <h3>Ваш отзыв (редактирование)</h3>
-                        <div class="rating-input"><label>Ваша оценка:</label><div class="stars-input" id="starsInput"><span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span></div></div>
-                        <textarea id="reviewComment" rows="4">${escapeHtml(existingReview.comment)}</textarea>
-                        <button id="submitReviewBtn">Обновить отзыв</button>
-                    </div>
-                `;
-          const starsSpans = document.querySelectorAll("#starsInput span");
-          function updateStars(rating) {
-            starsSpans.forEach((span, idx) =>
-              idx < rating
-                ? span.classList.add("active")
-                : span.classList.remove("active"),
-            );
-            selectedRating = rating;
-          }
-          starsSpans.forEach((span) =>
-            span.addEventListener("click", () =>
-              updateStars(parseInt(span.dataset.rating)),
-            ),
+        const isEdit = !!existingReview;
+        container.innerHTML = `
+          <div class="review-form">
+            <h3>${isEdit ? "Ваш отзыв (редактирование)" : "Оставить отзыв"}</h3>
+            <div class="rating-input">
+              <label>Ваша оценка:</label>
+              <div class="stars-input" id="starsInput">
+                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
+              </div>
+            </div>
+            <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями...">${escapeHtml(existingReview?.comment || "")}</textarea>
+            <button id="submitReviewBtn">${isEdit ? "Обновить отзыв" : "Отправить отзыв"}</button>
+          </div>
+        `;
+        // Установка звёзд
+        const starsSpans = document.querySelectorAll("#starsInput span");
+        const currentRating = isEdit ? existingReview.rating : 0;
+        selectedRating = currentRating; // важно обновить глобальную переменную
+        function updateStars(rating) {
+          starsSpans.forEach((span, idx) =>
+            span.classList.toggle("active", idx < rating),
           );
-          updateStars(existingReview.rating);
-          document
-            .getElementById("submitReviewBtn")
-            .addEventListener("click", async () => {
-              const comment = document
-                .getElementById("reviewComment")
-                .value.trim();
-              if (selectedRating === 0) {
-                alert("Пожалуйста, выберите оценку");
-                return;
-              }
-              if (!comment) {
-                alert("Напишите текст отзыва");
-                return;
-              }
+          selectedRating = rating;
+        }
+        starsSpans.forEach((span) =>
+          span.addEventListener("click", () =>
+            updateStars(parseInt(span.dataset.rating)),
+          ),
+        );
+        updateStars(currentRating);
+
+        document
+          .getElementById("submitReviewBtn")
+          .addEventListener("click", async () => {
+            const comment = document
+              .getElementById("reviewComment")
+              .value.trim();
+            if (selectedRating === 0) {
+              alert("Пожалуйста, выберите оценку");
+              return;
+            }
+            if (!comment) {
+              alert("Напишите текст отзыва");
+              return;
+            }
+            if (isEdit) {
               const { error } = await supabaseClient
                 .from("reviews")
-                .update({ rating: selectedRating, comment: comment })
+                .update({ rating: selectedRating, comment })
                 .eq("id", existingReview.id);
               if (error) alert("Ошибка обновления: " + error.message);
               else {
@@ -558,59 +585,24 @@
                 loadReviews();
                 renderReviewForm();
               }
-            });
-        } else {
-          container.innerHTML = `
-                    <div class="review-form">
-                        <h3>Оставить отзыв</h3>
-                        <div class="rating-input"><label>Ваша оценка:</label><div class="stars-input" id="starsInput"><span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span></div></div>
-                        <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями..."></textarea>
-                        <button id="submitReviewBtn">Отправить отзыв</button>
-                    </div>
-                `;
-          const starsSpans = document.querySelectorAll("#starsInput span");
-          function updateStars(rating) {
-            starsSpans.forEach((span, idx) =>
-              idx < rating
-                ? span.classList.add("active")
-                : span.classList.remove("active"),
-            );
-            selectedRating = rating;
-          }
-          starsSpans.forEach((span) =>
-            span.addEventListener("click", () =>
-              updateStars(parseInt(span.dataset.rating)),
-            ),
-          );
-          updateStars(0);
-          document
-            .getElementById("submitReviewBtn")
-            .addEventListener("click", async () => {
-              const comment = document
-                .getElementById("reviewComment")
-                .value.trim();
-              if (selectedRating === 0) {
-                alert("Пожалуйста, выберите оценку");
-                return;
-              }
-              if (!comment) {
-                alert("Напишите текст отзыва");
-                return;
-              }
-              const { error } = await supabaseClient.from("reviews").insert({
-                user_id: currentUser.id,
-                rating: selectedRating,
-                comment: comment,
-              });
+            } else {
+              const { error } = await supabaseClient
+                .from("reviews")
+                .insert({
+                  user_id: currentUser.id,
+                  rating: selectedRating,
+                  comment,
+                });
               if (error) alert("Ошибка при отправке отзыва: " + error.message);
               else {
                 alert("Спасибо за отзыв!");
                 loadReviews();
                 renderReviewForm();
               }
-            });
-        }
+            }
+          });
       }
+
       function openEditModal(id, rating, comment) {
         editingReviewId = id;
         editingCurrentRating = rating;
@@ -618,9 +610,7 @@
         const starsSpans = document.querySelectorAll("#editStarsInput span");
         function updateStars(r) {
           starsSpans.forEach((span, idx) =>
-            idx < r
-              ? span.classList.add("active")
-              : span.classList.remove("active"),
+            span.classList.toggle("active", idx < r),
           );
         }
         starsSpans.forEach((span) =>
@@ -633,6 +623,7 @@
         updateStars(rating);
         document.getElementById("editModal").classList.add("active");
       }
+
       async function saveEdit() {
         const newComment = document.getElementById("editComment").value.trim();
         if (!newComment) {
@@ -651,45 +642,57 @@
         document.getElementById("editModal").classList.remove("active");
         loadReviews();
       }
+
       async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const authSection = document.getElementById('auth-section');
-    const adminLinks = document.getElementById('admin-links');
-    if (session) {
-        currentUser = session.user;
-        const { data: userAdmin } = await supabaseClient
-            .from('users')
-            .select('is_admin')
-            .eq('id', currentUser.id)
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          currentUser = session.user;
+          const { data: userAdmin } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
             .single();
-        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-        document.getElementById('userMenu').addEventListener('click', (e) => {
-            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await supabaseClient.auth.signOut();
-            window.location.reload();
-        });
-        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-        renderReviewForm();
-        loadReviews();
-    } else {
-        authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-        currentUser = null;
-        isAdmin = false;
-        if (adminLinks) adminLinks.innerHTML = '';
-        renderReviewForm();
-        loadReviews();
-    }
-}
+          isAdmin =
+            userAdmin?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          renderReviewForm();
+          loadReviews();
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          currentUser = null;
+          isAdmin = false;
+          if (adminLinks) adminLinks.innerHTML = "";
+          renderReviewForm();
+          loadReviews();
+        }
+      }
+
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
         );
       }
+
       window.addEventListener("load", async () => {
         await checkAuth();
         document

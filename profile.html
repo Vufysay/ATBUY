@@ -1,412 +1,144 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATBUY — Личный кабинет</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Segoe UI", sans-serif;
-        background: #0a0c10;
-        color: #eef2ff;
-      }
-      .header {
-        background: #0f1117;
-        border-bottom: 1px solid #1f2329;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      .container {
-        max-width: 1300px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      .navbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 0;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-      .logo a {
-        font-size: 1.8rem;
-        font-weight: 800;
-        text-decoration: none;
-        color: #3b82f6;
-      }
-      .nav-links {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        flex-wrap: wrap;
-      }
-      .nav-links a {
-        text-decoration: none;
-        color: #9ca3af;
-        font-weight: 500;
-        transition: color 0.2s;
-      }
-      .nav-links a:hover {
-        color: #3b82f6;
-      }
-      .cart-link {
-        background: #3b82f6;
-        padding: 6px 14px;
-        border-radius: 30px;
-        color: #fff !important;
-      }
-      .youtube-link {
-        background: #ff0000;
-        color: #fff !important;
-        padding: 6px 14px;
-        border-radius: 30px;
-      }
-      .auth-btn {
-        background: #3b82f6;
-        padding: 8px 22px;
-        border-radius: 30px;
-        color: #fff;
-        font-weight: 600;
-        text-decoration: none;
-      }
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #9ca3af;
-        cursor: pointer;
-      }
-      .logout-btn {
-        background: 0 0;
-        border: 1px solid #3b82f6;
-        color: #3b82f6;
-        padding: 5px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-      }
-      .main {
-        padding: 48px 0 64px;
-      }
-      .profile-card,
-      .admin-panel {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 32px;
-        margin-bottom: 30px;
-        border: 1px solid #2d3138;
-      }
-      .profile-card h1,
-      .admin-panel h2 {
-        margin-bottom: 24px;
-        text-align: center;
-        font-size: 1.8rem;
-        background: linear-gradient(135deg, #fff, #3b82f6);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-      .section {
-        margin-bottom: 32px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid #2d3138;
-      }
-      .section h2 {
-        font-size: 1.3rem;
-        margin-bottom: 16px;
-        color: #3b82f6;
-      }
-      .info-row {
-        margin-bottom: 12px;
-      }
-      .info-label {
-        font-weight: 600;
-        color: #9ca3af;
-        margin-right: 12px;
-      }
-      .input-group {
-        margin-bottom: 16px;
-      }
-      .input-group input {
-        width: 100%;
-        padding: 10px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
-      button {
-        background: #3b82f6;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        color: #fff;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #2563eb;
-      }
-      .message {
-        margin-top: 12px;
-        padding: 8px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-      }
-      .message.success {
-        background: #22c55e33;
-        border: 1px solid #22c55e;
-        color: #22c55e;
-      }
-      .message.error {
-        background: #ef444433;
-        border: 1px solid #ef4444;
-        color: #ef4444;
-      }
-      .users-table,
-      .orders-table {
-        width: 100%;
-        overflow-x: auto;
-        margin-top: 16px;
-      }
-      .users-table table,
-      .orders-table table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #1f2329;
-        border-radius: 12px;
-        overflow: hidden;
-        min-width: 600px;
-      }
-      .users-table th,
-      .orders-table th,
-      .users-table td,
-      .orders-table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #2d3138;
-        white-space: nowrap;
-      }
-      .users-table th,
-      .orders-table th {
-        background: #15181f;
-        color: #3b82f6;
-        font-weight: 600;
-      }
-      .users-table tr:last-child td,
-      .orders-table tr:last-child td {
-        border-bottom: none;
-      }
-      .ban-btn {
-        background: #ef4444;
-        border: none;
-        padding: 5px 12px;
-        border-radius: 20px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-      .ban-btn:hover {
-        background: #dc2626;
-      }
-      .footer {
-        background: #0f1117;
-        border-top: 1px solid #1f2329;
-        padding: 30px 0;
-      }
-      .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-      }
-      /* Исправление для мобильных: вместо ломания таблицы добавляем горизонтальную прокрутку */
-      @media (max-width: 768px) {
-        .navbar {
-          flex-direction: column;
-          text-align: center;
-        }
-        .nav-links {
-          justify-content: center;
-        }
-        .users-table,
-        .orders-table {
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-      }
+        /* Стили без изменений, как в предыдущем profile.html (с адаптивными таблицами) */ 
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',sans-serif;background:#0a0c10;color:#eef2ff}
+        .header{background:#0f1117;border-bottom:1px solid #1f2329;position:sticky;top:0;z-index:100}
+        .container{max-width:1300px;margin:0 auto;padding:0 24px}
+        .navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;flex-wrap:wrap;gap:16px}
+        .logo a{font-size:1.8rem;font-weight:800;text-decoration:none;color:#3b82f6}
+        .nav-links{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+        .nav-links a{text-decoration:none;color:#9ca3af;font-weight:500;transition:color .2s}
+        .nav-links a:hover{color:#3b82f6}
+        .cart-link{background:#3b82f6;padding:6px 14px;border-radius:30px;color:#fff!important}
+        .youtube-link{background:#ff0000;color:#fff!important;padding:6px 14px;border-radius:30px}
+        .auth-btn{background:#3b82f6;padding:8px 22px;border-radius:30px;color:#fff;font-weight:600;text-decoration:none}
+        .user-info{display:flex;align-items:center;gap:12px;color:#9ca3af;cursor:pointer}
+        .logout-btn{background:0 0;border:1px solid #3b82f6;color:#3b82f6;padding:5px 12px;border-radius:20px;cursor:pointer}
+        .main{padding:48px 0 64px}
+        .profile-card,.admin-panel{background:#15181f;border-radius:24px;padding:32px;margin-bottom:30px;border:1px solid #2d3138}
+        .profile-card h1,.admin-panel h2{margin-bottom:24px;text-align:center;font-size:1.8rem;background:linear-gradient(135deg,#fff,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .section{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #2d3138}
+        .section h2{font-size:1.3rem;margin-bottom:16px;color:#3b82f6}
+        .info-row{margin-bottom:12px}
+        .info-label{font-weight:600;color:#9ca3af;margin-right:12px}
+        .input-group{margin-bottom:16px}
+        .input-group input{width:100%;padding:10px;background:#1f2329;border:1px solid #2d3138;border-radius:12px;color:#fff}
+        button{background:#3b82f6;border:none;padding:10px 20px;border-radius:30px;color:#fff;font-weight:600;cursor:pointer}
+        button:hover{background:#2563eb}
+        .message{margin-top:12px;padding:8px;border-radius:12px;font-size:.85rem}
+        .message.success{background:#22c55e33;border:1px solid #22c55e;color:#22c55e}
+        .message.error{background:#ef444433;border:1px solid #ef4444;color:#ef4444}
+        .users-table,.orders-table{width:100%;overflow-x:auto;margin-top:16px}
+        .users-table table,.orders-table table{width:100%;border-collapse:collapse;background:#1f2329;border-radius:12px;overflow:hidden;min-width:600px}
+        .users-table th,.orders-table th,.users-table td,.orders-table td{padding:12px;text-align:left;border-bottom:1px solid #2d3138;white-space:nowrap}
+        .users-table th,.orders-table th{background:#15181f;color:#3b82f6;font-weight:600}
+        .users-table tr:last-child td,.orders-table tr:last-child td{border-bottom:none}
+        .ban-btn{background:#ef4444;border:none;padding:5px 12px;border-radius:20px;color:#fff;cursor:pointer;font-size:.8rem}
+        .ban-btn:hover{background:#dc2626}
+        .footer{background:#0f1117;border-top:1px solid #1f2329;padding:30px 0}
+        .footer-content{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+        @media(max-width:768px){.navbar{flex-direction:column;text-align:center}.nav-links{justify-content:center}.users-table,.orders-table{overflow-x:auto;-webkit-overflow-scrolling:touch}}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
-    ></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
-      (function () {
-        emailjs.init("YIKBw4TxPT9yO7aCd");
-      })();
+        (function() { emailjs.init("YIKBw4TxPT9yO7aCd"); })();
     </script>
-  </head>
-  <body>
-    <header class="header">
-      <div class="container">
-        <div class="navbar">
-          <div class="logo"><a href="index.html">ATBUY</a></div>
-          <div class="nav-links">
-            <a href="reviews.html">Отзывы</a>
-            <a href="cart.html" class="cart-link">🛒 Корзина</a>
-            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
-            <a href="support.html" class="cart-link">💬 Поддержка</a>
-            <span id="admin-links"></span>
-            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
-            <a
-              href="https://www.youtube.com/@atr1but"
-              target="_blank"
-              class="youtube-link"
-              >🎬 YouTube</a
-            >
-            <div id="auth-section"></div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <main class="main">
-      <div class="container">
-        <div class="profile-card">
-          <h1>Личный кабинет</h1>
-          <div id="profileContent">Загрузка...</div>
-        </div>
-        <div id="adminPanel" class="admin-panel" style="display: none">
-          <h2>Управление пользователями</h2>
-          <div id="usersList">Загрузка...</div>
-        </div>
-        <div id="adminOrdersPanel" class="admin-panel" style="display: none">
-          <h2>Управление заказами</h2>
-          <div id="adminOrdersContainer">Загрузка...</div>
-        </div>
-      </div>
-    </main>
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div>© 2025 ATBUY. Все права защищены.</div>
-          <div>
-            <a
-              href="reviews.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Отзывы</a
-            >
-            <a
-              href="terms.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Оферта</a
-            >
-            <a
-              href="delivery.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Доставка</a
-            >
-            <a
-              href="requisites.html"
-              style="color: #9ca3af; text-decoration: none"
-              >Реквизиты</a
-            >
-          </div>
-        </div>
-      </div>
-    </footer>
+</head>
+<body>
+    <header class="header"><div class="container"><div class="navbar"><div class="logo"><a href="index.html">ATBUY</a></div><div class="nav-links"><a href="reviews.html">Отзывы</a><a href="cart.html" class="cart-link">🛒 Корзина</a><a href="my-orders.html" class="cart-link">📦 Мои заказы</a><a href="support.html" class="cart-link">💬 Поддержка</a><span id="admin-links"></span><a href="https://t.me/your_telegram" target="_blank">Telegram</a><a href="https://www.youtube.com/@atr1but" target="_blank" class="youtube-link">🎬 YouTube</a><div id="auth-section"></div></div></div></div></header>
+    <main class="main"><div class="container"><div class="profile-card"><h1>Личный кабинет</h1><div id="profileContent">Загрузка...</div></div><div id="adminPanel" class="admin-panel" style="display: none;"><h2>Управление пользователями</h2><div id="usersList">Загрузка...</div></div><div id="adminOrdersPanel" class="admin-panel" style="display: none;"><h2>Управление заказами</h2><div id="adminOrdersContainer">Загрузка...</div></div></div></main>
+    <footer class="footer"><div class="container"><div class="footer-content"><div>© 2025 ATBUY. Все права защищены.</div><div><a href="reviews.html" style="color:#9ca3af;text-decoration:none;margin-right:20px;">Отзывы</a><a href="terms.html" style="color:#9ca3af;text-decoration:none;margin-right:20px;">Оферта</a><a href="delivery.html" style="color:#9ca3af;text-decoration:none;margin-right:20px;">Доставка</a><a href="requisites.html" style="color:#9ca3af;text-decoration:none;">Реквизиты</a></div></div></div></footer>
+
     <script>
-      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY,
-      );
-      let currentUser = null,
-        isAdmin = false;
+        const SUPABASE_URL = 'https://buonqsikukvqbnbpuuco.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null, isAdmin = false;
 
-      async function handlePasswordReset() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get("access_token");
-        const type = urlParams.get("type");
-        if (accessToken && type === "recovery") {
-          document.getElementById("profileContent").innerHTML = `
-                    <div class="section"><h2>Восстановление пароля</h2><div class="input-group"><input type="password" id="newPassword" placeholder="Новый пароль (минимум 6 символов)"></div><button id="updatePasswordBtn">Сохранить пароль</button><div id="resetMessage" class="message" style="display:none;"></div></div>
+        async function handlePasswordReset() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accessToken = urlParams.get('access_token');
+            const type = urlParams.get('type');
+            if (accessToken && type === 'recovery') {
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="section"><h2>Смена пароля</h2><div class="input-group"><input type="password" id="newPassword" placeholder="Новый пароль (мин. 6 символов)"></div><button id="updatePasswordBtn">Сохранить пароль</button><div id="resetMessage" class="message" style="display:none;"></div></div>
                 `;
-          document
-            .getElementById("updatePasswordBtn")
-            .addEventListener("click", async () => {
-              const newPassword = document.getElementById("newPassword").value;
-              const msgDiv = document.getElementById("resetMessage");
-              if (!newPassword || newPassword.length < 6) {
-                msgDiv.textContent = "Пароль должен быть не менее 6 символов";
-                msgDiv.className = "message error";
-                msgDiv.style.display = "block";
-                return;
-              }
-              try {
-                const { error } = await supabaseClient.auth.updateUser({
-                  password: newPassword,
+                document.getElementById('updatePasswordBtn').addEventListener('click', async () => {
+                    const newPassword = document.getElementById('newPassword').value;
+                    const msgDiv = document.getElementById('resetMessage');
+                    if (!newPassword || newPassword.length < 6) {
+                        msgDiv.textContent = 'Пароль должен быть не менее 6 символов';
+                        msgDiv.className = 'message error'; msgDiv.style.display = 'block';
+                        return;
+                    }
+                    try {
+                        const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+                        if (error) throw error;
+                        msgDiv.textContent = 'Пароль успешно изменён! Перенаправляем...';
+                        msgDiv.className = 'message success'; msgDiv.style.display = 'block';
+                        setTimeout(() => window.location.href = 'login.html', 2000);
+                    } catch (err) {
+                        msgDiv.textContent = 'Ошибка: ' + err.message;
+                        msgDiv.className = 'message error'; msgDiv.style.display = 'block';
+                    }
                 });
-                if (error) throw error;
-                msgDiv.textContent =
-                  "Пароль успешно изменён! Перенаправляем...";
-                msgDiv.className = "message success";
-                msgDiv.style.display = "block";
-                setTimeout(() => (window.location.href = "login.html"), 2000);
-              } catch (err) {
-                msgDiv.textContent = "Ошибка: " + err.message;
-                msgDiv.className = "message error";
-                msgDiv.style.display = "block";
-              }
-            });
-          return true;
+                return true;
+            }
+            return false;
         }
-        return false;
-      }
 
-      async function loadProfile() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (!session) {
-          window.location.href = "login.html";
-          return;
-        }
-        currentUser = session.user;
-        const { data: userData } = await supabaseClient
-          .from("users")
-          .select("is_admin")
-          .eq("id", currentUser.id)
-          .single();
-        isAdmin =
-          userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-        const currentName =
-          currentUser.user_metadata?.name || currentUser.email;
-        document.getElementById("profileContent").innerHTML = `
+        async function loadProfile() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            currentUser = session.user;
+            const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
+            isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
+            const currentName = currentUser.user_metadata?.name || currentUser.email;
+
+            // Проверяем, не пришли ли мы со ссылкой сброса
+            if (await handlePasswordReset()) return;
+
+            document.getElementById('profileContent').innerHTML = `
                 <div class="section"><h2>Информация об аккаунте</h2><div class="info-row"><span class="info-label">Email:</span><span>${escapeHtml(currentUser.email)}</span></div><div class="info-row"><span class="info-label">Имя:</span><span id="currentNameDisplay">${escapeHtml(currentName)}</span></div></div>
                 <div class="section"><h2>Изменить имя</h2><div class="input-group"><input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}"></div><button id="updateNameBtn">Сохранить имя</button><div id="nameMessage" class="message" style="display:none;"></div></div>
                 <div class="section"><h2>Двухфакторная аутентификация</h2><div id="twofa-status"></div></div>
+                <div class="section"><h2>Изменить пароль</h2><p>Нажмите кнопку, чтобы получить ссылку для смены пароля на вашу почту.</p><button id="changePasswordBtn">Отправить ссылку для смены пароля</button><div id="passwordMessage" class="message" style="display:none;"></div></div>
             `;
-        document
-          .getElementById("updateNameBtn")
-          .addEventListener("click", updateName);
-        load2FAStatus();
-        if (isAdmin) {
-          document.getElementById("adminPanel").style.display = "block";
-          document.getElementById("adminOrdersPanel").style.display = "block";
-          loadAllUsers();
-          loadAllOrders();
+            document.getElementById('updateNameBtn').addEventListener('click', updateName);
+            document.getElementById('changePasswordBtn').addEventListener('click', async () => {
+                const msgDiv = document.getElementById('passwordMessage');
+                try {
+                    const { error } = await supabaseClient.auth.resetPasswordForEmail(currentUser.email, {
+                        redirectTo: window.location.origin + '/profile.html'
+                    });
+                    if (error) throw error;
+                    msgDiv.textContent = 'Ссылка для сброса пароля отправлена на вашу почту.';
+                    msgDiv.className = 'message success'; msgDiv.style.display = 'block';
+                } catch (err) {
+                    msgDiv.textContent = 'Ошибка: ' + err.message;
+                    msgDiv.className = 'message error'; msgDiv.style.display = 'block';
+                }
+            });
+            load2FAStatus();
+            if (isAdmin) {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminOrdersPanel').style.display = 'block';
+                loadAllUsers();
+                loadAllOrders();
+            }
         }
-      }
+
+        // ... (остальные функции: updateName, load2FAStatus, enable2FA, disable2FA, loadAllUsers, loadAllOrders, updateAuthHeader, checkAuth, escapeHtml) без изменений ...
+        // Вставьте их из предыдущей версии profile.html, они не менялись.
+        // Я для краткости опускаю их здесь, но в реальном файле они должны остаться.
+
 
       async function updateName() {
         const newName = document.getElementById("newName").value.trim();
