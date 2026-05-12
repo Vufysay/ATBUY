@@ -570,6 +570,12 @@
             const comment = document
               .getElementById("reviewComment")
               .value.trim();
+            console.log("Отправка:", {
+              rating: selectedRating,
+              comment,
+              isEdit,
+              existingReviewId: existingReview?.id,
+            });
             if (selectedRating === 0) {
               alert("Пожалуйста, выберите оценку");
               return;
@@ -580,24 +586,31 @@
             }
 
             if (isEdit) {
-              const { error } = await supabaseClient
+              console.log("Обновляем отзыв id:", existingReview.id);
+              const { data, error } = await supabaseClient
                 .from("reviews")
                 .update({ rating: selectedRating, comment })
-                .eq("id", existingReview.id);
-              if (error) alert("Ошибка обновления: " + error.message);
-              else {
+                .eq("id", existingReview.id)
+                .select(); // важно: добавили select(), чтобы увидеть возвращаемые данные
+              console.log("Результат обновления:", { data, error });
+              if (error) {
+                alert("Ошибка обновления: " + error.message);
+                console.error("Supabase error:", error);
+              } else {
                 alert("Отзыв обновлён");
                 loadReviews();
                 renderReviewForm();
               }
             } else {
-              const { error } = await supabaseClient
+              const { data, error } = await supabaseClient
                 .from("reviews")
                 .insert({
                   user_id: currentUser.id,
                   rating: selectedRating,
                   comment,
-                });
+                })
+                .select();
+              console.log("Результат вставки:", { data, error });
               if (error) alert("Ошибка при отправке отзыва: " + error.message);
               else {
                 alert("Спасибо за отзыв!");
