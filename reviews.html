@@ -562,6 +562,8 @@
           );
         });
         updateStars(currentRating);
+        document.getElementById("submitReviewBtn").onclick = () =>
+          alert("Кнопка работает!");
 
         // Делегирование события на контейнер, чтобы кнопка всегда работала
         container.addEventListener("click", async (e) => {
