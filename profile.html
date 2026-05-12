@@ -412,25 +412,8 @@
           .addEventListener("click", updateName);
         document
           .getElementById("changePasswordBtn")
-          .addEventListener("click", async () => {
-            const msgDiv = document.getElementById("passwordMessage");
-            try {
-              const { error } = await supabaseClient.auth.resetPasswordForEmail(
-                currentUser.email,
-                {
-                  redirectTo: window.location.origin + "/profile.html",
-                },
-              );
-              if (error) throw error;
-              msgDiv.textContent =
-                "Ссылка для сброса пароля отправлена на вашу почту.";
-              msgDiv.className = "message success";
-              msgDiv.style.display = "block";
-            } catch (err) {
-              msgDiv.textContent = "Ошибка: " + err.message;
-              msgDiv.className = "message error";
-              msgDiv.style.display = "block";
-            }
+          .addEventListener("click", () => {
+            window.location.href = "reset-password.html";
           });
         load2FAStatus();
         if (isAdmin) {
