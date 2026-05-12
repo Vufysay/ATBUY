@@ -511,6 +511,8 @@
           `<div class="stars">${starsString}</div><div class="value">${avg} / 5</div><div>средняя оценка (${reviews.length} отзывов)</div>`;
       }
 
+      // ----- ЗАМЕНИТЕ ЭТИ ФУНКЦИИ В reviews.html -----
+
       async function loadExistingReview() {
         if (!currentUser) return null;
         const { data, error } = await supabaseClient
@@ -530,36 +532,41 @@
         }
         existingReview = await loadExistingReview();
         const isEdit = !!existingReview;
+
         container.innerHTML = `
-          <div class="review-form">
+        <div class="review-form">
             <h3>${isEdit ? "Ваш отзыв (редактирование)" : "Оставить отзыв"}</h3>
             <div class="rating-input">
-              <label>Ваша оценка:</label>
-              <div class="stars-input" id="starsInput">
-                <span data-rating="1">★</span><span data-rating="2">★</span><span data-rating="3">★</span><span data-rating="4">★</span><span data-rating="5">★</span>
-              </div>
+                <label>Ваша оценка:</label>
+                <div class="stars-input" id="starsInput">
+                    <span data-rating="1">★</span><span data-rating="2">★</span>
+                    <span data-rating="3">★</span><span data-rating="4">★</span>
+                    <span data-rating="5">★</span>
+                </div>
             </div>
             <textarea id="reviewComment" rows="4" placeholder="Поделитесь впечатлениями...">${escapeHtml(existingReview?.comment || "")}</textarea>
             <button id="submitReviewBtn">${isEdit ? "Обновить отзыв" : "Отправить отзыв"}</button>
-          </div>
-        `;
-        // Установка звёзд
+        </div>
+    `;
+
+        // Инициализация звёзд
         const starsSpans = document.querySelectorAll("#starsInput span");
         const currentRating = isEdit ? existingReview.rating : 0;
-        selectedRating = currentRating; // важно обновить глобальную переменную
+        selectedRating = currentRating; // <-- главная правка: берём рейтинг из существующего отзыва
         function updateStars(rating) {
-          starsSpans.forEach((span, idx) =>
-            span.classList.toggle("active", idx < rating),
-          );
+          starsSpans.forEach((span, idx) => {
+            span.classList.toggle("active", idx < rating);
+          });
           selectedRating = rating;
         }
-        starsSpans.forEach((span) =>
+        starsSpans.forEach((span) => {
           span.addEventListener("click", () =>
             updateStars(parseInt(span.dataset.rating)),
-          ),
-        );
-        updateStars(currentRating);
+          );
+        });
+        updateStars(currentRating); // подсвечиваем нужное количество звёзд
 
+        // Обработчик клика по кнопке
         document
           .getElementById("submitReviewBtn")
           .addEventListener("click", async () => {
@@ -574,27 +581,30 @@
               alert("Напишите текст отзыва");
               return;
             }
+
             if (isEdit) {
+              // Обновляем существующий отзыв
               const { error } = await supabaseClient
                 .from("reviews")
-                .update({ rating: selectedRating, comment })
+                .update({ rating: selectedRating, comment: comment })
                 .eq("id", existingReview.id);
-              if (error) alert("Ошибка обновления: " + error.message);
-              else {
+              if (error) {
+                alert("Ошибка обновления: " + error.message);
+              } else {
                 alert("Отзыв обновлён");
                 loadReviews();
                 renderReviewForm();
               }
             } else {
-              const { error } = await supabaseClient
-                .from("reviews")
-                .insert({
-                  user_id: currentUser.id,
-                  rating: selectedRating,
-                  comment,
-                });
-              if (error) alert("Ошибка при отправке отзыва: " + error.message);
-              else {
+              // Новый отзыв
+              const { error } = await supabaseClient.from("reviews").insert({
+                user_id: currentUser.id,
+                rating: selectedRating,
+                comment: comment,
+              });
+              if (error) {
+                alert("Ошибка при отправке отзыва: " + error.message);
+              } else {
                 alert("Спасибо за отзыв!");
                 loadReviews();
                 renderReviewForm();
