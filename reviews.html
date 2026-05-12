@@ -562,8 +562,53 @@
           );
         });
         updateStars(currentRating);
-        document.getElementById("submitReviewBtn").onclick = () =>
-          alert("Кнопка работает!");
+        // Прямое назначение обработчика на кнопку
+        const submitBtn = document.getElementById("submitReviewBtn");
+        if (submitBtn) {
+          submitBtn.addEventListener("click", async function handler(e) {
+            e.preventDefault();
+            const comment = document
+              .getElementById("reviewComment")
+              .value.trim();
+            if (selectedRating === 0) {
+              alert("Пожалуйста, выберите оценку");
+              return;
+            }
+            if (!comment) {
+              alert("Напишите текст отзыва");
+              return;
+            }
+
+            if (isEdit) {
+              const { error } = await supabaseClient
+                .from("reviews")
+                .update({ rating: selectedRating, comment })
+                .eq("id", existingReview.id);
+              if (error) alert("Ошибка обновления: " + error.message);
+              else {
+                alert("Отзыв обновлён");
+                loadReviews();
+                renderReviewForm();
+              }
+            } else {
+              const { error } = await supabaseClient
+                .from("reviews")
+                .insert({
+                  user_id: currentUser.id,
+                  rating: selectedRating,
+                  comment,
+                });
+              if (error) alert("Ошибка при отправке отзыва: " + error.message);
+              else {
+                alert("Спасибо за отзыв!");
+                loadReviews();
+                renderReviewForm();
+              }
+            }
+          });
+        } else {
+          console.error("Кнопка submitReviewBtn не найдена");
+        }
 
         // Делегирование события на контейнер, чтобы кнопка всегда работала
         container.addEventListener("click", async (e) => {
