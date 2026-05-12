@@ -238,10 +238,10 @@
       let pending2FACode = null;
       let pending2FAExpires = null;
 
-      // временное хранилище для регистрации
-      let pendingSignupUser = null; // данные пользователя после signUp
+      let pendingSignupCode = null; // для регистрации
+      let pendingSignupExpires = null;
+      let pendingSignupData = null; // { email, password, name }
 
-      // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
       function showToast(message, isError = false) {
         const toast = document.getElementById("toast-message");
         toast.textContent = message;
@@ -255,7 +255,7 @@
           .querySelectorAll(".tab-btn")
           .forEach((btn) => btn.classList.remove("active"));
         document
-          .querySelector(".tab-btn[data-tab=" + tabId + "]")
+          .querySelector(`.tab-btn[data-tab="${tabId}"]`)
           .classList.add("active");
         document.getElementById("login-panel").style.display =
           tabId === "login" ? "block" : "none";
@@ -263,12 +263,11 @@
           tabId === "register" ? "block" : "none";
       }
 
-      // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
       document.querySelectorAll(".tab-btn").forEach((btn) => {
         btn.addEventListener("click", () => switchTab(btn.dataset.tab));
       });
 
-      // ========== РЕГИСТРАЦИЯ ==========
+      // ---------- РЕГИСТРАЦИЯ (код через EmailJS) ----------
       document
         .getElementById("register-form")
         .addEventListener("submit", async (e) => {
@@ -295,101 +294,88 @@
             return;
           }
 
-          // Создаём пользователя (email_confirmed станет автоматически true из-за настроек, но мы используем код)
-          const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: { data: { name } },
-          });
-          if (error) {
-            showToast(error.message, true);
-            return;
-          }
+          // Генерируем и отправляем код
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          pendingSignupCode = code;
+          pendingSignupExpires = Date.now() + 10 * 60 * 1000;
+          pendingSignupData = { email, password, name };
 
-          // Сохраняем данные для последующего подтверждения
-          pendingSignupUser = { userId: data.user.id, email, name };
-
-          // Отправляем код подтверждения через edge-функцию
           try {
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/send-code`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, type: "signup" }),
+            await emailjs.send("service_9od2h3e", "template_2fa", {
+              to_email: email,
+              message: `Ваш код для подтверждения регистрации: ${code}`,
+              subject: "Подтверждение регистрации ATBUY",
             });
-            if (!res.ok) throw new Error("Ошибка отправки кода");
-            // Показываем окно ввода кода
             document.getElementById("signup-code-modal").style.display = "flex";
+            document.getElementById("signup-code-input").value = "";
+            document.getElementById("signup-code-error").style.display = "none";
           } catch (err) {
-            showToast("Ошибка: " + err.message, true);
+            showToast(
+              "Ошибка отправки кода: " + (err.text || err.message),
+              true,
+            );
           }
         });
 
-      // Обработчик подтверждения кода регистрации
       document
         .getElementById("signup-code-verify-btn")
         .addEventListener("click", async () => {
-          const code = document
+          const enteredCode = document
             .getElementById("signup-code-input")
             .value.trim();
           const errorDiv = document.getElementById("signup-code-error");
-          errorDiv.style.display = "none";
 
-          if (!pendingSignupUser) {
+          if (!pendingSignupData) {
             errorDiv.textContent = "Нет активной регистрации";
             errorDiv.style.display = "block";
             return;
           }
-
-          // Отправляем код на проверку через Edge Function (мы создадим verify-code)
-          try {
-            const res = await fetch(
-              `${SUPABASE_URL}/functions/v1/verify-code`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  email: pendingSignupUser.email,
-                  type: "signup",
-                  code,
-                }),
-              },
-            );
-            const result = await res.json();
-            if (!result.success) {
-              errorDiv.textContent = result.error || "Неверный код";
-              errorDiv.style.display = "block";
-              return;
-            }
-
-            // Код верен – выполняем вход вручную
-            const { error: signInError } =
-              await supabaseClient.auth.signInWithPassword({
-                email: pendingSignupUser.email,
-                password: document.getElementById("reg-password").value, // пароль ещё в поле
-              });
-            if (signInError) {
-              showToast("Ошибка входа после подтверждения", true);
-              return;
-            }
-
-            document.getElementById("signup-code-modal").style.display = "none";
-            showToast("Регистрация подтверждена!");
-            // Перенаправляем на главную
-            window.location.href = "index.html";
-          } catch (err) {
-            errorDiv.textContent = "Ошибка проверки кода: " + err.message;
+          if (
+            enteredCode !== pendingSignupCode ||
+            Date.now() > pendingSignupExpires
+          ) {
+            errorDiv.textContent = "Неверный или просроченный код";
             errorDiv.style.display = "block";
+            return;
+          }
+
+          // Создаём пользователя (email не требует подтверждения)
+          const { error: signUpError } = await supabaseClient.auth.signUp({
+            email: pendingSignupData.email,
+            password: pendingSignupData.password,
+            options: { data: { name: pendingSignupData.name } },
+          });
+          if (signUpError) {
+            showToast("Ошибка регистрации: " + signUpError.message, true);
+            document.getElementById("signup-code-modal").style.display = "none";
+            return;
+          }
+
+          // Сразу входим
+          const { error: signInError } =
+            await supabaseClient.auth.signInWithPassword({
+              email: pendingSignupData.email,
+              password: pendingSignupData.password,
+            });
+          if (signInError) {
+            showToast(
+              "Ошибка входа после регистрации: " + signInError.message,
+              true,
+            );
+          } else {
+            document.getElementById("signup-code-modal").style.display = "none";
+            showToast("Регистрация успешна!");
+            window.location.href = "index.html";
           }
         });
 
-      // Закрытие модального окна регистрации по клику вне
       document
         .getElementById("signup-code-modal")
         .addEventListener("click", function (e) {
           if (e.target === this) this.style.display = "none";
         });
 
-      // ========== ВХОД ==========
+      // ---------- ВХОД (2FA через EmailJS) ----------
       document
         .getElementById("login-form")
         .addEventListener("submit", async (e) => {
@@ -410,12 +396,12 @@
             return;
           }
 
-          // Проверяем 2FA
           const { data: userData } = await supabaseClient
             .from("users")
             .select("is_2fa_enabled")
             .eq("id", data.user.id)
             .single();
+
           if (userData?.is_2fa_enabled) {
             pendingUser = data.user;
             const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -428,8 +414,13 @@
                 subject: "Код подтверждения 2FA",
               });
               document.getElementById("twofa-modal").style.display = "flex";
+              document.getElementById("2fa-code-input").value = "";
+              document.getElementById("2fa-error").style.display = "none";
             } catch (err) {
-              showToast("Ошибка отправки кода: " + err.text, true);
+              showToast(
+                "Ошибка отправки кода: " + (err.text || err.message),
+                true,
+              );
               await supabaseClient.auth.signOut();
             }
           } else {
@@ -437,10 +428,9 @@
           }
         });
 
-      // Подтверждение 2FA (уже было)
       document
         .getElementById("2fa-verify-btn")
-        .addEventListener("click", async () => {
+        .addEventListener("click", () => {
           const enteredCode = document
             .getElementById("2fa-code-input")
             .value.trim();
@@ -450,6 +440,8 @@
           ) {
             window.location.href = "index.html";
           } else {
+            document.getElementById("2fa-error").textContent =
+              "Неверный или просроченный код";
             document.getElementById("2fa-error").style.display = "block";
           }
         });
@@ -463,12 +455,12 @@
           }
         });
 
-      // ========== СБРОС ПАРОЛЯ (через код) ==========
+      // ---------- ЗАБЫЛИ ПАРОЛЬ (стандартный сброс Supabase) ----------
       document
         .getElementById("forgotPasswordLink")
         .addEventListener("click", (e) => {
           e.preventDefault();
-          // Перенаправляем на новый reset-password.html с кастомной логикой
+          // Перенаправляем на reset-password.html, где пользователь вводит email
           window.location.href = "reset-password.html";
         });
     </script>
