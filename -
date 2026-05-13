@@ -292,6 +292,9 @@
           flex-direction: column;
           text-align: center;
         }
+        .nav-links {
+          justify-content: center;
+        }
         .stats-grid {
           gap: 20px;
         }
@@ -400,8 +403,7 @@
       </div>
     </div>
     <script>
-      const SUPABASE_URL =
-        "https://functions.yandexcloud.net/d4ed5hav41lhcrdt3rq6?path=";
+      const SUPABASE_URL = "https://functions.yandexcloud.net/d4ed5hav41lhcrdt3rq6?path=";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
       const supabaseClient = window.supabase.createClient(
@@ -412,7 +414,6 @@
         isAdmin = false,
         games = [],
         editingGameId = null;
-
       async function uploadImage(file, gameId) {
         const fileExt = file.name.split(".").pop();
         const fileName = `${gameId}_${Date.now()}.${fileExt}`;
@@ -425,7 +426,6 @@
         } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
         return publicUrl;
       }
-
       async function loadGames() {
         const { data, error } = await supabaseClient
           .from("games")
@@ -440,7 +440,6 @@
         games = data || [];
         renderGames();
       }
-
       async function saveGame(game, imageFile = null) {
         let imageUrl = game.image;
         if (imageFile) {
@@ -462,7 +461,6 @@
           return data[0];
         }
       }
-
       async function deleteGame(id) {
         const game = games.find((g) => g.id === id);
         if (game && game.image && game.image.includes("game_images")) {
@@ -475,7 +473,6 @@
           .eq("id", id);
         if (error) throw error;
       }
-
       function renderGames(filter = "") {
         const container = document.getElementById("gamesContainer");
         const filtered = games.filter((g) =>
@@ -491,17 +488,12 @@
             const isImageUrl =
               game.image &&
               (game.image.startsWith("http") || game.image.startsWith("https"));
-            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">
-            ${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}
-            <div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div>
-            <div class="game-title">${escapeHtml(game.name)}</div>
-          </div>`;
+            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}<div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div><div class="game-title">${escapeHtml(game.name)}</div></div>`;
           })
           .join("");
         if (isAdmin)
           html += `<div class="game-card admin-add-card" id="addGameCard"><div class="card-image">➕</div><div class="game-title">Добавить игру</div></div>`;
         container.innerHTML = html;
-
         document
           .querySelectorAll(".game-card:not(.admin-add-card)")
           .forEach((card) =>
@@ -516,7 +508,6 @@
               else alert("Страница в разработке");
             }),
           );
-
         if (isAdmin) {
           document.querySelectorAll(".edit-icon").forEach((icon) =>
             icon.addEventListener("click", (e) => {
@@ -563,14 +554,12 @@
             });
         }
       }
-
       function openEditModal(id, name, img) {
         editingGameId = id;
         document.getElementById("editName").value = name;
         document.getElementById("editImageFile").value = "";
         document.getElementById("editModal").classList.add("active");
       }
-
       async function saveEdit() {
         const newName = document.getElementById("editName").value.trim();
         const imageFile = document.getElementById("editImageFile").files[0];
@@ -586,53 +575,41 @@
           alert(err.message);
         }
       }
-
       async function checkAuth() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (session) {
-          currentUser = session.user;
-          const { data: userAdmin } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const authSection = document.getElementById('auth-section');
+    const adminLinks = document.getElementById('admin-links');
+    if (session) {
+        currentUser = session.user;
+        const { data: userAdmin } = await supabaseClient
+            .from('users')
+            .select('is_admin')
+            .eq('id', currentUser.id)
             .single();
-          isAdmin =
-            userAdmin?.is_admin || currentUser.email === "vufysay@gmail.com";
-          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document.getElementById("userMenu").addEventListener("click", (e) => {
-            if (e.target.id !== "logoutBtn")
-              window.location.href = "profile.html";
-          });
-          document
-            .getElementById("logoutBtn")
-            .addEventListener("click", async (e) => {
-              e.stopPropagation();
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
-          if (adminLinks)
-            adminLinks.innerHTML = isAdmin
-              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
-              : "";
-          await loadGames();
-        } else {
-          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          if (adminLinks) adminLinks.innerHTML = "";
-          await loadGames();
-        }
-      }
-
+        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
+        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+        document.getElementById('userMenu').addEventListener('click', (e) => {
+            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
+        });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        });
+        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
+        await loadGames();
+    } else {
+        authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+        if (adminLinks) adminLinks.innerHTML = '';
+        await loadGames();
+    }
+}
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
         );
       }
-
       window.addEventListener("load", () => {
         checkAuth();
         document
