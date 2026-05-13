@@ -180,17 +180,6 @@
         margin-bottom: 16px;
         color: #3b82f6;
       }
-      .search-options {
-        margin-bottom: 16px;
-      }
-      .search-options input {
-        width: 100%;
-        padding: 10px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
       .option-item {
         display: flex;
         align-items: center;
@@ -237,95 +226,6 @@
         border-radius: 6px;
         cursor: pointer;
       }
-      .admin-option-controls {
-        display: flex;
-        gap: 8px;
-        margin-left: auto;
-      }
-      .admin-option-controls button {
-        background: #4b5563;
-        border: none;
-        padding: 4px 8px;
-        border-radius: 20px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 0.7rem;
-      }
-      .admin-option-controls button:hover {
-        background: #3b82f6;
-      }
-      .add-option-form {
-        display: flex;
-        gap: 12px;
-        margin-top: 16px;
-        flex-wrap: wrap;
-      }
-      .add-option-form input {
-        flex: 1;
-        padding: 8px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
-      .add-option-form button {
-        background: #3b82f6;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-      }
-      .edit-icon {
-        display: inline-block;
-        margin-left: 16px;
-        background: #0009;
-        border-radius: 30px;
-        padding: 4px 10px;
-        cursor: pointer;
-        font-size: 0.8rem;
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000c;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-      .modal.active {
-        display: flex;
-      }
-      .modal-content {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 24px;
-        width: 90%;
-        max-width: 500px;
-      }
-      .modal-content input,
-      .modal-content textarea {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 16px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
-      .modal-content button {
-        background: #3b82f6;
-        border: 0;
-        padding: 8px 16px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-        margin-right: 12px;
-      }
       .footer {
         background: #0f1117;
         border-top: 1px solid #1f2329;
@@ -357,13 +257,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
-            <a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -386,15 +286,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -403,78 +306,63 @@
         </div>
       </div>
     </footer>
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <h3>Редактировать описание</h3>
-        <textarea
-          id="editDescription"
-          rows="6"
-          placeholder="Описание товара"
-        ></textarea>
-        <div style="display: flex; justify-content: flex-end">
-          <button id="saveDescriptionBtn">Сохранить</button
-          ><button id="cancelEditBtn" style="background: #4b5563">
-            Отмена
-          </button>
-        </div>
-      </div>
-    </div>
-    <div id="editOptionModal" class="modal">
-      <div class="modal-content">
-        <h3>Редактировать опцию</h3>
-        <input
-          type="text"
-          id="editOptionName"
-          placeholder="Название опции"
-        /><input
-          type="number"
-          id="editOptionPrice"
-          placeholder="Дополнительная цена (₽)"
-        />
-        <div style="display: flex; justify-content: flex-end">
-          <button id="saveOptionBtn">Сохранить</button
-          ><button id="cancelOptionBtn" style="background: #4b5563">
-            Отмена
-          </button>
-        </div>
-      </div>
-    </div>
+
     <script>
-      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-      const PROXY_URL =
-        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
-
-      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-      const customFetch = async (url, options) => {
-        if (
-          typeof url === "string" &&
-          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
-        ) {
-          const path = url.replace(
-            "https://buonqsikukvqbnbpuuco.supabase.co",
-            "",
-          );
-          url = PROXY_URL + path;
+      // ---------- АВТОРИЗАЦИЯ ----------
+      let currentUser = null;
+      let isAdmin = false;
+      function checkAuth() {
+        const stored = localStorage.getItem("atbuy_current_user");
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = {
+            email: userData.email,
+            user_metadata: { name: userData.name },
+          };
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
-        return fetch(url, options);
-      };
+        renderAuthHeader();
+      }
+      function renderAuthHeader() {
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            const supabaseClient = window.supabase.createClient(
+              "https://buonqsikukvqbnbpuuco.supabase.co",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw",
+            );
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
 
-      const supabaseClient = window.supabase.createClient(
-        "https://buonqsikukvqbnbpuuco.supabase.co",
-        SUPABASE_ANON_KEY,
-        { fetch: customFetch },
-      );
-      let currentUser = null,
-        isAdmin = false,
-        currentProduct = null,
-        productOptions = [],
-        selectedOptionQuantities = {},
-        optionsFilter = "";
-      let gameLink = "#",
-        gameName = "игра";
+      // ---------- ЗАГРУЗКА ТОВАРА ----------
+      let currentProduct = null;
+      let productOptions = [];
+      let selectedOptionQuantities = {};
 
       async function loadProduct() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -486,33 +374,24 @@
         }
         try {
           const response = await fetch("/products.json");
-          if (!response.ok) throw new Error("Ошибка загрузки данных");
           const allProducts = await response.json();
           currentProduct = allProducts.find((p) => p.id === productId);
           if (!currentProduct) throw new Error("Товар не найден");
           productOptions = currentProduct.options || [];
-          renderStaticPart();
-          renderOptionsList();
+          // Инициализируем количество опций
+          productOptions.forEach((opt) => {
+            if (selectedOptionQuantities[opt.id] === undefined)
+              selectedOptionQuantities[opt.id] = 0;
+          });
+          renderProduct();
         } catch (err) {
-          console.error("Не удалось загрузить товар:", err);
+          console.error(err);
           document.getElementById("productContainer").innerHTML =
             "<p>Товар не найден</p>";
         }
       }
-      // async function loadOptions() {
-      //   const { data, error } = await supabaseClient
-      //     .from("product_options")
-      //     .select("*")
-      //     .eq("product_id", currentProduct.id)
-      //     .order("name");
-      //   if (error) console.error(error);
-      //   else productOptions = data || [];
-      //   productOptions.forEach((opt) => {
-      //     if (selectedOptionQuantities[opt.id] === undefined)
-      //       selectedOptionQuantities[opt.id] = 0;
-      //   });
-      // }
-      function renderStaticPart() {
+
+      function renderProduct() {
         const basePrice = parsePrice(currentProduct.price);
         let totalPrice = basePrice;
         for (let id in selectedOptionQuantities) {
@@ -520,118 +399,61 @@
           const opt = productOptions.find((o) => o.id == id);
           if (opt && qty > 0) totalPrice += opt.price * qty;
         }
+
         document.getElementById("productContainer").innerHTML = `
-                      <div class="product-wrapper">
-                          <div class="product-left">
-                              <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
-                              <div class="action-block">
-                                  <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
-                                  <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
-                                  <div><a href="${gameLink}" class="back-link">← Вернуться к товарам игры ${escapeHtml(gameName)}</a></div>
-                              </div>
-                          </div>
-                          <div class="product-right">
-                              <div class="product-details">
-                                  <div class="product-name">${escapeHtml(currentProduct.name)} ${isAdmin ? '<span class="edit-icon" id="editDescriptionBtn">✏️ Редактировать описание</span>' : ""}</div>
-                                  <div class="product-price">${escapeHtml(currentProduct.price)}</div>
-                                  <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует").replace(/\n/g, "<br>")}</div>
-                              </div>
-                              <div class="options-section">
-                                  <h3>Дополнительные опции</h3>
-                                  ${productOptions.length ? `<div class="search-options"><input type="text" id="searchOptions" placeholder="🔍 Поиск опций..." value="${escapeHtml(optionsFilter)}"></div>` : ""}
-                                  <div id="optionsList"></div>
-                                  ${isAdmin ? `<div class="add-option-form"><input type="text" id="newOptionName" placeholder="Название опции"><input type="number" id="newOptionPrice" placeholder="Цена (₽)"><button id="addOptionBtn">➕ Добавить опцию</button></div>` : ""}
-                              </div>
-                          </div>
-                      </div>
-                  `;
-        document
-          .getElementById("addToCartBtn")
-          .addEventListener("click", () => addToCart());
-        if (isAdmin) {
-          document
-            .getElementById("editDescriptionBtn")
-            ?.addEventListener("click", () => {
-              document.getElementById("editDescription").value =
-                currentProduct.description || "";
-              document.getElementById("editModal").classList.add("active");
-            });
-          const addBtn = document.getElementById("addOptionBtn");
-          if (addBtn)
-            addBtn.addEventListener("click", async () => {
-              const name = document
-                .getElementById("newOptionName")
-                .value.trim();
-              const price = parseInt(
-                document.getElementById("newOptionPrice").value,
-              );
-              if (!name || isNaN(price) || price < 0) {
-                alert("Введите название и корректную цену");
-                return;
-              }
-              await addOption(name, price);
-              await loadOptions();
-              renderOptionsList();
-              document.getElementById("newOptionName").value = "";
-              document.getElementById("newOptionPrice").value = "";
-            });
-        }
-        const searchInput = document.getElementById("searchOptions");
-        if (searchInput) {
-          searchInput.addEventListener("input", (e) => {
-            optionsFilter = e.target.value;
-            renderOptionsList();
-          });
-        }
-      }
-      function renderOptionsList() {
-        const container = document.getElementById("optionsList");
-        if (!container) return;
-        const filtered = productOptions.filter((opt) =>
-          opt.name.toLowerCase().includes(optionsFilter.toLowerCase()),
-        );
-        if (!filtered.length) {
-          container.innerHTML =
-            '<div style="text-align:center; padding:20px;">Опции не найдены</div>';
-          return;
-        }
-        container.innerHTML = filtered
-          .map((opt) => {
-            const qty = selectedOptionQuantities[opt.id] || 0;
-            const optionTotal = opt.price * qty;
-            return `
-                          <div class="option-item">
-                              <span class="option-name">${escapeHtml(opt.name)}</span>
-                              <span class="option-price">${opt.price} ₽</span>
-                              <span class="option-total">${optionTotal} ₽</span>
-                              <div class="option-quantity">
-                                  <button class="opt-minus" data-id="${opt.id}">-</button>
-                                  <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
-                                  <button class="opt-plus" data-id="${opt.id}">+</button>
-                              </div>
-                              ${
-                                isAdmin
-                                  ? `
-                                  <div class="admin-option-controls">
-                                      <button class="edit-option-btn" data-id="${opt.id}" data-name="${escapeHtml(opt.name)}" data-price="${opt.price}">✏️</button>
-                                      <button class="delete-option-btn" data-id="${opt.id}">🗑️</button>
-                                  </div>
-                              `
-                                  : ""
-                              }
-                          </div>
-                      `;
-          })
-          .join("");
-        attachOptionHandlers();
-      }
-      function attachOptionHandlers() {
+                <div class="product-wrapper">
+                    <div class="product-left">
+                        <div class="product-image">${currentProduct.image ? `<img src="${currentProduct.image}" alt="${escapeHtml(currentProduct.name)}">` : '<div style="font-size:4rem;">🖼️</div>'}</div>
+                        <div class="action-block">
+                            <div class="total-price">Итого: <strong>${totalPrice} ₽</strong></div>
+                            <button id="addToCartBtn" class="btn-add-to-cart">Добавить в корзину</button>
+                            <div><a href="game.html?id=${currentProduct.game_id}" class="back-link">← Вернуться к товарам игры</a></div>
+                        </div>
+                    </div>
+                    <div class="product-right">
+                        <div class="product-details">
+                            <div class="product-name">${escapeHtml(currentProduct.name)}</div>
+                            <div class="product-price">${escapeHtml(currentProduct.price)}</div>
+                            <div class="product-description">${escapeHtml(currentProduct.description || "Описание отсутствует").replace(/\n/g, "<br>")}</div>
+                        </div>
+                        <div class="options-section">
+                            <h3>Дополнительные опции</h3>
+                            <div id="optionsList">
+                                ${
+                                  productOptions.length
+                                    ? productOptions
+                                        .map((opt) => {
+                                          const qty =
+                                            selectedOptionQuantities[opt.id] ||
+                                            0;
+                                          const optionTotal = opt.price * qty;
+                                          return `<div class="option-item">
+                                        <span class="option-name">${escapeHtml(opt.name)}</span>
+                                        <span class="option-price">${opt.price} ₽</span>
+                                        <span class="option-total">${optionTotal} ₽</span>
+                                        <div class="option-quantity">
+                                            <button class="opt-minus" data-id="${opt.id}">-</button>
+                                            <input type="number" class="opt-qty-input" data-id="${opt.id}" value="${qty}" min="0" step="1">
+                                            <button class="opt-plus" data-id="${opt.id}">+</button>
+                                        </div>
+                                    </div>`;
+                                        })
+                                        .join("")
+                                    : "<p>Нет опций</p>"
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // Обработчики опций
         document.querySelectorAll(".opt-plus").forEach((btn) => {
           btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
             selectedOptionQuantities[id] =
               (selectedOptionQuantities[id] || 0) + 1;
-            updateTotalAndOptions();
+            renderProduct();
           });
         });
         document.querySelectorAll(".opt-minus").forEach((btn) => {
@@ -639,7 +461,7 @@
             const id = parseInt(btn.dataset.id);
             if (selectedOptionQuantities[id] > 0)
               selectedOptionQuantities[id]--;
-            updateTotalAndOptions();
+            renderProduct();
           });
         });
         document.querySelectorAll(".opt-qty-input").forEach((input) => {
@@ -648,233 +470,56 @@
             let val = parseInt(input.value);
             if (isNaN(val) || val < 0) val = 0;
             selectedOptionQuantities[id] = val;
-            updateTotalAndOptions();
+            renderProduct();
           });
         });
-        if (isAdmin) {
-          document.querySelectorAll(".edit-option-btn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-              const id = parseInt(btn.dataset.id);
-              const name = btn.dataset.name;
-              const price = parseInt(btn.dataset.price);
-              openEditOptionModal(id, name, price);
-            });
-          });
-          document.querySelectorAll(".delete-option-btn").forEach((btn) => {
-            btn.addEventListener("click", async (e) => {
-              if (confirm("Удалить опцию?")) {
-                await deleteOption(parseInt(btn.dataset.id));
-                await loadOptions();
-                renderOptionsList();
-                updateTotalPriceDisplay();
+
+        document
+          .getElementById("addToCartBtn")
+          .addEventListener("click", () => {
+            if (!currentUser) {
+              alert("Войдите в аккаунт");
+              window.location.href = "login.html";
+              return;
+            }
+            let totalPrice = parsePrice(currentProduct.price);
+            let selectedOptionsList = [];
+            for (let id in selectedOptionQuantities) {
+              const qty = selectedOptionQuantities[id];
+              if (qty > 0) {
+                const opt = productOptions.find((o) => o.id == id);
+                if (opt) {
+                  totalPrice += opt.price * qty;
+                  selectedOptionsList.push({
+                    id: opt.id,
+                    name: opt.name,
+                    price: opt.price,
+                    quantity: qty,
+                  });
+                }
               }
+            }
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            cart.push({
+              product_id: currentProduct.id,
+              product_name: currentProduct.name,
+              product_price: totalPrice + " ₽",
+              quantity: 1,
+              options: selectedOptionsList,
             });
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("Товар добавлен в корзину!");
           });
-        }
-      }
-      function updateTotalAndOptions() {
-        renderOptionsList();
-        updateTotalPriceDisplay();
-      }
-      function updateTotalPriceDisplay() {
-        const basePrice = parsePrice(currentProduct.price);
-        let totalPrice = basePrice;
-        for (let id in selectedOptionQuantities) {
-          const qty = selectedOptionQuantities[id];
-          const opt = productOptions.find((o) => o.id == id);
-          if (opt && qty > 0) totalPrice += opt.price * qty;
-        }
-        const totalDiv = document.querySelector(".total-price");
-        if (totalDiv)
-          totalDiv.innerHTML = `Итого: <strong>${totalPrice} ₽</strong>`;
-      }
-      async function addOption(name, price) {
-        const { error } = await supabaseClient
-          .from("product_options")
-          .insert({ product_id: currentProduct.id, name, price });
-        if (error) alert("Ошибка добавления: " + error.message);
-      }
-      async function updateOption(id, name, price) {
-        const { error } = await supabaseClient
-          .from("product_options")
-          .update({ name, price })
-          .eq("id", id);
-        if (error) alert("Ошибка обновления: " + error.message);
-      }
-      async function deleteOption(id) {
-        const { error } = await supabaseClient
-          .from("product_options")
-          .delete()
-          .eq("id", id);
-        if (error) alert("Ошибка удаления: " + error.message);
       }
 
-      function openEditOptionModal(id, name, price) {
-        document.getElementById("editOptionName").value = name;
-        document.getElementById("editOptionPrice").value = price;
-        document.getElementById("editOptionModal").classList.add("active");
-        document.getElementById("saveOptionBtn").onclick = async () => {
-          const newName = document
-            .getElementById("editOptionName")
-            .value.trim();
-          const newPrice = parseInt(
-            document.getElementById("editOptionPrice").value,
-          );
-          if (!newName || isNaN(newPrice)) {
-            alert("Заполните поля");
-            return;
-          }
-          await updateOption(id, newName, newPrice);
-          await loadOptions();
-          renderOptionsList();
-          document.getElementById("editOptionModal").classList.remove("active");
-        };
-        document.getElementById("cancelOptionBtn").onclick = () =>
-          document.getElementById("editOptionModal").classList.remove("active");
-      }
-      async function addToCart() {
-        if (!currentUser) {
-          alert("Войдите в аккаунт");
-          window.location.href = "login.html";
-          return;
-        }
-        let basePrice = parsePrice(currentProduct.price);
-        let totalPrice = basePrice;
-        let selectedOptionsList = [];
-        for (let id in selectedOptionQuantities) {
-          const qty = selectedOptionQuantities[id];
-          if (qty > 0) {
-            const opt = productOptions.find((o) => o.id == id);
-            if (opt) {
-              totalPrice += opt.price * qty;
-              selectedOptionsList.push({
-                id: opt.id,
-                name: opt.name,
-                price: opt.price,
-                quantity: qty,
-              });
-            }
-          }
-        }
-        const { data: existing, error: checkError } = await supabaseClient
-          .from("cart")
-          .select("id, quantity, options")
-          .eq("user_id", currentUser.id)
-          .eq("product_id", currentProduct.id)
-          .maybeSingle();
-        if (checkError && checkError.code !== "PGRST116") {
-          alert("Ошибка проверки корзины");
-          return;
-        }
-        let existingOptions = existing?.options || [];
-        let sameOptions =
-          JSON.stringify(selectedOptionsList) ===
-          JSON.stringify(existingOptions);
-        if (existing && sameOptions) {
-          const { error } = await supabaseClient
-            .from("cart")
-            .update({ quantity: existing.quantity + 1 })
-            .eq("id", existing.id);
-          if (error) alert("Ошибка обновления");
-          else alert("Товар добавлен в корзину!");
-        } else {
-          const { error } = await supabaseClient.from("cart").insert({
-            user_id: currentUser.id,
-            game_id: currentProduct.game_id,
-            product_id: currentProduct.id,
-            product_name: currentProduct.name,
-            product_price: totalPrice.toString() + " ₽",
-            quantity: 1,
-            options: selectedOptionsList,
-          });
-          if (error) alert("Ошибка добавления");
-          else alert("Товар добавлен в корзину!");
-        }
-      }
-      async function saveDescription() {
-        const newDescription = document
-          .getElementById("editDescription")
-          .value.trim();
-        const { error } = await supabaseClient
-          .from("game_products")
-          .update({ description: newDescription })
-          .eq("id", currentProduct.id);
-        if (error) alert("Ошибка обновления: " + error.message);
-        else {
-          alert("Описание обновлено");
-          location.reload();
-        }
-      }
       function parsePrice(priceStr) {
         return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
       }
-      async function checkAuth() {
-  // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-  const stored = localStorage.getItem('atbuy_current_user');
-  if (stored) {
-    const userData = JSON.parse(stored);
-    currentUser = { email: userData.email, user_metadata: { name: userData.name } };
-    // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-    const adminFlag = localStorage.getItem('atbuy_is_admin') === 'true';
-    isAdmin = adminFlag || (currentUser.email === 'vufysay@gmail.com');
-    renderAuthHeader();
-    return true;
-  }
-  // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-    isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-    // Сохраняем в localStorage для будущих мгновенных загрузок
-    localStorage.setItem('atbuy_current_user', JSON.stringify({
-      email: currentUser.email,
-      name: currentUser.user_metadata?.name || currentUser.email
-    }));
-    localStorage.setItem('atbuy_is_admin', isAdmin);
-    renderAuthHeader();
-    return true;
-  }
-  renderAuthHeader();
-  return false;
-}
 
-function renderAuthHeader() {
-  const authSection = document.getElementById('auth-section');
-  const adminLinks = document.getElementById('admin-links');
-  if (currentUser) {
-    authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-    document.getElementById('userMenu')?.addEventListener('click', (e) => {
-      if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-    });
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('atbuy_current_user');
-      localStorage.removeItem('atbuy_is_admin');
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    });
-    if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-  } else {
-    authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-    if (adminLinks) adminLinks.innerHTML = '';
-  }
-}
-      function escapeHtml(str) {
-        return str.replace(
-          /[&<>]/g,
-          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-        );
-      }
+      // ---------- ЗАПУСК ----------
       window.addEventListener("load", () => {
         checkAuth();
-        document
-          .getElementById("saveDescriptionBtn")
-          ?.addEventListener("click", saveDescription);
-        document
-          .getElementById("cancelEditBtn")
-          ?.addEventListener("click", () =>
-            document.getElementById("editModal").classList.remove("active"),
-          );
+        loadProduct();
       });
     </script>
   </body>
