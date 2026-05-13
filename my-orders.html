@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Мои заказы — ATBUY</title>
     <style>
-      /* стили как в предыдущей версии */
       * {
         margin: 0;
         padding: 0;
@@ -221,13 +220,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
-            ><a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -242,11 +241,12 @@
       <div class="container">
         <div class="orders-header"><h1>Мои заказы</h1></div>
         <div class="filter-tabs">
-          <button class="filter-tab active" data-status="all">Все</button
-          ><button class="filter-tab" data-status="pending">
-            Ожидают оплаты</button
-          ><button class="filter-tab" data-status="paid">Оплачены</button
-          ><button class="filter-tab" data-status="completed">Выполнены</button>
+          <button class="filter-tab active" data-status="all">Все</button>
+          <button class="filter-tab" data-status="pending">
+            Ожидают оплаты
+          </button>
+          <button class="filter-tab" data-status="paid">Оплачены</button>
+          <button class="filter-tab" data-status="completed">Выполнены</button>
         </div>
         <div id="ordersContainer" class="orders-grid"></div>
       </div>
@@ -260,15 +260,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -281,43 +284,77 @@
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-      const PROXY_URL =
-        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+      let supabaseClient = null;
+      let currentUser = null;
+      let isAdmin = false;
+      let currentStatus = "all";
 
-      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-      const customFetch = async (url, options) => {
-        if (
-          typeof url === "string" &&
-          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
-        ) {
-          const path = url.replace(
-            "https://buonqsikukvqbnbpuuco.supabase.co",
-            "",
-          );
-          url = PROXY_URL + path;
+      function checkAuth() {
+        const stored = localStorage.getItem("atbuy_current_user");
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = {
+            email: userData.email,
+            user_metadata: { name: userData.name },
+          };
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
-        return fetch(url, options);
-      };
+        renderAuthHeader();
+        if (currentUser) loadOrders();
+        else
+          document.getElementById("ordersContainer").innerHTML =
+            '<div class="empty-orders">🔒 Войдите, чтобы увидеть заказы</div>';
+      }
 
-      const supabaseClient = window.supabase.createClient(
-        "https://buonqsikukvqbnbpuuco.supabase.co",
-        SUPABASE_ANON_KEY,
-        { fetch: customFetch },
-      );
-      let currentUser = null,
-        isAdmin = false,
-        currentStatus = "all";
+      function renderAuthHeader() {
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
 
       async function loadOrders() {
-        if (!currentUser) return;
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let query = supabaseClient.from("orders").select("*");
-        if (!isAdmin) query = query.eq("user_id", currentUser.id);
+        if (!isAdmin) query = query.eq("user_id", currentUser.email); // временно по email
         const { data, error } = await query.order("created_at", {
           ascending: false,
         });
         if (error) {
           console.error(error);
+          document.getElementById("ordersContainer").innerHTML =
+            '<div class="empty-orders">Ошибка загрузки заказов</div>';
           return;
         }
         let filtered = data;
@@ -325,6 +362,7 @@
           filtered = data.filter((o) => o.status === currentStatus);
         renderOrders(filtered);
       }
+
       function renderOrders(orders) {
         const container = document.getElementById("ordersContainer");
         if (!orders.length) {
@@ -335,14 +373,16 @@
         container.innerHTML = orders
           .map(
             (order) => `
-                <div class="order-card" data-order-id="${order.id}">
-                    <div class="order-id">Заказ #${order.id}</div>
-                    <div class="order-status status-${order.status === "pending" ? "pending" : order.status === "paid" ? "paid" : "completed"}">${order.status === "pending" ? "⏳ Ожидает оплаты" : order.status === "paid" ? "✅ Оплачен" : "🎉 Выполнен"}</div>
-                    <div class="order-total">${order.total_amount} ₽</div>
-                    <div class="order-date">${new Date(order.created_at).toLocaleDateString()}</div>
-                    ${order.status === "pending" ? `<button class="pay-now-btn" data-order-id="${order.id}" data-order-amount="${order.total_amount}">💳 Оплатить сейчас</button>` : ""}
-                </div>
-            `,
+          <div class="order-card" data-order-id="${order.id}">
+            <div class="order-id">Заказ #${order.id}</div>
+            <div class="order-status status-${order.status}">
+              ${order.status === "pending" ? "⏳ Ожидает оплаты" : order.status === "paid" ? "✅ Оплачен" : "🎉 Выполнен"}
+            </div>
+            <div class="order-total">${order.total_amount} ₽</div>
+            <div class="order-date">${new Date(order.created_at).toLocaleDateString()}</div>
+            ${order.status === "pending" ? `<button class="pay-now-btn" data-order-id="${order.id}" data-order-amount="${order.total_amount}">💳 Оплатить сейчас</button>` : ""}
+          </div>
+        `,
           )
           .join("");
         document.querySelectorAll(".pay-now-btn").forEach((btn) => {
@@ -360,8 +400,12 @@
           });
         });
       }
+
       async function repeatPayment(orderId, amount) {
         if (!currentUser) return;
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         try {
           const response = await fetch(
             `${SUPABASE_URL}/functions/v1/create-payment`,
@@ -374,7 +418,7 @@
                 description: `Заказ №${orderId} от ${currentUser.email}`,
                 phone: "",
                 telegram: "",
-                userName: currentUser.user_metadata.name || currentUser.email,
+                userName: currentUser.user_metadata?.name || currentUser.email,
               }),
             },
           );
@@ -385,86 +429,9 @@
           alert("Ошибка: " + err.message);
         }
       }
-      async function checkAuth() {
-        // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-        const stored = localStorage.getItem("atbuy_current_user");
-        if (stored) {
-          const userData = JSON.parse(stored);
-          currentUser = {
-            email: userData.email,
-            user_metadata: { name: userData.name },
-          };
-          // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-          const adminFlag = localStorage.getItem("atbuy_is_admin") === "true";
-          isAdmin = adminFlag || currentUser.email === "vufysay@gmail.com";
-          renderAuthHeader();
-          return true;
-        }
-        // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (session) {
-          currentUser = session.user;
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          // Сохраняем в localStorage для будущих мгновенных загрузок
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: currentUser.email,
-              name: currentUser.user_metadata?.name || currentUser.email,
-            }),
-          );
-          localStorage.setItem("atbuy_is_admin", isAdmin);
-          renderAuthHeader();
-          return true;
-        }
-        renderAuthHeader();
-        return false;
-      }
 
-      function renderAuthHeader() {
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (currentUser) {
-          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
-          document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-              localStorage.removeItem("atbuy_current_user");
-              localStorage.removeItem("atbuy_is_admin");
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
-          if (adminLinks)
-            adminLinks.innerHTML = isAdmin
-              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
-              : "";
-        } else {
-          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          if (adminLinks) adminLinks.innerHTML = "";
-        }
-      }
-      function escapeHtml(str) {
-        return str.replace(
-          /[&<>]/g,
-          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-        );
-      }
-      window.addEventListener("load", async () => {
-        await checkAuth();
+      window.addEventListener("load", () => {
+        checkAuth();
         document.querySelectorAll(".filter-tab").forEach((tab) => {
           tab.addEventListener("click", () => {
             document
@@ -472,7 +439,7 @@
               .forEach((t) => t.classList.remove("active"));
             tab.classList.add("active");
             currentStatus = tab.dataset.status;
-            loadOrders();
+            if (currentUser) loadOrders();
           });
         });
       });

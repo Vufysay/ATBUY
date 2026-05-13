@@ -1,3 +1,4 @@
+<!-- cart.html -->
 <!doctype html>
 <html lang="ru">
   <head>
@@ -11,7 +12,7 @@
         box-sizing: border-box;
       }
       body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", sans-serif;
         background: #0a0c10;
         color: #eef2ff;
       }
@@ -60,11 +61,11 @@
         background: #3b82f6;
         padding: 6px 14px;
         border-radius: 30px;
-        color: white !important;
+        color: #fff !important;
       }
       .youtube-link {
         background: #ff0000;
-        color: white !important;
+        color: #fff !important;
         padding: 6px 14px;
         border-radius: 30px;
       }
@@ -72,7 +73,7 @@
         background: #3b82f6;
         padding: 8px 22px;
         border-radius: 30px;
-        color: white;
+        color: #fff;
         font-weight: 600;
         text-decoration: none;
       }
@@ -84,7 +85,7 @@
         cursor: pointer;
       }
       .logout-btn {
-        background: none;
+        background: 0 0;
         border: 1px solid #3b82f6;
         color: #3b82f6;
         padding: 5px 12px;
@@ -267,9 +268,6 @@
           flex-direction: column;
           text-align: center;
         }
-        .nav-links {
-          justify-content: center;
-        }
         .cart-item {
           flex-direction: column;
           text-align: center;
@@ -304,16 +302,12 @@
         </div>
       </div>
     </header>
-
     <main class="main">
       <div class="container">
-        <div class="cart-header">
-          <h1>Корзина</h1>
-        </div>
+        <div class="cart-header"><h1>Корзина</h1></div>
         <div id="cart-container"></div>
       </div>
     </main>
-
     <footer class="footer">
       <div class="container">
         <div class="footer-content">
@@ -343,261 +337,15 @@
         </div>
       </div>
     </footer>
-
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-      const PROXY_URL =
-        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
-
-      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-      const customFetch = async (url, options) => {
-        if (
-          typeof url === "string" &&
-          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
-        ) {
-          const path = url.replace(
-            "https://buonqsikukvqbnbpuuco.supabase.co",
-            "",
-          );
-          url = PROXY_URL + path;
-        }
-        return fetch(url, options);
-      };
-
-      const supabaseClient = window.supabase.createClient(
-        "https://buonqsikukvqbnbpuuco.supabase.co",
-        SUPABASE_ANON_KEY,
-        { fetch: customFetch },
-      );
-
+      let supabaseClient = null; // инициализируем при необходимости
       let currentUser = null;
-      let cartItems = [];
+      let isAdmin = false;
 
-      function parsePrice(priceStr) {
-        return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
-      }
-
-      async function loadCart() {
-        if (!currentUser) return;
-        const { data, error } = await supabaseClient
-          .from("cart")
-          .select("*")
-          .eq("user_id", currentUser.id);
-        if (error) {
-          console.error("Ошибка загрузки корзины:", error);
-          return;
-        }
-        cartItems = data || [];
-        renderCart();
-      }
-
-      function renderCart() {
-        const container = document.getElementById("cart-container");
-        if (!cartItems.length) {
-          container.innerHTML =
-            '<div class="empty-cart">🛒 Корзина пуста. Добавьте товары на странице игры.</div>';
-          return;
-        }
-
-        let html = `<div class="cart-items">`;
-        let total = 0;
-        cartItems.forEach((item) => {
-          const priceNum = parsePrice(item.product_price);
-          const itemTotal = priceNum * item.quantity;
-          total += itemTotal;
-          let optionsHtml = "";
-          if (item.options && item.options.length) {
-            optionsHtml = `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>`;
-          }
-          html += `
-                    <div class="cart-item" data-id="${item.id}">
-                        <div class="item-info">
-                            <div class="item-name">${escapeHtml(item.product_name)}</div>
-                            ${optionsHtml}
-                            <div class="item-price">${escapeHtml(item.product_price)}</div>
-                        </div>
-                        <div class="item-quantity">
-                            <button class="quantity-btn" data-id="${item.id}" data-delta="-1">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="quantity-btn" data-id="${item.id}" data-delta="1">+</button>
-                        </div>
-                        <div class="item-total">${itemTotal} ₽</div>
-                        <button class="remove-item" data-id="${item.id}">🗑️</button>
-                    </div>
-                `;
-        });
-        html += `</div>
-                <div class="cart-summary">
-                    <div class="total-price">Итого: <span>${total} ₽</span></div>
-                    <button id="checkout-btn" class="checkout-btn">Оформить заказ</button>
-                </div>
-                <div id="contact-form" class="contact-form">
-                    <h3>Контактные данные</h3>
-                    <div class="input-group">
-                        <label>Номер телефона *</label>
-                        <input type="tel" id="phone" placeholder="+7 123 456-78-90" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Telegram (если нет, поставьте прочерк)</label>
-                        <input type="text" id="telegram" placeholder="@username или —">
-                    </div>
-                    <div class="form-buttons">
-                        <button id="submit-order-btn" class="btn-primary">Оплатить</button>
-                        <button id="cancel-order-btn" class="btn-secondary">Отмена</button>
-                    </div>
-                </div>
-            `;
-        container.innerHTML = html;
-
-        // Обработчики изменения количества
-        document.querySelectorAll(".quantity-btn").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            const id = parseInt(btn.dataset.id);
-            const delta = parseInt(btn.dataset.delta);
-            const item = cartItems.find((i) => i.id === id);
-            if (item) {
-              const newQuantity = item.quantity + delta;
-              if (newQuantity < 1) return;
-              const { error } = await supabaseClient
-                .from("cart")
-                .update({ quantity: newQuantity })
-                .eq("id", id);
-              if (error) {
-                alert("Ошибка обновления количества");
-              } else {
-                await loadCart();
-              }
-            }
-          });
-        });
-
-        // Удаление товара
-        document.querySelectorAll(".remove-item").forEach((btn) => {
-          btn.addEventListener("click", async (e) => {
-            const id = parseInt(btn.dataset.id);
-            const { error } = await supabaseClient
-              .from("cart")
-              .delete()
-              .eq("id", id);
-            if (error) {
-              alert("Ошибка удаления товара");
-            } else {
-              await loadCart();
-            }
-          });
-        });
-
-        // Оформление заказа
-        const checkoutBtn = document.getElementById("checkout-btn");
-        if (checkoutBtn) {
-          checkoutBtn.addEventListener("click", () => {
-            document.getElementById("contact-form").style.display = "block";
-            checkoutBtn.style.display = "none";
-          });
-        }
-
-        const submitBtn = document.getElementById("submit-order-btn");
-        if (submitBtn) {
-          submitBtn.addEventListener("click", createOrderAndPay);
-        }
-
-        const cancelBtn = document.getElementById("cancel-order-btn");
-        if (cancelBtn) {
-          cancelBtn.addEventListener("click", () => {
-            document.getElementById("contact-form").style.display = "none";
-            document.getElementById("checkout-btn").style.display = "block";
-          });
-        }
-      }
-
-      async function createOrderAndPay() {
-        const phone = document.getElementById("phone").value.trim();
-        const telegram =
-          document.getElementById("telegram").value.trim() || "—";
-
-        if (!phone) {
-          alert("Пожалуйста, укажите номер телефона");
-          return;
-        }
-
-        const total = cartItems.reduce(
-          (sum, item) => sum + parsePrice(item.product_price) * item.quantity,
-          0,
-        );
-
-        // Сохраняем товары с опциями
-        const items = cartItems.map((item) => ({
-          product_id: item.product_id,
-          product_name: item.product_name,
-          product_price: item.product_price,
-          quantity: item.quantity,
-          options: item.options || [],
-        }));
-
-        // Создаём заказ
-        const { data: order, error: orderError } = await supabaseClient
-          .from("orders")
-          .insert({
-            user_id: currentUser.id,
-            total_amount: total,
-            phone: phone,
-            telegram: telegram,
-            status: "pending",
-            items: items,
-          })
-          .select()
-          .single();
-
-        if (orderError) {
-          console.error("Ошибка создания заказа:", orderError);
-          alert("Ошибка создания заказа: " + orderError.message);
-          return;
-        }
-
-        // Очищаем корзину
-        await supabaseClient
-          .from("cart")
-          .delete()
-          .eq("user_id", currentUser.id);
-
-        // Вызываем Edge Function для создания платежа (если настроена)
-        try {
-          const response = await fetch(
-            `${SUPABASE_URL}/functions/v1/create-payment`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                orderId: order.id,
-                amount: total,
-                description: `Заказ №${order.id} от ${currentUser.email}`,
-                phone: phone,
-                telegram: telegram,
-                userName: currentUser.user_metadata.name || currentUser.email,
-              }),
-            },
-          );
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
-
-          const { confirmationUrl } = await response.json();
-          window.location.href = confirmationUrl;
-        } catch (err) {
-          console.error("Ошибка создания платежа:", err);
-          alert("Ошибка при подключении к платежной системе: " + err.message);
-          // Если оплата не настроена, просто очистим корзину и покажем сообщение
-          window.location.href = "my-orders.html";
-        }
-      }
-
-      async function checkAuth() {
-        // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
+      function checkAuth() {
         const stored = localStorage.getItem("atbuy_current_user");
         if (stored) {
           const userData = JSON.parse(stored);
@@ -605,39 +353,9 @@
             email: userData.email,
             user_metadata: { name: userData.name },
           };
-          // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-          const adminFlag = localStorage.getItem("atbuy_is_admin") === "true";
-          isAdmin = adminFlag || currentUser.email === "vufysay@gmail.com";
-          renderAuthHeader();
-          return true;
-        }
-        // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (session) {
-          currentUser = session.user;
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          // Сохраняем в localStorage для будущих мгновенных загрузок
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: currentUser.email,
-              name: currentUser.user_metadata?.name || currentUser.email,
-            }),
-          );
-          localStorage.setItem("atbuy_is_admin", isAdmin);
-          renderAuthHeader();
-          return true;
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
         renderAuthHeader();
-        return false;
       }
 
       function renderAuthHeader() {
@@ -645,20 +363,21 @@
         const adminLinks = document.getElementById("admin-links");
         if (currentUser) {
           authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
-          document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-              localStorage.removeItem("atbuy_current_user");
-              localStorage.removeItem("atbuy_is_admin");
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            // Создаём клиент только для выхода
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
           if (adminLinks)
             adminLinks.innerHTML = isAdmin
               ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
@@ -670,17 +389,155 @@
       }
 
       function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function (m) {
-          if (m === "&") return "&amp;";
-          if (m === "<") return "&lt;";
-          if (m === ">") return "&gt;";
-          return m;
-        });
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
       }
 
-      // Инициализация
-      window.addEventListener("load", async () => {
-        await checkAuth();
+      function parsePrice(priceStr) {
+        return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
+      }
+
+      function renderCart() {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const container = document.getElementById("cart-container");
+        if (!cart.length) {
+          container.innerHTML =
+            '<div class="empty-cart">🛒 Корзина пуста. Добавьте товары на странице игры.</div>';
+          return;
+        }
+
+        let html = `<div class="cart-items">`;
+        let total = 0;
+        cart.forEach((item, index) => {
+          const priceNum = parsePrice(item.product_price);
+          const itemTotal = priceNum * item.quantity;
+          total += itemTotal;
+          let optionsHtml = "";
+          if (item.options && item.options.length) {
+            optionsHtml = `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>`;
+          }
+          html += `
+                    <div class="cart-item" data-index="${index}">
+                        <div class="item-info">
+                            <div class="item-name">${escapeHtml(item.product_name)}</div>
+                            ${optionsHtml}
+                            <div class="item-price">${escapeHtml(item.product_price)}</div>
+                        </div>
+                        <div class="item-quantity">
+                            <button class="quantity-btn" data-index="${index}" data-delta="-1">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="quantity-btn" data-index="${index}" data-delta="1">+</button>
+                        </div>
+                        <div class="item-total">${itemTotal} ₽</div>
+                        <button class="remove-item" data-index="${index}">🗑️</button>
+                    </div>
+                `;
+        });
+        html += `</div>
+                <div class="cart-summary">
+                    <div class="total-price">Итого: <span>${total} ₽</span></div>
+                    <button id="checkout-btn" class="checkout-btn">Оформить заказ</button>
+                </div>
+                <div id="contact-form" class="contact-form">
+                    <h3>Контактные данные</h3>
+                    <div class="input-group"><label>Номер телефона *</label><input type="tel" id="phone" placeholder="+7 123 456-78-90" required></div>
+                    <div class="input-group"><label>Telegram (если нет, поставьте прочерк)</label><input type="text" id="telegram" placeholder="@username или —"></div>
+                    <div class="form-buttons">
+                        <button id="submit-order-btn" class="btn-primary">Оплатить</button>
+                        <button id="cancel-order-btn" class="btn-secondary">Отмена</button>
+                    </div>
+                </div>
+            `;
+        container.innerHTML = html;
+
+        // Обработчики изменения количества и удаления
+        document.querySelectorAll(".quantity-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const index = parseInt(btn.dataset.index);
+            const delta = parseInt(btn.dataset.delta);
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            if (cart[index]) {
+              cart[index].quantity += delta;
+              if (cart[index].quantity < 1) cart[index].quantity = 1;
+              localStorage.setItem("cart", JSON.stringify(cart));
+              renderCart();
+            }
+          });
+        });
+        document.querySelectorAll(".remove-item").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const index = parseInt(btn.dataset.index);
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            renderCart();
+          });
+        });
+
+        // Оформление заказа
+        document
+          .getElementById("checkout-btn")
+          .addEventListener("click", () => {
+            if (!currentUser) {
+              alert("Войдите в аккаунт");
+              window.location.href = "login.html";
+              return;
+            }
+            document.getElementById("contact-form").style.display = "block";
+            document.getElementById("checkout-btn").style.display = "none";
+          });
+        document
+          .getElementById("cancel-order-btn")
+          .addEventListener("click", () => {
+            document.getElementById("contact-form").style.display = "none";
+            document.getElementById("checkout-btn").style.display = "block";
+          });
+        document
+          .getElementById("submit-order-btn")
+          .addEventListener("click", async () => {
+            const phone = document.getElementById("phone").value.trim();
+            const telegram =
+              document.getElementById("telegram").value.trim() || "—";
+            if (!phone) {
+              alert("Введите номер телефона");
+              return;
+            }
+
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const total = cart.reduce(
+              (sum, item) =>
+                sum + parsePrice(item.product_price) * item.quantity,
+              0,
+            );
+            // Создаём заказ в Supabase
+            const { data: order, error } = await supabaseClient
+              .from("orders")
+              .insert({
+                user_id: currentUser.email, // временно, лучше получать id пользователя из Supabase при входе
+                total_amount: total,
+                phone: phone,
+                telegram: telegram,
+                status: "pending",
+                items: cart,
+              })
+              .select()
+              .single();
+            if (error) {
+              alert("Ошибка создания заказа: " + error.message);
+              return;
+            }
+            localStorage.removeItem("cart");
+            window.location.href = `order-details.html?id=${order.id}`;
+          });
+      }
+
+      window.addEventListener("load", () => {
+        checkAuth();
+        renderCart();
       });
     </script>
   </body>

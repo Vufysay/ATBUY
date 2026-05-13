@@ -5,228 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Поддержка — ATBUY</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: "Segoe UI", sans-serif;
-        background: #0a0c10;
-        color: #eef2ff;
-      }
-      .header {
-        background: #0f1117;
-        border-bottom: 1px solid #1f2329;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      .container {
-        max-width: 1300px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      .navbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 0;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-      .logo a {
-        font-size: 1.8rem;
-        font-weight: 800;
-        text-decoration: none;
-        color: #3b82f6;
-      }
-      .nav-links {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        flex-wrap: wrap;
-      }
-      .nav-links a {
-        text-decoration: none;
-        color: #9ca3af;
-        font-weight: 500;
-        transition: color 0.2s;
-      }
-      .nav-links a:hover {
-        color: #3b82f6;
-      }
-      .cart-link {
-        background: #3b82f6;
-        padding: 6px 14px;
-        border-radius: 30px;
-        color: #fff !important;
-      }
-      .youtube-link {
-        background: #ff0000;
-        color: #fff !important;
-        padding: 6px 14px;
-        border-radius: 30px;
-      }
-      .auth-btn {
-        background: #3b82f6;
-        padding: 8px 22px;
-        border-radius: 30px;
-        color: #fff;
-        font-weight: 600;
-        text-decoration: none;
-      }
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #9ca3af;
-        cursor: pointer;
-      }
-      .logout-btn {
-        background: 0 0;
-        border: 1px solid #3b82f6;
-        color: #3b82f6;
-        padding: 5px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-      }
-      .main {
-        padding: 48px 0 64px;
-      }
-      .chat-container {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 24px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .chat-header {
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid #2d3138;
-      }
-      .chat-header h2 {
-        color: #3b82f6;
-      }
-      .chat-messages {
-        max-height: 500px;
-        overflow-y: auto;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .message {
-        background: #1f2329;
-        border-radius: 16px;
-        padding: 12px;
-        max-width: 80%;
-        align-self: flex-start;
-      }
-      .message.admin {
-        background: #1e3a5f;
-        align-self: flex-end;
-      }
-      .message-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-        font-size: 0.75rem;
-        color: #9ca3af;
-      }
-      .message-text {
-        word-break: break-word;
-      }
-      .message img {
-        max-width: 200px;
-        max-height: 200px;
-        border-radius: 8px;
-        margin-top: 8px;
-        cursor: pointer;
-      }
-      .chat-input {
-        display: flex;
-        gap: 12px;
-        margin-top: 16px;
-        align-items: center;
-      }
-      .chat-input input {
-        flex: 1;
-        padding: 12px;
-        background: #0f1117;
-        border: 1px solid #2d3138;
-        border-radius: 30px;
-        color: #fff;
-      }
-      .chat-input button {
-        background: #3b82f6;
-        border: none;
-        padding: 0 24px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-      }
-      .attach-btn {
-        background: #4b5563;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 1.2rem;
-      }
-      .footer {
-        background: #0f1117;
-        border-top: 1px solid #1f2329;
-        padding: 30px 0;
-        margin-top: 40px;
-      }
-      .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-      }
-      .image-modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
-        align-items: center;
-        justify-content: center;
-      }
-      .image-modal.active {
-        display: flex;
-      }
-      .image-modal .modal-content {
-        max-width: 90%;
-        max-height: 90%;
-        object-fit: contain;
-      }
-      .image-modal .close-modal {
-        position: absolute;
-        top: 20px;
-        right: 35px;
-        color: #fff;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      @media (max-width: 768px) {
-        .navbar {
-          flex-direction: column;
-          text-align: center;
-        }
-        .message {
-          max-width: 95%;
-        }
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: "Segoe UI", sans-serif; background: #0a0c10; color: #eef2ff; }
+      .header { background: #0f1117; border-bottom: 1px solid #1f2329; position: sticky; top: 0; z-index: 100; }
+      .container { max-width: 1300px; margin: 0 auto; padding: 0 24px; }
+      .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; flex-wrap: wrap; gap: 16px; }
+      .logo a { font-size: 1.8rem; font-weight: 800; text-decoration: none; color: #3b82f6; }
+      .nav-links { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+      .nav-links a { text-decoration: none; color: #9ca3af; font-weight: 500; transition: color 0.2s; }
+      .nav-links a:hover { color: #3b82f6; }
+      .cart-link { background: #3b82f6; padding: 6px 14px; border-radius: 30px; color: #fff !important; }
+      .youtube-link { background: #ff0000; color: #fff !important; padding: 6px 14px; border-radius: 30px; }
+      .auth-btn { background: #3b82f6; padding: 8px 22px; border-radius: 30px; color: #fff; font-weight: 600; text-decoration: none; }
+      .user-info { display: flex; align-items: center; gap: 12px; color: #9ca3af; cursor: pointer; }
+      .logout-btn { background: 0 0; border: 1px solid #3b82f6; color: #3b82f6; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
+      .main { padding: 48px 0 64px; }
+      .chat-container { background: #15181f; border-radius: 24px; padding: 24px; max-width: 800px; margin: 0 auto; }
+      .chat-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #2d3138; }
+      .chat-header h2 { color: #3b82f6; }
+      .chat-messages { max-height: 500px; overflow-y: auto; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+      .message { background: #1f2329; border-radius: 16px; padding: 12px; max-width: 80%; align-self: flex-start; }
+      .message.admin { background: #1e3a5f; align-self: flex-end; }
+      .message-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.75rem; color: #9ca3af; }
+      .message-text { word-break: break-word; }
+      .message img { max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
+      .chat-input { display: flex; gap: 12px; margin-top: 16px; align-items: center; }
+      .chat-input input { flex: 1; padding: 12px; background: #0f1117; border: 1px solid #2d3138; border-radius: 30px; color: #fff; }
+      .chat-input button { background: #3b82f6; border: none; padding: 0 24px; border-radius: 30px; color: #fff; cursor: pointer; }
+      .attach-btn { background: #4b5563; border: none; padding: 8px 12px; border-radius: 30px; color: #fff; cursor: pointer; font-size: 1.2rem; }
+      .footer { background: #0f1117; border-top: 1px solid #1f2329; padding: 30px 0; margin-top: 40px; }
+      .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+      .image-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
+      .image-modal.active { display: flex; }
+      .image-modal .modal-content { max-width: 90%; max-height: 90%; object-fit: contain; }
+      .image-modal .close-modal { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; font-weight: bold; cursor: pointer; }
+      @media (max-width: 768px) { .navbar { flex-direction: column; text-align: center; } .message { max-width: 95%; } }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -236,18 +49,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
-            ><a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
-              href="https://www.youtube.com/@atr1but"
-              target="_blank"
-              class="youtube-link"
-              >🎬 YouTube</a
-            >
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a href="https://www.youtube.com/@atr1but" target="_blank" class="youtube-link">🎬 YouTube</a>
             <div id="auth-section"></div>
           </div>
         </div>
@@ -256,51 +64,27 @@
     <main class="main">
       <div class="container">
         <div class="chat-container">
-          <div id="chatHeader" class="chat-header">
-            <h2>Чат с поддержкой</h2>
-          </div>
+          <div id="chatHeader" class="chat-header"><h2>Чат с поддержкой</h2></div>
           <div id="chatMessages" class="chat-messages">Загрузка...</div>
           <div class="chat-input">
-            <input
-              type="text"
-              id="messageInput"
-              placeholder="Ваше сообщение..."
-            /><input
-              type="file"
-              id="imageInput"
-              accept="image/*"
-              style="display: none"
-            /><button id="attachImageBtn" class="attach-btn">📎</button
-            ><button id="sendBtn">Отправить</button>
+            <input type="text" id="messageInput" placeholder="Ваше сообщение..." />
+            <input type="file" id="imageInput" accept="image/*" style="display: none" />
+            <button id="attachImageBtn" class="attach-btn">📎</button>
+            <button id="sendBtn">Отправить</button>
           </div>
         </div>
       </div>
     </main>
     <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div>© 2025 ATBUY. Все права защищены.</div>
-          <div>
-            <a
-              href="reviews.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Отзывы</a
-            ><a
-              href="terms.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Оферта</a
-            ><a
-              href="delivery.html"
-              style="color: #9ca3af; text-decoration: none; margin-right: 20px"
-              >Доставка</a
-            ><a
-              href="requisites.html"
-              style="color: #9ca3af; text-decoration: none"
-              >Реквизиты</a
-            >
-          </div>
+      <div class="container"><div class="footer-content">
+        <div>© 2025 ATBUY. Все права защищены.</div>
+        <div>
+          <a href="reviews.html" style="color:#9ca3af;text-decoration:none;margin-right:20px">Отзывы</a>
+          <a href="terms.html" style="color:#9ca3af;text-decoration:none;margin-right:20px">Оферта</a>
+          <a href="delivery.html" style="color:#9ca3af;text-decoration:none;margin-right:20px">Доставка</a>
+          <a href="requisites.html" style="color:#9ca3af;text-decoration:none">Реквизиты</a>
         </div>
-      </div>
+      </div></div>
     </footer>
     <div id="imageModal" class="image-modal">
       <span class="close-modal">&times;</span>
@@ -308,201 +92,133 @@
     </div>
     <script>
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      let supabaseClient = null;
+      let currentUser = null;
+      let isAdmin = false;
+      let messages = [];
 
-// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-const customFetch = async (url, options) => {
-    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
-        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
-        url = PROXY_URL + path;
-    }
-    return fetch(url, options);
-};
+      function checkAuth() {
+        const stored = localStorage.getItem('atbuy_current_user');
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = { email: userData.email, user_metadata: { name: userData.name } };
+          isAdmin = localStorage.getItem('atbuy_is_admin') === 'true';
+        }
+        renderAuthHeader();
+        if (currentUser) loadMessages();
+        else document.getElementById('chatMessages').innerHTML = '<div class="message">Войдите, чтобы начать чат</div>';
+      }
 
-const supabaseClient = window.supabase.createClient(
-    'https://buonqsikukvqbnbpuuco.supabase.co',
-    SUPABASE_ANON_KEY,
-    { fetch: customFetch }
-);
-      let currentUser = null,
-        isAdmin = false,
-        messages = [];
+      function renderAuthHeader() {
+        const authSection = document.getElementById('auth-section');
+        const adminLinks = document.getElementById('admin-links');
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById('userMenu').addEventListener('click', (e) => { if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html'; });
+          document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('atbuy_current_user');
+            localStorage.removeItem('atbuy_is_admin');
+            supabaseClient = supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient.auth.signOut().finally(() => window.location.reload());
+          });
+          if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = '';
+        }
+      }
+
+      function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' })[m]); }
 
       async function loadMessages() {
-        const { data, error } = await supabaseClient
-          .from("support_messages")
-          .select("*")
-          .eq("user_id", currentUser.id)
-          .order("created_at", { ascending: true });
-        if (error) {
-          console.error("Ошибка загрузки сообщений:", error);
-          return;
-        }
+        supabaseClient = supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await supabaseClient.from('support_messages')
+          .select('*')
+          .eq('user_id', currentUser.email)
+          .order('created_at', { ascending: true });
+        if (error) { console.error(error); return; }
         messages = data || [];
         renderMessages();
       }
+
       function renderMessages() {
-        const container = document.getElementById("chatMessages");
+        const container = document.getElementById('chatMessages');
         if (!messages.length) {
-          container.innerHTML =
-            '<div class="message">Нет сообщений. Напишите что-нибудь...</div>';
+          container.innerHTML = '<div class="message">Нет сообщений. Напишите что-нибудь...</div>';
           return;
         }
-        container.innerHTML = messages
-          .map(
-            (msg) => `
-                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
-                    <div class="message-header">
-                        <span>${msg.is_admin ? "Администратор" : "Вы"}</span>
-                        <span>${new Date(msg.created_at).toLocaleString()}</span>
-                    </div>
-                    <div class="message-text">${escapeHtml(msg.message)}</div>
-                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ""}
-                </div>
-            `,
-          )
-          .join("");
-        document.querySelectorAll(".chat-image").forEach((img) => {
-          img.addEventListener("click", (e) => {
+        container.innerHTML = messages.map(msg => `
+          <div class="message ${msg.is_admin ? 'admin' : ''}" data-id="${msg.id}">
+            <div class="message-header">
+              <span>${msg.is_admin ? 'Администратор' : 'Вы'}</span>
+              <span>${new Date(msg.created_at).toLocaleString()}</span>
+            </div>
+            <div class="message-text">${escapeHtml(msg.message)}</div>
+            ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ''}
+          </div>
+        `).join('');
+        document.querySelectorAll('.chat-image').forEach(img => {
+          img.addEventListener('click', (e) => {
             e.stopPropagation();
-            document.getElementById("modalImage").src = img.src;
-            document.getElementById("imageModal").classList.add("active");
+            document.getElementById('modalImage').src = img.src;
+            document.getElementById('imageModal').classList.add('active');
           });
         });
-        const chatDiv = document.getElementById("chatMessages");
+        const chatDiv = document.getElementById('chatMessages');
         if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
       }
+
       async function sendMessage() {
-        const input = document.getElementById("messageInput");
+        const input = document.getElementById('messageInput');
         const text = input.value.trim();
         if (!text) return;
-        const { error } = await supabaseClient.from("support_messages").insert({
-          user_id: currentUser.id,
+        supabaseClient = supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { error } = await supabaseClient.from('support_messages').insert({
+          user_id: currentUser.email,
           message: text,
-          is_admin: false,
+          is_admin: false
         });
-        if (error) alert("Ошибка отправки: " + error.message);
+        if (error) alert('Ошибка отправки: ' + error.message);
         else {
-          input.value = "";
+          input.value = '';
           await loadMessages();
         }
       }
+
       async function sendImage(file) {
+        supabaseClient = supabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const fileName = `chat_${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabaseClient.storage
-          .from("chat_images")
-          .upload(fileName, file);
-        if (uploadError) {
-          alert("Ошибка загрузки: " + uploadError.message);
-          return;
-        }
-        const {
-          data: { publicUrl },
-        } = supabaseClient.storage.from("chat_images").getPublicUrl(fileName);
-        const { error: insertError } = await supabaseClient
-          .from("support_messages")
-          .insert({
-            user_id: currentUser.id,
-            message: "",
-            is_admin: false,
-            image_url: publicUrl,
-          });
-        if (insertError) alert("Ошибка отправки: " + insertError.message);
+        const { error: uploadError } = await supabaseClient.storage.from('chat_images').upload(fileName, file);
+        if (uploadError) { alert('Ошибка загрузки: ' + uploadError.message); return; }
+        const { data: { publicUrl } } = supabaseClient.storage.from('chat_images').getPublicUrl(fileName);
+        const { error: insertError } = await supabaseClient.from('support_messages').insert({
+          user_id: currentUser.email,
+          message: '',
+          is_admin: false,
+          image_url: publicUrl
+        });
+        if (insertError) alert('Ошибка отправки: ' + insertError.message);
         else await loadMessages();
       }
-      async function checkAuth() {
-  // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-  const stored = localStorage.getItem('atbuy_current_user');
-  if (stored) {
-    const userData = JSON.parse(stored);
-    currentUser = { email: userData.email, user_metadata: { name: userData.name } };
-    // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-    const adminFlag = localStorage.getItem('atbuy_is_admin') === 'true';
-    isAdmin = adminFlag || (currentUser.email === 'vufysay@gmail.com');
-    renderAuthHeader();
-    return true;
-  }
-  // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-    isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-    // Сохраняем в localStorage для будущих мгновенных загрузок
-    localStorage.setItem('atbuy_current_user', JSON.stringify({
-      email: currentUser.email,
-      name: currentUser.user_metadata?.name || currentUser.email
-    }));
-    localStorage.setItem('atbuy_is_admin', isAdmin);
-    renderAuthHeader();
-    return true;
-  }
-  renderAuthHeader();
-  return false;
-}
 
-function renderAuthHeader() {
-  const authSection = document.getElementById('auth-section');
-  const adminLinks = document.getElementById('admin-links');
-  if (currentUser) {
-    authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-    document.getElementById('userMenu')?.addEventListener('click', (e) => {
-      if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-    });
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('atbuy_current_user');
-      localStorage.removeItem('atbuy_is_admin');
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    });
-    if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-  } else {
-    authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-    if (adminLinks) adminLinks.innerHTML = '';
-  }
-}
-      function escapeHtml(str) {
-        return str.replace(
-          /[&<>]/g,
-          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-        );
-      }
-      window.addEventListener("load", () => {
+      window.addEventListener('load', () => {
         checkAuth();
-        document
-          .getElementById("sendBtn")
-          .addEventListener("click", sendMessage);
-        document
-          .getElementById("messageInput")
-          .addEventListener("keypress", (e) => {
-            if (e.key === "Enter") sendMessage();
-          });
-        document
-          .getElementById("attachImageBtn")
-          .addEventListener("click", () =>
-            document.getElementById("imageInput").click(),
-          );
-        document
-          .getElementById("imageInput")
-          .addEventListener("change", async (e) => {
-            if (e.target.files.length) await sendImage(e.target.files[0]);
-            e.target.value = "";
-          });
-        document
-          .getElementById("close-modal")
-          ?.addEventListener("click", () => {
-            document.getElementById("imageModal").classList.remove("active");
-          });
-        document
-          .getElementById("imageModal")
-          ?.addEventListener("click", (e) => {
-            if (e.target === document.getElementById("imageModal")) {
-              document.getElementById("imageModal").classList.remove("active");
-            }
-          });
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        document.getElementById('attachImageBtn').addEventListener('click', () => document.getElementById('imageInput').click());
+        document.getElementById('imageInput').addEventListener('change', async (e) => {
+          if (e.target.files.length) await sendImage(e.target.files[0]);
+          e.target.value = '';
+        });
+        document.getElementById('close-modal')?.addEventListener('click', () => {
+          document.getElementById('imageModal').classList.remove('active');
+        });
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+          if (e.target === document.getElementById('imageModal')) {
+            document.getElementById('imageModal').classList.remove('active');
+          }
+        });
       });
     </script>
   </body>

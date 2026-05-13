@@ -322,103 +322,78 @@
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
-
-// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-const customFetch = async (url, options) => {
-    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
-        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
-        url = PROXY_URL + path;
-    }
-    return fetch(url, options);
-};
-
-const supabaseClient = window.supabase.createClient(
-    'https://buonqsikukvqbnbpuuco.supabase.co',
-    SUPABASE_ANON_KEY,
-    { fetch: customFetch }
-);
+      let supabaseClient = null;
       let currentUser = null,
         isAdmin = false;
 
-      function getUrlParams() {
-        let params = new URLSearchParams(window.location.search);
-        if (params.toString() === "") {
-          const hash = window.location.hash.substring(1);
-          params = new URLSearchParams(hash);
+      function checkAuth() {
+        const stored = localStorage.getItem("atbuy_current_user");
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = {
+            email: userData.email,
+            user_metadata: { name: userData.name },
+          };
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
-        return {
-          access_token: params.get("access_token"),
-          type: params.get("type"),
-          refresh_token: params.get("refresh_token"),
-        };
-      }
-
-      async function handlePasswordReset() {
-        const { access_token, type } = getUrlParams();
-        if (access_token && type === "recovery") {
-          document.getElementById("profileContent").innerHTML = `
-                    <div class="section"><h2>Смена пароля</h2><div class="input-group"><input type="password" id="newPassword" placeholder="Новый пароль (мин. 6 символов)"></div><button id="updatePasswordBtn">Сохранить пароль</button><div id="resetMessage" class="message" style="display:none;"></div></div>
-                `;
-          document
-            .getElementById("updatePasswordBtn")
-            .addEventListener("click", async () => {
-              const newPassword = document.getElementById("newPassword").value;
-              const msgDiv = document.getElementById("resetMessage");
-              if (!newPassword || newPassword.length < 6) {
-                msgDiv.textContent = "Пароль должен быть не менее 6 символов";
-                msgDiv.className = "message error";
-                msgDiv.style.display = "block";
-                return;
-              }
-              try {
-                const { error } = await supabaseClient.auth.updateUser({
-                  password: newPassword,
-                });
-                if (error) throw error;
-                msgDiv.textContent =
-                  "Пароль успешно изменён! Перенаправляем...";
-                msgDiv.className = "message success";
-                msgDiv.style.display = "block";
-                setTimeout(() => (window.location.href = "login.html"), 2000);
-              } catch (err) {
-                msgDiv.textContent = "Ошибка: " + err.message;
-                msgDiv.className = "message error";
-                msgDiv.style.display = "block";
-              }
-            });
-          return true;
-        }
-        return false;
-      }
-
-      async function loadProfile() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (!session) {
+        renderAuthHeader();
+        if (currentUser) {
+          loadProfile();
+          if (isAdmin) {
+            document.getElementById("adminPanel").style.display = "block";
+            document.getElementById("adminOrdersPanel").style.display = "block";
+            loadAllUsers();
+            loadAllOrders();
+          }
+        } else {
           window.location.href = "login.html";
-          return;
         }
-        currentUser = session.user;
-        const { data: userData } = await supabaseClient
-          .from("users")
-          .select("is_admin")
-          .eq("id", currentUser.id)
-          .single();
-        isAdmin =
-          userData?.is_admin || currentUser.email === "vufysay@gmail.com";
+      }
+
+      function renderAuthHeader() {
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
+
+      function loadProfile() {
         const currentName =
           currentUser.user_metadata?.name || currentUser.email;
-
-        if (await handlePasswordReset()) return;
-
         document.getElementById("profileContent").innerHTML = `
                 <div class="section"><h2>Информация об аккаунте</h2><div class="info-row"><span class="info-label">Email:</span><span>${escapeHtml(currentUser.email)}</span></div><div class="info-row"><span class="info-label">Имя:</span><span id="currentNameDisplay">${escapeHtml(currentName)}</span></div></div>
                 <div class="section"><h2>Изменить имя</h2><div class="input-group"><input type="text" id="newName" placeholder="Новое имя" value="${escapeHtml(currentName)}"></div><button id="updateNameBtn">Сохранить имя</button><div id="nameMessage" class="message" style="display:none;"></div></div>
                 <div class="section"><h2>Двухфакторная аутентификация</h2><div id="twofa-status"></div></div>
-                <div class="section"><h2>Изменить пароль</h2><p>Нажмите кнопку, чтобы получить ссылку для смены пароля на вашу почту.</p><button id="changePasswordBtn">Отправить ссылку для смены пароля</button><div id="passwordMessage" class="message" style="display:none;"></div></div>
+                <div class="section"><h2>Изменить пароль</h2><p>Нажмите кнопку, чтобы перейти к сбросу пароля.</p><button id="changePasswordBtn">Перейти к смене пароля</button></div>
             `;
         document
           .getElementById("updateNameBtn")
@@ -429,12 +404,6 @@ const supabaseClient = window.supabase.createClient(
             window.location.href = "reset-password.html";
           });
         load2FAStatus();
-        if (isAdmin) {
-          document.getElementById("adminPanel").style.display = "block";
-          document.getElementById("adminOrdersPanel").style.display = "block";
-          loadAllUsers();
-          loadAllOrders();
-        }
       }
 
       async function updateName() {
@@ -446,6 +415,9 @@ const supabaseClient = window.supabase.createClient(
           msg.style.display = "block";
           return;
         }
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { error } = await supabaseClient.auth.updateUser({
           data: { name: newName },
         });
@@ -456,19 +428,25 @@ const supabaseClient = window.supabase.createClient(
         } else {
           document.getElementById("currentNameDisplay").textContent =
             escapeHtml(newName);
+          // обновить имя в localStorage
+          const stored = JSON.parse(localStorage.getItem("atbuy_current_user"));
+          stored.name = newName;
+          localStorage.setItem("atbuy_current_user", JSON.stringify(stored));
           msg.textContent = "Имя обновлено!";
           msg.className = "message success";
           msg.style.display = "block";
           setTimeout(() => (msg.style.display = "none"), 3000);
-          updateAuthHeader();
         }
       }
 
       async function load2FAStatus() {
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data, error } = await supabaseClient
           .from("users")
           .select("is_2fa_enabled")
-          .eq("id", currentUser.id)
+          .eq("id", currentUser.email)
           .single();
         if (error) return;
         const isEnabled = data?.is_2fa_enabled;
@@ -504,10 +482,13 @@ const supabaseClient = window.supabase.createClient(
             enteredCode === code &&
             Date.now() < sessionStorage.getItem("2fa_expires")
           ) {
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             const { error } = await supabaseClient
               .from("users")
               .update({ is_2fa_enabled: true })
-              .eq("id", currentUser.id);
+              .eq("id", currentUser.email);
             if (error) alert("Ошибка включения 2FA");
             else {
               alert("2FA успешно включена!");
@@ -528,10 +509,13 @@ const supabaseClient = window.supabase.createClient(
           )
         )
           return;
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { error } = await supabaseClient
           .from("users")
           .update({ is_2fa_enabled: false })
-          .eq("id", currentUser.id);
+          .eq("id", currentUser.email);
         if (error) alert("Ошибка отключения 2FA");
         else {
           alert("2FA отключена");
@@ -541,6 +525,9 @@ const supabaseClient = window.supabase.createClient(
 
       async function loadAllUsers() {
         try {
+          supabaseClient =
+            supabaseClient ||
+            window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           const { data, error } = await supabaseClient
             .from("users")
             .select("id, name, email, is_admin, created_at")
@@ -577,11 +564,14 @@ const supabaseClient = window.supabase.createClient(
         } catch (err) {
           console.error(err);
           document.getElementById("usersList").innerHTML =
-            '<p class="message error">Ошибка</p>';
+            '<p class="message error">Ошибка загрузки</p>';
         }
       }
 
       async function loadAllOrders() {
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data, error } = await supabaseClient
           .from("orders")
           .select("*")
@@ -589,7 +579,7 @@ const supabaseClient = window.supabase.createClient(
         if (error) {
           console.error(error);
           document.getElementById("adminOrdersContainer").innerHTML =
-            '<p class="message error">Ошибка</p>';
+            '<p class="message error">Ошибка загрузки</p>';
           return;
         }
         if (!data.length) {
@@ -599,121 +589,23 @@ const supabaseClient = window.supabase.createClient(
         }
         let html = `<div class="orders-table"><table><thead><tr><th>ID</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Действия</th></tr></thead><tbody>`;
         for (const order of data) {
-          const { data: user, error: userError } = await supabaseClient
-            .from("users")
-            .select("email")
-            .eq("id", order.user_id)
-            .single();
           let userEmail = "Неизвестно";
-          if (!userError && user) userEmail = user.email;
+          if (order.user_id) {
+            const { data: user } = await supabaseClient
+              .from("users")
+              .select("email")
+              .eq("id", order.user_id)
+              .single();
+            if (user) userEmail = user.email;
+          }
           html += `<tr><td data-label="ID">${order.id}</td><td data-label="Пользователь">${escapeHtml(userEmail)}</td><td data-label="Сумма">${order.total_amount} ₽</td><td data-label="Статус">${order.status}</td><td data-label="Дата">${new Date(order.created_at).toLocaleDateString()}</td><td data-label="Действия"><a href="order-details.html?id=${order.id}" style="color:#3b82f6;">Открыть</a></td></tr>`;
         }
         html += `</tbody></table></div>`;
         document.getElementById("adminOrdersContainer").innerHTML = html;
       }
 
-      async function updateAuthHeader() {
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (session) {
-          const name = session.user.user_metadata?.name || session.user.email;
-          if (authSection)
-            authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(name)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-              await supabaseClient.auth.signOut();
-              window.location.href = "index.html";
-            });
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", session.user.id)
-            .single();
-          const isAdminUser =
-            userData?.is_admin || session.user.email === "vufysay@gmail.com";
-          if (adminLinks)
-            adminLinks.innerHTML = isAdminUser
-              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
-              : "";
-        } else {
-          if (authSection)
-            authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          if (adminLinks) adminLinks.innerHTML = "";
-        }
-      }
-
-      async function checkAuth() {
-  // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-  const stored = localStorage.getItem('atbuy_current_user');
-  if (stored) {
-    const userData = JSON.parse(stored);
-    currentUser = { email: userData.email, user_metadata: { name: userData.name } };
-    // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-    const adminFlag = localStorage.getItem('atbuy_is_admin') === 'true';
-    isAdmin = adminFlag || (currentUser.email === 'vufysay@gmail.com');
-    renderAuthHeader();
-    return true;
-  }
-  // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-    isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-    // Сохраняем в localStorage для будущих мгновенных загрузок
-    localStorage.setItem('atbuy_current_user', JSON.stringify({
-      email: currentUser.email,
-      name: currentUser.user_metadata?.name || currentUser.email
-    }));
-    localStorage.setItem('atbuy_is_admin', isAdmin);
-    renderAuthHeader();
-    return true;
-  }
-  renderAuthHeader();
-  return false;
-}
-
-function renderAuthHeader() {
-  const authSection = document.getElementById('auth-section');
-  const adminLinks = document.getElementById('admin-links');
-  if (currentUser) {
-    authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-    document.getElementById('userMenu')?.addEventListener('click', (e) => {
-      if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-    });
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('atbuy_current_user');
-      localStorage.removeItem('atbuy_is_admin');
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    });
-    if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-  } else {
-    authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-    if (adminLinks) adminLinks.innerHTML = '';
-  }
-}
-
-      function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(
-          /[&<>]/g,
-          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-        );
-      }
-
-      window.addEventListener("load", async () => {
-        await checkAuth();
+      window.addEventListener("load", () => {
+        checkAuth();
       });
     </script>
   </body>

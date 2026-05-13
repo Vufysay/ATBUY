@@ -318,13 +318,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a
-            ><a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -347,15 +347,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -372,39 +375,76 @@
       const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+      let supabaseClient = null;
+      let currentUser = null;
+      let isAdmin = false;
+      let currentOrder = null;
+      let messages = [];
 
-// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-const customFetch = async (url, options) => {
-    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
-        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
-        url = PROXY_URL + path;
-    }
-    return fetch(url, options);
-};
+      function checkAuth() {
+        const stored = localStorage.getItem("atbuy_current_user");
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = {
+            email: userData.email,
+            user_metadata: { name: userData.name },
+          };
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
+        }
+        renderAuthHeader();
+        if (currentUser) loadOrder();
+        else window.location.href = "login.html";
+      }
 
-const supabaseClient = window.supabase.createClient(
-    'https://buonqsikukvqbnbpuuco.supabase.co',
-    SUPABASE_ANON_KEY,
-    { fetch: customFetch }
-);
-      let currentUser = null,
-        isAdmin = false,
-        currentOrder = null,
-        messages = [];
+      function renderAuthHeader() {
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            supabaseClient =
+              supabaseClient ||
+              window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
+
+      function escapeHtml(str) {
+        return str.replace(
+          /[&<>]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+        );
+      }
 
       async function loadOrder() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderId = urlParams.get("id");
+        const orderId = new URLSearchParams(window.location.search).get("id");
         if (!orderId) {
           document.getElementById("orderContainer").innerHTML =
             "<p>Заказ не указан</p>";
           return;
         }
-        let query = supabaseClient.from("orders").select("*");
-        if (!isAdmin) query = query.eq("user_id", currentUser.id);
-        const { data, error } = await query.eq("id", orderId).single();
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let query = supabaseClient.from("orders").select("*").eq("id", orderId);
+        if (!isAdmin) query = query.eq("user_id", currentUser.email); // временно по email
+        const { data, error } = await query.single();
         if (error || !data) {
           document.getElementById("orderContainer").innerHTML =
             "<p>Заказ не найден</p>";
@@ -414,7 +454,11 @@ const supabaseClient = window.supabase.createClient(
         await loadMessages();
         renderOrderDetails();
       }
+
       async function loadMessages() {
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data, error } = await supabaseClient
           .from("order_messages")
           .select("*")
@@ -423,13 +467,9 @@ const supabaseClient = window.supabase.createClient(
         if (error) console.error(error);
         else messages = data || [];
       }
+
       function renderOrderDetails() {
-        const statusClass =
-          currentOrder.status === "pending"
-            ? "pending"
-            : currentOrder.status === "paid"
-              ? "paid"
-              : "completed";
+        const statusClass = `status-${currentOrder.status}`;
         const statusText =
           currentOrder.status === "pending"
             ? "⏳ Ожидает оплаты"
@@ -440,55 +480,58 @@ const supabaseClient = window.supabase.createClient(
         const itemsHtml = items
           .map(
             (item) => `
-                <div class="item-card">
-                    <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
-                    <div class="item-price">${escapeHtml(item.product_price)}</div>
-                    ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
-                </div>
-            `,
+          <div class="item-card">
+            <div class="item-name">${escapeHtml(item.product_name)} x${item.quantity}</div>
+            <div class="item-price">${escapeHtml(item.product_price)}</div>
+            ${item.options && item.options.length ? `<div class="item-options">Опции: ${item.options.map((opt) => `${opt.name} x${opt.quantity} (+${opt.price * opt.quantity}₽)`).join(", ")}</div>` : ""}
+          </div>
+        `,
           )
           .join("");
+
         const messagesHtml = messages
           .map(
             (msg) => `
-                <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
-                    <div class="message-header">
-                        <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
-                        <span>${new Date(msg.created_at).toLocaleString()}</span>
-                        ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
-                    </div>
-                    <div class="message-text">${escapeHtml(msg.message)}</div>
-                    ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ""}
-                </div>
-            `,
+          <div class="message ${msg.is_admin ? "admin" : ""}" data-id="${msg.id}">
+            <div class="message-header">
+              <span>${msg.is_admin ? "Администратор" : "Пользователь"}</span>
+              <span>${new Date(msg.created_at).toLocaleString()}</span>
+              ${isAdmin ? `<button class="delete-msg-btn" data-id="${msg.id}">🗑️</button>` : ""}
+            </div>
+            <div class="message-text">${escapeHtml(msg.message)}</div>
+            ${msg.image_url ? `<img src="${msg.image_url}" alt="image" class="chat-image">` : ""}
+          </div>
+        `,
           )
           .join("");
+
         document.getElementById("orderContainer").innerHTML = `
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-id">Заказ #${currentOrder.id}</div>
-                        <div class="order-status status-${statusClass}">${statusText}</div>
-                    </div>
-                    <div class="order-info">
-                        <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
-                        <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
-                        <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
-                        <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
-                    </div>
-                    <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
-                    <div class="chat-section">
-                        <h3>Чат с поддержкой</h3>
-                        <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
-                        <div class="chat-input">
-                            <input type="text" id="messageInput" placeholder="Ваше сообщение...">
-                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                            <button id="attachImageBtn" class="attach-btn">📎</button>
-                            <button id="sendMessageBtn">Отправить</button>
-                        </div>
-                        ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
-                    </div>
-                </div>
-            `;
+          <div class="order-details">
+            <div class="order-header">
+              <div class="order-id">Заказ #${currentOrder.id}</div>
+              <div class="order-status ${statusClass}">${statusText}</div>
+            </div>
+            <div class="order-info">
+              <p><strong>Сумма:</strong> ${currentOrder.total_amount} ₽</p>
+              <p><strong>Телефон:</strong> ${escapeHtml(currentOrder.phone || "—")}</p>
+              <p><strong>Telegram:</strong> ${escapeHtml(currentOrder.telegram || "—")}</p>
+              <p><strong>Дата заказа:</strong> ${new Date(currentOrder.created_at).toLocaleString()}</p>
+            </div>
+            <div class="items-list"><h3>Товары в заказе</h3>${itemsHtml || "<p>Нет товаров</p>"}</div>
+            <div class="chat-section">
+              <h3>Чат с поддержкой</h3>
+              <div class="chat-messages" id="chatMessages">${messagesHtml || '<div class="message">Нет сообщений. Напишите что-нибудь...</div>'}</div>
+              <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Ваше сообщение...">
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <button id="attachImageBtn" class="attach-btn">📎</button>
+                <button id="sendMessageBtn">Отправить</button>
+              </div>
+              ${isAdmin && currentOrder.status !== "completed" ? `<button id="completeOrderBtn" class="complete-btn">✅ Отметить заказ как выполненный</button>` : ""}
+            </div>
+          </div>
+        `;
+
         document
           .getElementById("sendMessageBtn")
           .addEventListener("click", sendMessage);
@@ -508,11 +551,15 @@ const supabaseClient = window.supabase.createClient(
             if (e.target.files.length) await sendImage(e.target.files[0]);
             e.target.value = "";
           });
+
         if (isAdmin) {
           document.querySelectorAll(".delete-msg-btn").forEach((btn) => {
             btn.addEventListener("click", async (e) => {
               const msgId = parseInt(btn.dataset.id);
               if (confirm("Удалить сообщение?")) {
+                supabaseClient =
+                  supabaseClient ||
+                  window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 await supabaseClient
                   .from("order_messages")
                   .delete()
@@ -525,12 +572,15 @@ const supabaseClient = window.supabase.createClient(
           const completeBtn = document.getElementById("completeOrderBtn");
           if (completeBtn) {
             completeBtn.addEventListener("click", async () => {
-              const { error: updateError } = await supabaseClient
+              supabaseClient =
+                supabaseClient ||
+                window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+              const { error } = await supabaseClient
                 .from("orders")
                 .update({ status: "completed" })
                 .eq("id", currentOrder.id);
-              if (updateError) {
-                alert("Ошибка обновления статуса: " + updateError.message);
+              if (error) {
+                alert("Ошибка обновления статуса: " + error.message);
                 return;
               }
               alert("Статус заказа обновлён!");
@@ -539,26 +589,28 @@ const supabaseClient = window.supabase.createClient(
             });
           }
         }
-        // Инициализация просмотра изображений в модальном окне
+
         document.querySelectorAll(".chat-image").forEach((img) => {
           img.addEventListener("click", (e) => {
             e.stopPropagation();
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
-            modalImg.src = img.src;
-            modal.classList.add("active");
+            document.getElementById("modalImage").src = img.src;
+            document.getElementById("imageModal").classList.add("active");
           });
         });
         const chatDiv = document.getElementById("chatMessages");
         if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
       }
+
       async function sendMessage() {
         const input = document.getElementById("messageInput");
         const text = input.value.trim();
         if (!text) return;
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { error } = await supabaseClient.from("order_messages").insert({
           order_id: currentOrder.id,
-          user_id: currentUser.id,
+          user_id: currentUser.email,
           message: text,
           is_admin: isAdmin,
         });
@@ -569,7 +621,11 @@ const supabaseClient = window.supabase.createClient(
           renderOrderDetails();
         }
       }
+
       async function sendImage(file) {
+        supabaseClient =
+          supabaseClient ||
+          window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
         const fileName = `order_${currentOrder.id}_${Date.now()}_${safeName}`;
         const { error: uploadError } = await supabaseClient.storage
@@ -586,7 +642,7 @@ const supabaseClient = window.supabase.createClient(
           .from("order_messages")
           .insert({
             order_id: currentOrder.id,
-            user_id: currentUser.id,
+            user_id: currentUser.email,
             message: "",
             is_admin: isAdmin,
             image_url: publicUrl,
@@ -597,63 +653,7 @@ const supabaseClient = window.supabase.createClient(
           renderOrderDetails();
         }
       }
-      async function checkAuth() {
-  // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-  const stored = localStorage.getItem('atbuy_current_user');
-  if (stored) {
-    const userData = JSON.parse(stored);
-    currentUser = { email: userData.email, user_metadata: { name: userData.name } };
-    // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-    const adminFlag = localStorage.getItem('atbuy_is_admin') === 'true';
-    isAdmin = adminFlag || (currentUser.email === 'vufysay@gmail.com');
-    renderAuthHeader();
-    return true;
-  }
-  // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    const { data: userData } = await supabaseClient.from('users').select('is_admin').eq('id', currentUser.id).single();
-    isAdmin = (userData?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-    // Сохраняем в localStorage для будущих мгновенных загрузок
-    localStorage.setItem('atbuy_current_user', JSON.stringify({
-      email: currentUser.email,
-      name: currentUser.user_metadata?.name || currentUser.email
-    }));
-    localStorage.setItem('atbuy_is_admin', isAdmin);
-    renderAuthHeader();
-    return true;
-  }
-  renderAuthHeader();
-  return false;
-}
 
-function renderAuthHeader() {
-  const authSection = document.getElementById('auth-section');
-  const adminLinks = document.getElementById('admin-links');
-  if (currentUser) {
-    authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-    document.getElementById('userMenu')?.addEventListener('click', (e) => {
-      if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-    });
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('atbuy_current_user');
-      localStorage.removeItem('atbuy_is_admin');
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    });
-    if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-  } else {
-    authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-    if (adminLinks) adminLinks.innerHTML = '';
-  }
-}
-      function escapeHtml(str) {
-        return str.replace(
-          /[&<>]/g,
-          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
-        );
-      }
       window.addEventListener("load", () => {
         checkAuth();
         document
@@ -661,13 +661,11 @@ function renderAuthHeader() {
           ?.addEventListener("click", () => {
             document.getElementById("imageModal").classList.remove("active");
           });
-        document
-          .getElementById("imageModal")
-          ?.addEventListener("click", (e) => {
-            if (e.target === document.getElementById("imageModal")) {
-              document.getElementById("imageModal").classList.remove("active");
-            }
-          });
+        document.getElementById("imageModal").addEventListener("click", (e) => {
+          if (e.target === document.getElementById("imageModal")) {
+            document.getElementById("imageModal").classList.remove("active");
+          }
+        });
       });
     </script>
   </body>
