@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Supabase Proxy API
+  version: 1.0.0
+x-yc-apigateway:
+  cors:
+    origin: '*'
+    methods: '*'
+    allowedHeaders: '*'
+paths:
+  /{path+}:
+    parameters:
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
+      operationId: proxy-get
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
+      operationId: proxy-post
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
+      operationId: proxy-put
+    delete:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
+      operationId: proxy-delete
+    options:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
+      operationId: proxy-options
