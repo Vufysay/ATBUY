@@ -84,7 +84,7 @@
         cursor: pointer;
       }
       .logout-btn {
-        background: 0 0;
+        background: none;
         border: 1px solid #3b82f6;
         color: #3b82f6;
         padding: 5px 12px;
@@ -196,45 +196,6 @@
         text-align: center;
         border-top: 1px solid #2d3138;
       }
-      .edit-icon,
-      .delete-icon {
-        position: absolute;
-        background: #0009;
-        backdrop-filter: blur(4px);
-        border-radius: 20px;
-        padding: 4px 8px;
-        font-size: 0.7rem;
-        cursor: pointer;
-        color: #fff;
-        z-index: 2;
-      }
-      .edit-icon {
-        top: 8px;
-        right: 8px;
-      }
-      .delete-icon {
-        top: 8px;
-        right: 48px;
-        background: #dc2626cc;
-      }
-      .delete-icon:hover {
-        background: #dc2626;
-      }
-      .edit-icon:hover {
-        background: #3b82f6;
-      }
-      .admin-add-card {
-        background: #15181f;
-        border: 2px dashed #3b82f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        cursor: pointer;
-      }
-      .admin-add-card .card-image {
-        font-size: 2.5rem;
-      }
       .footer {
         background: #0f1117;
         border-top: 1px solid #1f2329;
@@ -246,46 +207,6 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 20px;
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000c;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-      .modal.active {
-        display: flex;
-      }
-      .modal-content {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 24px;
-        width: 90%;
-        max-width: 400px;
-      }
-      .modal-content input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 12px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
-      .modal-content button {
-        background: #3b82f6;
-        border: 0;
-        padding: 8px 16px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-        margin-right: 12px;
       }
       @media (max-width: 768px) {
         .navbar {
@@ -308,13 +229,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
-            <a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -363,15 +284,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -380,118 +304,68 @@
         </div>
       </div>
     </footer>
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <h3>Редактировать игру</h3>
-        <input type="text" id="editName" placeholder="Название" /><input
-          type="file"
-          id="editImageFile"
-          accept="image/*"
-        />
-        <div style="margin: 8px 0; font-size: 0.75rem; color: #9ca3af">
-          Оставьте пустым, чтобы сохранить текущее изображение
-        </div>
-        <div style="display: flex; justify-content: flex-end">
-          <button id="saveEditBtn">Сохранить</button
-          ><button id="cancelEditBtn" style="background: #4b5563">
-            Отмена
-          </button>
-        </div>
-      </div>
-    </div>
     <script>
-      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-      const PROXY_URL =
-        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+      let games = [];
+      let currentUser = null;
+      let isAdmin = false;
 
-      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-      const customFetch = async (url, options) => {
-        if (
-          typeof url === "string" &&
-          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
-        ) {
-          const path = url.replace(
-            "https://buonqsikukvqbnbpuuco.supabase.co",
-            "",
-          );
-          url = PROXY_URL + path;
+      // Простая авторизация из localStorage
+      function checkAuth() {
+        const stored = localStorage.getItem("atbuy_current_user");
+        if (stored) {
+          const userData = JSON.parse(stored);
+          currentUser = {
+            email: userData.email,
+            user_metadata: { name: userData.name },
+          };
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
-        return fetch(url, options);
-      };
-
-      const supabaseClient = window.supabase.createClient(
-        "https://buonqsikukvqbnbpuuco.supabase.co",
-        SUPABASE_ANON_KEY,
-        { fetch: customFetch },
-      );
-      let currentUser = null,
-        isAdmin = false,
-        games = [],
-        editingGameId = null;
-
-      async function uploadImage(file, gameId) {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${gameId}_${Date.now()}.${fileExt}`;
-        const { error } = await supabaseClient.storage
-          .from("game_images")
-          .upload(fileName, file);
-        if (error) throw error;
-        const {
-          data: { publicUrl },
-        } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
-        return publicUrl;
+        renderAuthHeader();
       }
 
+      function renderAuthHeader() {
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (currentUser) {
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            // Создаём клиент Supabase только для выхода (можно и без него, но так проще)
+            const supabaseClient = window.supabase.createClient(
+              "https://buonqsikukvqbnbpuuco.supabase.co",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw",
+            );
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+        }
+      }
+
+      // Загрузка игр из JSON
       async function loadGames() {
         try {
           const response = await fetch("/games.json");
           if (!response.ok) throw new Error("Ошибка загрузки игр");
-          const data = await response.json();
-          games = data || [];
+          games = await response.json();
           renderGames();
         } catch (err) {
           console.error(err);
           document.getElementById("gamesContainer").innerHTML =
-            "<div>Ошибка загрузки игр</div>";
+            '<div style="grid-column:1/-1; text-align:center; padding:40px;">😔 Ошибка загрузки игр</div>';
         }
-      }
-
-      async function saveGame(game, imageFile = null) {
-        let imageUrl = game.image;
-        if (imageFile) {
-          const tempId = game.id || Date.now();
-          imageUrl = await uploadImage(imageFile, tempId);
-        }
-        if (game.id) {
-          const { error } = await supabaseClient
-            .from("games")
-            .update({ name: game.name, image: imageUrl })
-            .eq("id", game.id);
-          if (error) throw error;
-        } else {
-          const { data, error } = await supabaseClient
-            .from("games")
-            .insert({ name: game.name, image: imageUrl })
-            .select();
-          if (error) throw error;
-          return data[0];
-        }
-      }
-
-      async function deleteGame(id) {
-        const game = games.find((g) => g.id === id);
-        if (game && game.image && game.image.includes("game_images")) {
-          const fileName = game.image.split("/").pop().split("?")[0];
-          await supabaseClient.storage.from("game_images").remove([fileName]);
-        }
-        const { error } = await supabaseClient
-          .from("games")
-          .delete()
-          .eq("id", id);
-        if (error) throw error;
       }
 
       function renderGames(filter = "") {
@@ -504,178 +378,25 @@
             '<div style="grid-column:1/-1; text-align:center; padding:40px;">😔 Игры не найдены</div>';
           return;
         }
-        let html = filtered
+        container.innerHTML = filtered
           .map((game) => {
-            const isImageUrl =
+            const imageUrl =
               game.image &&
-              (game.image.startsWith("http") || game.image.startsWith("https"));
-            return `<div class="game-card" data-link="${game.link || "#"}" data-id="${game.id}">
-            ${isAdmin ? `<div class="edit-icon" data-id="${game.id}" data-name="${escapeHtml(game.name)}" data-image="${escapeHtml(game.image)}">✏️</div><div class="delete-icon" data-id="${game.id}">🗑️</div>` : ""}
-            <div class="card-image">${isImageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">${game.image}</div>`}</div>
-            <div class="game-title">${escapeHtml(game.name)}</div>
-          </div>`;
+              (game.image.startsWith("http") || game.image.startsWith("/"));
+            return `<div class="game-card" data-link="${game.link || "#"}">
+                    <div class="card-image">${imageUrl ? `<img src="${game.image}" alt="${escapeHtml(game.name)}" loading="lazy">` : `<div style="font-size:3rem;">🖼️</div>`}</div>
+                    <div class="game-title">${escapeHtml(game.name)}</div>
+                </div>`;
           })
           .join("");
-        if (isAdmin)
-          html += `<div class="game-card admin-add-card" id="addGameCard"><div class="card-image">➕</div><div class="game-title">Добавить игру</div></div>`;
-        container.innerHTML = html;
 
-        document
-          .querySelectorAll(".game-card:not(.admin-add-card)")
-          .forEach((card) =>
-            card.addEventListener("click", (e) => {
-              if (
-                e.target.classList.contains("edit-icon") ||
-                e.target.classList.contains("delete-icon")
-              )
-                return;
-              const link = card.dataset.link;
-              if (link && link !== "#") window.location.href = link;
-              else alert("Страница в разработке");
-            }),
-          );
-
-        if (isAdmin) {
-          document.querySelectorAll(".edit-icon").forEach((icon) =>
-            icon.addEventListener("click", (e) => {
-              e.stopPropagation();
-              openEditModal(
-                parseInt(icon.dataset.id),
-                icon.dataset.name,
-                icon.dataset.image,
-              );
-            }),
-          );
-          document.querySelectorAll(".delete-icon").forEach((icon) =>
-            icon.addEventListener("click", async (e) => {
-              e.stopPropagation();
-              if (confirm("Удалить игру?"))
-                try {
-                  await deleteGame(parseInt(icon.dataset.id));
-                  await loadGames();
-                } catch (err) {
-                  alert(err.message);
-                }
-            }),
-          );
-          const addCard = document.getElementById("addGameCard");
-          if (addCard)
-            addCard.addEventListener("click", async () => {
-              const newName = prompt("Название игры:");
-              if (!newName) return;
-              const fileInput = document.createElement("input");
-              fileInput.type = "file";
-              fileInput.accept = "image/*";
-              fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                try {
-                  const newGame = await saveGame({ name: newName }, file);
-                  await loadGames();
-                  if (newGame?.id)
-                    window.location.href = `game.html?id=${newGame.id}`;
-                } catch (err) {
-                  alert(err.message);
-                }
-              };
-              fileInput.click();
-            });
-        }
-      }
-
-      function openEditModal(id, name, img) {
-        editingGameId = id;
-        document.getElementById("editName").value = name;
-        document.getElementById("editImageFile").value = "";
-        document.getElementById("editModal").classList.add("active");
-      }
-
-      async function saveEdit() {
-        const newName = document.getElementById("editName").value.trim();
-        const imageFile = document.getElementById("editImageFile").files[0];
-        if (!newName) {
-          alert("Введите название");
-          return;
-        }
-        try {
-          await saveGame({ id: editingGameId, name: newName }, imageFile);
-          await loadGames();
-          document.getElementById("editModal").classList.remove("active");
-        } catch (err) {
-          alert(err.message);
-        }
-      }
-
-      async function checkAuth() {
-        // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
-        const stored = localStorage.getItem("atbuy_current_user");
-        if (stored) {
-          const userData = JSON.parse(stored);
-          currentUser = {
-            email: userData.email,
-            user_metadata: { name: userData.name },
-          };
-          // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-          const adminFlag = localStorage.getItem("atbuy_is_admin") === "true";
-          isAdmin = adminFlag || currentUser.email === "vufysay@gmail.com";
-          renderAuthHeader();
-          return true;
-        }
-        // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (session) {
-          currentUser = session.user;
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          // Сохраняем в localStorage для будущих мгновенных загрузок
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: currentUser.email,
-              name: currentUser.user_metadata?.name || currentUser.email,
-            }),
-          );
-          localStorage.setItem("atbuy_is_admin", isAdmin);
-          renderAuthHeader();
-          return true;
-        }
-        renderAuthHeader();
-        return false;
-      }
-
-      function renderAuthHeader() {
-        const authSection = document.getElementById("auth-section");
-        const adminLinks = document.getElementById("admin-links");
-        if (currentUser) {
-          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
-          document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-              localStorage.removeItem("atbuy_current_user");
-              localStorage.removeItem("atbuy_is_admin");
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
-          if (adminLinks)
-            adminLinks.innerHTML = isAdmin
-              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
-              : "";
-        } else {
-          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-          if (adminLinks) adminLinks.innerHTML = "";
-        }
+        document.querySelectorAll(".game-card").forEach((card) => {
+          card.addEventListener("click", () => {
+            const link = card.dataset.link;
+            if (link && link !== "#") window.location.href = link;
+            else alert("Страница в разработке");
+          });
+        });
       }
 
       function escapeHtml(str) {
@@ -685,20 +406,14 @@
         );
       }
 
+      // Инициализация
       window.addEventListener("load", () => {
         checkAuth();
+        loadGames();
         document
           .getElementById("searchInput")
           .addEventListener("input", (e) =>
             renderGames(e.target.value.toLowerCase()),
-          );
-        document
-          .getElementById("saveEditBtn")
-          .addEventListener("click", saveEdit);
-        document
-          .getElementById("cancelEditBtn")
-          .addEventListener("click", () =>
-            document.getElementById("editModal").classList.remove("active"),
           );
       });
     </script>
