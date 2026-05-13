@@ -1,0 +1,51 @@
+[
+	{
+		"id": 1,
+		"name": "ARC RAIDERS",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/1_1775161394382.jpg",
+		"link": "game.html?id=1",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 2,
+		"name": "BRAWL STARS",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/2_1775161405647.webp",
+		"link": "game.html?id=2",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 3,
+		"name": "CLASH ROYALE",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/3_1775162393544.jpg",
+		"link": "game.html?id=3",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 4,
+		"name": "FORTNITE",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/4_1775162399566.jpeg",
+		"link": "game.html?id=4",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 5,
+		"name": "ROBLOX",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/5_1775162380622.avif",
+		"link": "game.html?id=5",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 6,
+		"name": "STANDOFF 2",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/6_1775162372654.png",
+		"link": "game.html?id=6",
+		"created_at": "2026-04-02T19:43:32.114767+00:00"
+	},
+	{
+		"id": 9,
+		"name": "YOUTUBE",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/1778433811217_1778433811217.png",
+		"link": "game.html?id=9",
+		"created_at": "2026-05-10T17:27:33.816799+00:00"
+	}
+]
