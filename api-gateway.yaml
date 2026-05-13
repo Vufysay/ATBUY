@@ -14,24 +14,44 @@ paths:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
       operationId: proxy-get
     post:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
       operationId: proxy-post
     put:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
       operationId: proxy-put
     delete:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
       operationId: proxy-delete
     options:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4ed5hav41lhcrdt3rq6
+        parameters:
+          path:
+            fromPath: path
+            toQuery: path
       operationId: proxy-options

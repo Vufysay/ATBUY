@@ -1,0 +1,6 @@
+{
+  "redirectAllRequests": {
+    "hostname": "atbuy.ru",
+    "protocol": "https"
+  }
+}
