@@ -34,7 +34,7 @@
       }
       .tab-btn {
         flex: 1;
-        background: 0 0;
+        background: none;
         border: none;
         padding: 18px 0;
         font-size: 1.1rem;
@@ -88,7 +88,7 @@
         border: 1.5px solid #e2e8f0;
         border-radius: 16px;
         transition: 0.2s;
-        outline: 0;
+        outline: none;
       }
       .input-group input:focus {
         border-color: #4f46e5;
@@ -225,272 +225,8 @@
       </div>
     </div>
     <div id="toast-message" class="toast"></div>
-    <script>
-      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
 
-// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-const customFetch = async (url, options) => {
-    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
-        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
-        url = PROXY_URL + path;
-    }
-    return fetch(url, options);
-};
-
-const supabaseClient = window.supabase.createClient(
-    'https://buonqsikukvqbnbpuuco.supabase.co',
-    SUPABASE_ANON_KEY,
-    { fetch: customFetch }
-);
-
-      let pendingUser = null; // для 2FA
-      let pending2FACode = null;
-      let pending2FAExpires = null;
-
-      let pendingSignupCode = null; // для регистрации
-      let pendingSignupExpires = null;
-      let pendingSignupData = null; // { email, password, name }
-
-      function showToast(message, isError = false) {
-        const toast = document.getElementById("toast-message");
-        toast.textContent = message;
-        toast.classList.add("show");
-        toast.style.backgroundColor = isError ? "#dc2626e6" : "#1f2937e6";
-        setTimeout(() => toast.classList.remove("show"), 3000);
-      }
-
-      function switchTab(tabId) {
-        document
-          .querySelectorAll(".tab-btn")
-          .forEach((btn) => btn.classList.remove("active"));
-        document
-          .querySelector(`.tab-btn[data-tab="${tabId}"]`)
-          .classList.add("active");
-        document.getElementById("login-panel").style.display =
-          tabId === "login" ? "block" : "none";
-        document.getElementById("register-panel").style.display =
-          tabId === "register" ? "block" : "none";
-      }
-
-      // Оборачиваем всё в обработчик загрузки, чтобы элементы гарантированно существовали
-      window.addEventListener("load", () => {
-        // --------- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ---------
-        document.querySelectorAll(".tab-btn").forEach((btn) => {
-          btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-        });
-
-        // --------- РЕГИСТРАЦИЯ (код через EmailJS) ---------
-        document
-          .getElementById("register-form")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const name = document.getElementById("reg-name").value.trim();
-            const email = document.getElementById("reg-email").value.trim();
-            const password = document.getElementById("reg-password").value;
-            const confirm = document.getElementById(
-              "reg-password-confirm",
-            ).value;
-
-            if (!name || name.length < 2) {
-              showToast("Имя не менее 2 символов", true);
-              return;
-            }
-            if (!email.includes("@")) {
-              showToast("Введите корректный email", true);
-              return;
-            }
-            if (password.length < 6) {
-              showToast("Пароль не менее 6 символов", true);
-              return;
-            }
-            if (password !== confirm) {
-              showToast("Пароли не совпадают", true);
-              return;
-            }
-
-            // Генерируем и отправляем код
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            pendingSignupCode = code;
-            pendingSignupExpires = Date.now() + 10 * 60 * 1000;
-            pendingSignupData = { email, password, name };
-
-            try {
-              await emailjs.send("service_9od2h3e", "template_2fa", {
-                to_email: email,
-                message: `Ваш код для подтверждения регистрации: ${code}`,
-                subject: "Подтверждение регистрации ATBUY",
-              });
-              document.getElementById("signup-code-modal").style.display =
-                "flex";
-              document.getElementById("signup-code-input").value = "";
-              document.getElementById("signup-code-error").style.display =
-                "none";
-            } catch (err) {
-              showToast(
-                "Ошибка отправки кода: " + (err.text || err.message),
-                true,
-              );
-            }
-          });
-
-        // Обработчик для кнопки «Подтвердить» в модальном окне регистрации
-        document
-          .getElementById("signup-code-verify-btn")
-          .addEventListener("click", async () => {
-            const enteredCode = document
-              .getElementById("signup-code-input")
-              .value.trim();
-            const errorDiv = document.getElementById("signup-code-error");
-
-            if (!pendingSignupData) {
-              errorDiv.textContent = "Нет активной регистрации";
-              errorDiv.style.display = "block";
-              return;
-            }
-            if (
-              enteredCode !== pendingSignupCode ||
-              Date.now() > pendingSignupExpires
-            ) {
-              errorDiv.textContent = "Неверный или просроченный код";
-              errorDiv.style.display = "block";
-              return;
-            }
-
-            // Создаём пользователя (email не подтверждается, т.к. Confirm email выключен)
-            const { error: signUpError } = await supabaseClient.auth.signUp({
-              email: pendingSignupData.email,
-              password: pendingSignupData.password,
-              options: { data: { name: pendingSignupData.name } },
-            });
-            if (signUpError) {
-              showToast("Ошибка регистрации: " + signUpError.message, true);
-              document.getElementById("signup-code-modal").style.display =
-                "none";
-              return;
-            }
-
-            // Сразу входим
-            const { error: signInError } =
-              await supabaseClient.auth.signInWithPassword({
-                email: pendingSignupData.email,
-                password: pendingSignupData.password,
-              });
-            if (signInError) {
-              showToast(
-                "Ошибка входа после регистрации: " + signInError.message,
-                true,
-              );
-            } else {
-              document.getElementById("signup-code-modal").style.display =
-                "none";
-              showToast("Регистрация успешна!");
-              window.location.href = "index.html";
-            }
-          });
-
-        // Закрытие модального окна регистрации при клике на фон
-        document
-          .getElementById("signup-code-modal")
-          .addEventListener("click", function (e) {
-            if (e.target === this) this.style.display = "none";
-          });
-
-        // --------- ВХОД (2FA через EmailJS) ---------
-        document
-          .getElementById("login-form")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = document.getElementById("login-email").value.trim();
-            const password = document.getElementById("login-password").value;
-            if (!email || !password) {
-              showToast("Заполните все поля", true);
-              return;
-            }
-
-            const { data, error } =
-              await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-              showToast("Неверный email или пароль", true);
-              return;
-            }
-
-            const { data: userData } = await supabaseClient
-              .from("users")
-              .select("is_2fa_enabled")
-              .eq("id", data.user.id)
-              .single();
-
-            if (userData?.is_2fa_enabled) {
-              pendingUser = data.user;
-              const code = Math.floor(
-                100000 + Math.random() * 900000,
-              ).toString();
-              pending2FACode = code;
-              pending2FAExpires = Date.now() + 10 * 60 * 1000;
-              try {
-                await emailjs.send("service_9od2h3e", "template_2fa", {
-                  to_email: email,
-                  message: `Ваш код для входа: ${code}`,
-                  subject: "Код подтверждения 2FA",
-                });
-                document.getElementById("twofa-modal").style.display = "flex";
-                document.getElementById("2fa-code-input").value = "";
-                document.getElementById("2fa-error").style.display = "none";
-              } catch (err) {
-                showToast(
-                  "Ошибка отправки кода: " + (err.text || err.message),
-                  true,
-                );
-                await supabaseClient.auth.signOut();
-              }
-            } else {
-              window.location.href = "index.html";
-            }
-          });
-
-        // Обработчик подтверждения 2FA
-        document
-          .getElementById("2fa-verify-btn")
-          .addEventListener("click", () => {
-            const enteredCode = document
-              .getElementById("2fa-code-input")
-              .value.trim();
-            if (
-              enteredCode === pending2FACode &&
-              Date.now() < pending2FAExpires
-            ) {
-              window.location.href = "index.html";
-            } else {
-              document.getElementById("2fa-error").textContent =
-                "Неверный или просроченный код";
-              document.getElementById("2fa-error").style.display = "block";
-            }
-          });
-
-        // Закрытие модального окна 2FA при клике на фон
-        document
-          .getElementById("twofa-modal")
-          .addEventListener("click", function (e) {
-            if (e.target === this) {
-              this.style.display = "none";
-              supabaseClient.auth.signOut();
-            }
-          });
-
-        // --------- ЗАБЫЛИ ПАРОЛЬ (стандартный сброс через Supabase ссылку) ---------
-        document
-          .getElementById("forgotPasswordLink")
-          .addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = "reset-password.html";
-          });
-      });
-    </script>
-    <!-- Модальное окно для ввода 2FA кода -->
+    <!-- Модальное окно 2FA -->
     <div
       id="twofa-modal"
       style="
@@ -563,7 +299,8 @@ const supabaseClient = window.supabase.createClient(
         ></p>
       </div>
     </div>
-    <!-- Модальное окно для кода подтверждения регистрации -->
+
+    <!-- Модальное окно регистрации -->
     <div
       id="signup-code-modal"
       style="
@@ -636,5 +373,292 @@ const supabaseClient = window.supabase.createClient(
         ></p>
       </div>
     </div>
+
+    <script>
+      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
+      let pendingUser = null;
+      let pending2FACode = null;
+      let pending2FAExpires = null;
+      let pendingSignupCode = null;
+      let pendingSignupExpires = null;
+      let pendingSignupData = null;
+
+      function showToast(message, isError = false) {
+        const toast = document.getElementById("toast-message");
+        toast.textContent = message;
+        toast.classList.add("show");
+        toast.style.backgroundColor = isError ? "#dc2626e6" : "#1f2937e6";
+        setTimeout(() => toast.classList.remove("show"), 3000);
+      }
+
+      function switchTab(tabId) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelector(`.tab-btn[data-tab="${tabId}"]`)
+          .classList.add("active");
+        document.getElementById("login-panel").style.display =
+          tabId === "login" ? "block" : "none";
+        document.getElementById("register-panel").style.display =
+          tabId === "register" ? "block" : "none";
+      }
+
+      window.addEventListener("load", () => {
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        });
+
+        // ---------- РЕГИСТРАЦИЯ ----------
+        document
+          .getElementById("register-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("reg-name").value.trim();
+            const email = document.getElementById("reg-email").value.trim();
+            const password = document.getElementById("reg-password").value;
+            const confirm = document.getElementById(
+              "reg-password-confirm",
+            ).value;
+
+            if (!name || name.length < 2) {
+              showToast("Имя не менее 2 символов", true);
+              return;
+            }
+            if (!email.includes("@")) {
+              showToast("Введите корректный email", true);
+              return;
+            }
+            if (password.length < 6) {
+              showToast("Пароль не менее 6 символов", true);
+              return;
+            }
+            if (password !== confirm) {
+              showToast("Пароли не совпадают", true);
+              return;
+            }
+
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            pendingSignupCode = code;
+            pendingSignupExpires = Date.now() + 10 * 60 * 1000;
+            pendingSignupData = { email, password, name };
+
+            try {
+              await emailjs.send("service_9od2h3e", "template_2fa", {
+                to_email: email,
+                message: `Ваш код для подтверждения регистрации: ${code}`,
+                subject: "Подтверждение регистрации ATBUY",
+              });
+              document.getElementById("signup-code-modal").style.display =
+                "flex";
+              document.getElementById("signup-code-input").value = "";
+              document.getElementById("signup-code-error").style.display =
+                "none";
+            } catch (err) {
+              showToast(
+                "Ошибка отправки кода: " + (err.text || err.message),
+                true,
+              );
+            }
+          });
+
+        document
+          .getElementById("signup-code-verify-btn")
+          .addEventListener("click", async () => {
+            const enteredCode = document
+              .getElementById("signup-code-input")
+              .value.trim();
+            const errorDiv = document.getElementById("signup-code-error");
+            if (!pendingSignupData) {
+              errorDiv.textContent = "Нет активной регистрации";
+              errorDiv.style.display = "block";
+              return;
+            }
+            if (
+              enteredCode !== pendingSignupCode ||
+              Date.now() > pendingSignupExpires
+            ) {
+              errorDiv.textContent = "Неверный или просроченный код";
+              errorDiv.style.display = "block";
+              return;
+            }
+
+            const { error: signUpError } = await supabaseClient.auth.signUp({
+              email: pendingSignupData.email,
+              password: pendingSignupData.password,
+              options: { data: { name: pendingSignupData.name } },
+            });
+            if (signUpError) {
+              showToast("Ошибка регистрации: " + signUpError.message, true);
+              document.getElementById("signup-code-modal").style.display =
+                "none";
+              return;
+            }
+
+            const { data: signInData, error: signInError } =
+              await supabaseClient.auth.signInWithPassword({
+                email: pendingSignupData.email,
+                password: pendingSignupData.password,
+              });
+            if (signInError) {
+              showToast(
+                "Ошибка входа после регистрации: " + signInError.message,
+                true,
+              );
+            } else {
+              document.getElementById("signup-code-modal").style.display =
+                "none";
+              showToast("Регистрация успешна!");
+              const user = signInData.user;
+              const userId = user.id;
+              const userEmail = user.email;
+              const userName = user.user_metadata?.name || userEmail;
+              const { data: adminData } = await supabaseClient
+                .from("users")
+                .select("is_admin")
+                .eq("id", userId)
+                .single();
+              const isAdminUser =
+                adminData?.is_admin || userEmail === "vufysay@gmail.com";
+              localStorage.setItem(
+                "atbuy_current_user",
+                JSON.stringify({ email: userEmail, name: userName }),
+              );
+              localStorage.setItem("atbuy_is_admin", isAdminUser);
+              window.location.href = "index.html";
+            }
+          });
+
+        document
+          .getElementById("signup-code-modal")
+          .addEventListener("click", function (e) {
+            if (e.target === this) this.style.display = "none";
+          });
+
+        // ---------- ВХОД (2FA) ----------
+        document
+          .getElementById("login-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value;
+            if (!email || !password) {
+              showToast("Заполните все поля", true);
+              return;
+            }
+
+            const { data, error } =
+              await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+              showToast("Неверный email или пароль", true);
+              return;
+            }
+
+            const { data: userData } = await supabaseClient
+              .from("users")
+              .select("is_2fa_enabled")
+              .eq("id", data.user.id)
+              .single();
+            if (userData?.is_2fa_enabled) {
+              pendingUser = data.user;
+              const code = Math.floor(
+                100000 + Math.random() * 900000,
+              ).toString();
+              pending2FACode = code;
+              pending2FAExpires = Date.now() + 10 * 60 * 1000;
+              try {
+                await emailjs.send("service_9od2h3e", "template_2fa", {
+                  to_email: email,
+                  message: `Ваш код для входа: ${code}`,
+                  subject: "Код подтверждения 2FA",
+                });
+                document.getElementById("twofa-modal").style.display = "flex";
+                document.getElementById("2fa-code-input").value = "";
+                document.getElementById("2fa-error").style.display = "none";
+              } catch (err) {
+                showToast(
+                  "Ошибка отправки кода: " + (err.text || err.message),
+                  true,
+                );
+                await supabaseClient.auth.signOut();
+              }
+            } else {
+              // в без 2FA — сразу сохраняем данные
+              const userId = data.user.id;
+              const userEmail = data.user.email;
+              const userName = data.user.user_metadata?.name || userEmail;
+              const { data: adminData } = await supabaseClient
+                .from("users")
+                .select("is_admin")
+                .eq("id", userId)
+                .single();
+              const isAdminUser =
+                adminData?.is_admin || userEmail === "vufysay@gmail.com";
+              localStorage.setItem(
+                "atbuy_current_user",
+                JSON.stringify({ email: userEmail, name: userName }),
+              );
+              localStorage.setItem("atbuy_is_admin", isAdminUser);
+              window.location.href = "index.html";
+            }
+          });
+
+        document
+          .getElementById("2fa-verify-btn")
+          .addEventListener("click", async () => {
+            const enteredCode = document
+              .getElementById("2fa-code-input")
+              .value.trim();
+            if (
+              enteredCode === pending2FACode &&
+              Date.now() < pending2FAExpires
+            ) {
+              const userId = pendingUser.id;
+              const userEmail = pendingUser.email;
+              const userName = pendingUser.user_metadata?.name || userEmail;
+              const { data: adminData } = await supabaseClient
+                .from("users")
+                .select("is_admin")
+                .eq("id", userId)
+                .single();
+              const isAdminUser =
+                adminData?.is_admin || userEmail === "vufysay@gmail.com";
+              localStorage.setItem(
+                "atbuy_current_user",
+                JSON.stringify({ email: userEmail, name: userName }),
+              );
+              localStorage.setItem("atbuy_is_admin", isAdminUser);
+              window.location.href = "index.html";
+            } else {
+              document.getElementById("2fa-error").textContent =
+                "Неверный или просроченный код";
+              document.getElementById("2fa-error").style.display = "block";
+            }
+          });
+
+        document
+          .getElementById("twofa-modal")
+          .addEventListener("click", function (e) {
+            if (e.target === this) {
+              this.style.display = "none";
+              supabaseClient.auth.signOut();
+            }
+          });
+
+        document
+          .getElementById("forgotPasswordLink")
+          .addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = "reset-password.html";
+          });
+      });
+    </script>
   </body>
 </html>
