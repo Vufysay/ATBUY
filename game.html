@@ -389,22 +389,29 @@
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
       // Прокси-функция на Yandex Cloud Functions
-const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+      const PROXY_URL =
+        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
 
-// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-const customFetch = async (url, options) => {
-    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
-        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
-        url = PROXY_URL + path;
-    }
-    return fetch(url, options);
-};
+      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
+      const customFetch = async (url, options) => {
+        if (
+          typeof url === "string" &&
+          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
+        ) {
+          const path = url.replace(
+            "https://buonqsikukvqbnbpuuco.supabase.co",
+            "",
+          );
+          url = PROXY_URL + path;
+        }
+        return fetch(url, options);
+      };
 
-const supabaseClient = window.supabase.createClient(
-    'https://buonqsikukvqbnbpuuco.supabase.co',
-    SUPABASE_ANON_KEY,
-    { fetch: customFetch }
-);
+      const supabaseClient = window.supabase.createClient(
+        "https://buonqsikukvqbnbpuuco.supabase.co",
+        SUPABASE_ANON_KEY,
+        { fetch: customFetch },
+      );
       let currentUser = null,
         isAdmin = false,
         products = [],
@@ -440,19 +447,22 @@ const supabaseClient = window.supabase.createClient(
         return publicUrl;
       }
       async function loadProducts() {
-  try {
-    const response = await fetch('/products.json');
-    const allProducts = await response.json();
-    // Фильтруем товары по текущему game_id
-    products = allProducts.filter(p => p.game_id == currentGameId);
-    productOptions = []; // опции уже внутри каждого товара
-    renderProducts();
-    renderAdminPanel();
-  } catch (err) {
-    console.error(err);
-    document.getElementById('productsContainer').innerHTML = '<div>Ошибка загрузки товаров</div>';
-  }
-}
+        try {
+          const response = await fetch("/products.json");
+          if (!response.ok) throw new Error("Ошибка загрузки данных");
+          const allProducts = await response.json();
+          // Оставляем только товары для текущей игры (currentGameId берётся из URL)
+          products = allProducts.filter((p) => p.game_id == currentGameId);
+          // Опции уже лежат внутри каждого товара, отдельно загружать не нужно
+          productOptions = [];
+          renderProducts();
+          if (isAdmin) renderAdminPanel();
+        } catch (err) {
+          console.error("Не удалось загрузить товары:", err);
+          document.getElementById("productsContainer").innerHTML =
+            "<div>Ошибка загрузки товаров</div>";
+        }
+      }
       async function saveProduct(product, imageFile = null) {
         let imageUrl = product.image;
         if (imageFile) {
@@ -688,35 +698,44 @@ const supabaseClient = window.supabase.createClient(
         }
       }
       async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const authSection = document.getElementById('auth-section');
-    const adminLinks = document.getElementById('admin-links');
-    if (session) {
-        currentUser = session.user;
-        const { data: userAdmin } = await supabaseClient
-            .from('users')
-            .select('is_admin')
-            .eq('id', currentUser.id)
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+        const authSection = document.getElementById("auth-section");
+        const adminLinks = document.getElementById("admin-links");
+        if (session) {
+          currentUser = session.user;
+          const { data: userAdmin } = await supabaseClient
+            .from("users")
+            .select("is_admin")
+            .eq("id", currentUser.id)
             .single();
-        isAdmin = (userAdmin?.is_admin) || (currentUser.email === 'vufysay@gmail.com');
-        authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-        document.getElementById('userMenu').addEventListener('click', (e) => {
-            if (e.target.id !== 'logoutBtn') window.location.href = 'profile.html';
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await supabaseClient.auth.signOut();
-            window.location.reload();
-        });
-        if (adminLinks) adminLinks.innerHTML = isAdmin ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>` : '';
-        if (isAdmin) renderAdminPanel();
-        await loadProducts();
-    } else {
-        authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
-        if (adminLinks) adminLinks.innerHTML = '';
-        await loadProducts();
-    }
-}
+          isAdmin =
+            userAdmin?.is_admin || currentUser.email === "vufysay@gmail.com";
+          authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document
+            .getElementById("logoutBtn")
+            .addEventListener("click", async (e) => {
+              e.stopPropagation();
+              await supabaseClient.auth.signOut();
+              window.location.reload();
+            });
+          if (adminLinks)
+            adminLinks.innerHTML = isAdmin
+              ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
+              : "";
+          if (isAdmin) renderAdminPanel();
+          await loadProducts();
+        } else {
+          authSection.innerHTML = `<a href="login.html" class="auth-btn">Вход / Регистрация</a>`;
+          if (adminLinks) adminLinks.innerHTML = "";
+          await loadProducts();
+        }
+      }
       function escapeHtml(str) {
         return str.replace(
           /[&<>]/g,

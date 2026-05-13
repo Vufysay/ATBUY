@@ -477,34 +477,41 @@
         gameName = "игра";
 
       async function loadProduct() {
+        const urlParams = new URLSearchParams(window.location.search);
         const productId = parseInt(urlParams.get("id"));
+        if (!productId) {
+          document.getElementById("productContainer").innerHTML =
+            "<p>Товар не указан</p>";
+          return;
+        }
         try {
           const response = await fetch("/products.json");
+          if (!response.ok) throw new Error("Ошибка загрузки данных");
           const allProducts = await response.json();
-          currentProduct = allProducts.find((p) => p.id == productId);
+          currentProduct = allProducts.find((p) => p.id === productId);
           if (!currentProduct) throw new Error("Товар не найден");
           productOptions = currentProduct.options || [];
           renderStaticPart();
           renderOptionsList();
         } catch (err) {
-          console.error(err);
+          console.error("Не удалось загрузить товар:", err);
           document.getElementById("productContainer").innerHTML =
             "<p>Товар не найден</p>";
         }
       }
-      async function loadOptions() {
-        const { data, error } = await supabaseClient
-          .from("product_options")
-          .select("*")
-          .eq("product_id", currentProduct.id)
-          .order("name");
-        if (error) console.error(error);
-        else productOptions = data || [];
-        productOptions.forEach((opt) => {
-          if (selectedOptionQuantities[opt.id] === undefined)
-            selectedOptionQuantities[opt.id] = 0;
-        });
-      }
+      // async function loadOptions() {
+      //   const { data, error } = await supabaseClient
+      //     .from("product_options")
+      //     .select("*")
+      //     .eq("product_id", currentProduct.id)
+      //     .order("name");
+      //   if (error) console.error(error);
+      //   else productOptions = data || [];
+      //   productOptions.forEach((opt) => {
+      //     if (selectedOptionQuantities[opt.id] === undefined)
+      //       selectedOptionQuantities[opt.id] = 0;
+      //   });
+      // }
       function renderStaticPart() {
         const basePrice = parsePrice(currentProduct.price);
         let totalPrice = basePrice;
