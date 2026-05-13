@@ -1,0 +1,577 @@
+[
+	{
+		"id": 22,
+		"game_id": 1,
+		"name": "Фарм ресов",
+		"price": "от 0 ₽",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_22_1775246063557.jpg",
+		"description": "🚚 Доставка и получение товара\n\n1️⃣ Вы указываете свой номер телефона и Telegram (если нет – поставьте прочерк) при оформлении заказа.\n2️⃣ Оплачиваете товар через Robokassa (банковская карта, СБП и др.) 💳\n3️⃣ После успешной оплаты я (администратор) получаю уведомление на почту с деталями:\n   📦 какой товар куплен,\n   ⚙️ какие дополнительные опции выбраны (и их количество),\n   📞 ваши контактные данные (телефон, Telegram, email).\n4️⃣ Я связываюсь с вами в течение 24 часов (обычно быстрее) и передаю заказ:\n   🎁 ссылку на подарок в Steam,\n   🎓 доступ к обучению или тренерской сессии,\n   ⚡ прокачку ресурсов (договариваемся об удобном времени),\n   💻 либо другой цифровой товар.\n\n❗ Важно: все товары цифровые, поэтому доставка происходит онлайн. Если у вас возникли вопросы – пишите в Telegram (ссылка в шапке сайта) 📱 или на почту vufysay@gmail.com ✉️",
+		"options": [
+			{
+				"id": 2,
+				"product_id": 22,
+				"name": "Абрикосы (x1)",
+				"price": 8,
+				"created_at": "2026-04-03T15:15:29.068453+00:00"
+			},
+			{
+				"id": 3,
+				"product_id": 22,
+				"name": "Антисептик (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:45:27.510814+00:00"
+			},
+			{
+				"id": 41,
+				"product_id": 22,
+				"name": "Аптечка с ржавым замком (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:20:15.030015+00:00"
+			},
+			{
+				"id": 4,
+				"product_id": 22,
+				"name": "Батарея (x1)",
+				"price": 40,
+				"created_at": "2026-04-03T18:47:13.174647+00:00"
+			},
+			{
+				"id": 5,
+				"product_id": 22,
+				"name": "Вентилятор охлаждения (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:47:37.19431+00:00"
+			},
+			{
+				"id": 6,
+				"product_id": 22,
+				"name": "Веревка (x1)",
+				"price": 8,
+				"created_at": "2026-04-03T18:48:09.219187+00:00"
+			},
+			{
+				"id": 7,
+				"product_id": 22,
+				"name": "Взрывчатое соединение (x1)",
+				"price": 8,
+				"created_at": "2026-04-03T18:48:29.654232+00:00"
+			},
+			{
+				"id": 9,
+				"product_id": 22,
+				"name": "Гитара (x1)",
+				"price": 125,
+				"created_at": "2026-04-03T18:49:42.017688+00:00"
+			},
+			{
+				"id": 10,
+				"product_id": 22,
+				"name": "Горелка огнешара (x1)",
+				"price": 20,
+				"created_at": "2026-04-03T18:50:35.419561+00:00"
+			},
+			{
+				"id": 11,
+				"product_id": 22,
+				"name": "Гриб (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:50:49.103272+00:00"
+			},
+			{
+				"id": 12,
+				"product_id": 22,
+				"name": "Датчики (x1)",
+				"price": 5,
+				"created_at": "2026-04-03T18:51:08.002944+00:00"
+			},
+			{
+				"id": 63,
+				"product_id": 22,
+				"name": "Движущее ядро ARC (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T19:49:29.708518+00:00"
+			},
+			{
+				"id": 29,
+				"product_id": 22,
+				"name": "Драйвер Осы (x1)",
+				"price": 15,
+				"created_at": "2026-04-03T19:07:52.585381+00:00"
+			},
+			{
+				"id": 31,
+				"product_id": 22,
+				"name": "Драйвер Ракетчика (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:11:57.124552+00:00"
+			},
+			{
+				"id": 30,
+				"product_id": 22,
+				"name": "Драйвер Шершня (x1)",
+				"price": 25,
+				"created_at": "2026-04-03T19:11:18.665272+00:00"
+			},
+			{
+				"id": 14,
+				"product_id": 22,
+				"name": "Импульсный блок Прыгуна (x1)",
+				"price": 40,
+				"created_at": "2026-04-03T18:52:38.656017+00:00"
+			},
+			{
+				"id": 15,
+				"product_id": 22,
+				"name": "Компоненты для модификаций (x1)",
+				"price": 13,
+				"created_at": "2026-04-03T18:54:01.055367+00:00"
+			},
+			{
+				"id": 16,
+				"product_id": 22,
+				"name": "Коровяк обыкновенный (x1)",
+				"price": 2,
+				"created_at": "2026-04-03T18:55:11.052163+00:00"
+			},
+			{
+				"id": 17,
+				"product_id": 22,
+				"name": "Лабораторные реагенты (x1)",
+				"price": 13,
+				"created_at": "2026-04-03T18:55:48.848465+00:00"
+			},
+			{
+				"id": 18,
+				"product_id": 22,
+				"name": "Лампочка (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:56:08.70297+00:00"
+			},
+			{
+				"id": 19,
+				"product_id": 22,
+				"name": "Магнитный ускоритель (x1)",
+				"price": 8,
+				"created_at": "2026-04-03T18:56:31.007214+00:00"
+			},
+			{
+				"id": 20,
+				"product_id": 22,
+				"name": "Металлические части (x200)",
+				"price": 175,
+				"created_at": "2026-04-03T18:56:55.001762+00:00"
+			},
+			{
+				"id": 21,
+				"product_id": 22,
+				"name": "Механические детали (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T18:58:42.042666+00:00"
+			},
+			{
+				"id": 23,
+				"product_id": 22,
+				"name": "Модули исхода (x1)",
+				"price": 25,
+				"created_at": "2026-04-03T19:00:31.840511+00:00"
+			},
+			{
+				"id": 24,
+				"product_id": 22,
+				"name": "Мотор (x1)",
+				"price": 40,
+				"created_at": "2026-04-03T19:00:44.346283+00:00"
+			},
+			{
+				"id": 25,
+				"product_id": 22,
+				"name": "Мох (x1)",
+				"price": 25,
+				"created_at": "2026-04-03T19:01:24.408467+00:00"
+			},
+			{
+				"id": 48,
+				"product_id": 22,
+				"name": "Огненное ядро часового (x1)",
+				"price": 65,
+				"created_at": "2026-04-03T19:44:27.927082+00:00"
+			},
+			{
+				"id": 26,
+				"product_id": 22,
+				"name": "Оливки (x1)",
+				"price": 21,
+				"created_at": "2026-04-03T19:01:38.522999+00:00"
+			},
+			{
+				"id": 27,
+				"product_id": 22,
+				"name": "Опунция (x1)",
+				"price": 21,
+				"created_at": "2026-04-03T19:01:47.192372+00:00"
+			},
+			{
+				"id": 28,
+				"product_id": 22,
+				"name": "Очень удобная подушка (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:02:09.264098+00:00"
+			},
+			{
+				"id": 8,
+				"product_id": 22,
+				"name": "Плоды свечного дерева (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:49:01.123331+00:00"
+			},
+			{
+				"id": 32,
+				"product_id": 22,
+				"name": "Провода (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T19:12:29.589778+00:00"
+			},
+			{
+				"id": 54,
+				"product_id": 22,
+				"name": "Продвинутая энергоячейка ARC (x1)",
+				"price": 8,
+				"created_at": "2026-04-03T19:46:21.626302+00:00"
+			},
+			{
+				"id": 33,
+				"product_id": 22,
+				"name": "Промышленный аккумулятор (x1)",
+				"price": 22,
+				"created_at": "2026-04-03T19:16:07.126108+00:00"
+			},
+			{
+				"id": 34,
+				"product_id": 22,
+				"name": "Простые оружейные детали (x1)",
+				"price": 3,
+				"created_at": "2026-04-03T19:16:25.590136+00:00"
+			},
+			{
+				"id": 35,
+				"product_id": 22,
+				"name": "Процессор (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T19:16:48.966035+00:00"
+			},
+			{
+				"id": 36,
+				"product_id": 22,
+				"name": "Прочная ткань (x1)",
+				"price": 2,
+				"created_at": "2026-04-03T19:17:07.10438+00:00"
+			},
+			{
+				"id": 46,
+				"product_id": 22,
+				"name": "Различные семена (x200)",
+				"price": 130,
+				"created_at": "2026-04-03T19:43:40.418374+00:00"
+			},
+			{
+				"id": 37,
+				"product_id": 22,
+				"name": "Реактор королевы (x1)",
+				"price": 64,
+				"created_at": "2026-04-03T19:18:53.079024+00:00"
+			},
+			{
+				"id": 38,
+				"product_id": 22,
+				"name": "Реактор Матриарха (x1)",
+				"price": 64,
+				"created_at": "2026-04-03T19:19:11.390175+00:00"
+			},
+			{
+				"id": 39,
+				"product_id": 22,
+				"name": "Резиновые детали (x300)",
+				"price": 130,
+				"created_at": "2026-04-03T19:19:28.776407+00:00"
+			},
+			{
+				"id": 40,
+				"product_id": 22,
+				"name": "Реле Споттера (x1)",
+				"price": 26,
+				"created_at": "2026-04-03T19:19:46.207479+00:00"
+			},
+			{
+				"id": 42,
+				"product_id": 22,
+				"name": "Ржавая шестерня (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:20:30.537005+00:00"
+			},
+			{
+				"id": 43,
+				"product_id": 22,
+				"name": "Сгоревшая материнская плата (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:20:50.013569+00:00"
+			},
+			{
+				"id": 58,
+				"product_id": 22,
+				"name": "Сейф наблюдателя (x1)",
+				"price": 26,
+				"created_at": "2026-04-03T19:48:09.375169+00:00"
+			},
+			{
+				"id": 44,
+				"product_id": 22,
+				"name": "Сканер Стукача (x1)",
+				"price": 26,
+				"created_at": "2026-04-03T19:43:07.508163+00:00"
+			},
+			{
+				"id": 13,
+				"product_id": 22,
+				"name": "Скотч (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T18:51:58.329834+00:00"
+			},
+			{
+				"id": 45,
+				"product_id": 22,
+				"name": "Сложные оружейные детали (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T19:43:22.970108+00:00"
+			},
+			{
+				"id": 47,
+				"product_id": 22,
+				"name": "Сплав ARC (x1)",
+				"price": 3,
+				"created_at": "2026-04-03T19:44:05.250832+00:00"
+			},
+			{
+				"id": 49,
+				"product_id": 22,
+				"name": "Средние оружейные детали (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T19:44:56.804089+00:00"
+			},
+			{
+				"id": 50,
+				"product_id": 22,
+				"name": "Стальная пружина (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T19:45:09.043563+00:00"
+			},
+			{
+				"id": 51,
+				"product_id": 22,
+				"name": "Тостер (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:45:16.651451+00:00"
+			},
+			{
+				"id": 52,
+				"product_id": 22,
+				"name": "Тяжелые оружейные детали (x1)",
+				"price": 5,
+				"created_at": "2026-04-03T19:45:40.235471+00:00"
+			},
+			{
+				"id": 53,
+				"product_id": 22,
+				"name": "Увлажнитель (x1)",
+				"price": 20,
+				"created_at": "2026-04-03T19:45:52.925477+00:00"
+			},
+			{
+				"id": 55,
+				"product_id": 22,
+				"name": "Улучшенные механический детали (x1)",
+				"price": 5,
+				"created_at": "2026-04-03T19:47:05.088224+00:00"
+			},
+			{
+				"id": 56,
+				"product_id": 22,
+				"name": "Улучшенные электрические компоненты (x1)",
+				"price": 5,
+				"created_at": "2026-04-03T19:47:27.301134+00:00"
+			},
+			{
+				"id": 57,
+				"product_id": 22,
+				"name": "Хладагент ARC (x1)",
+				"price": 21,
+				"created_at": "2026-04-03T19:47:45.471492+00:00"
+			},
+			{
+				"id": 59,
+				"product_id": 22,
+				"name": "Шейкер (x1)",
+				"price": 150,
+				"created_at": "2026-04-03T19:48:18.030576+00:00"
+			},
+			{
+				"id": 60,
+				"product_id": 22,
+				"name": "Электрические компоненты (x1)",
+				"price": 2,
+				"created_at": "2026-04-03T19:48:39.188007+00:00"
+			},
+			{
+				"id": 22,
+				"product_id": 22,
+				"name": "Электронная схема ARC (x1)",
+				"price": 12,
+				"created_at": "2026-04-03T18:59:07.244777+00:00"
+			},
+			{
+				"id": 61,
+				"product_id": 22,
+				"name": "Энергетический стержень (x1)",
+				"price": 45,
+				"created_at": "2026-04-03T19:48:58.397932+00:00"
+			},
+			{
+				"id": 62,
+				"product_id": 22,
+				"name": "Энергоячейка ARC (x1)",
+				"price": 4,
+				"created_at": "2026-04-03T19:49:15.418004+00:00"
+			},
+			{
+				"id": 64,
+				"product_id": 22,
+				"name": "Ячейка Бастиона (x1)",
+				"price": 21,
+				"created_at": "2026-04-03T19:49:47.211233+00:00"
+			},
+			{
+				"id": 65,
+				"product_id": 22,
+				"name": "Ячейка Бомбардира (x1)",
+				"price": 21,
+				"created_at": "2026-04-03T19:50:02.40298+00:00"
+			}
+		]
+	},
+	{
+		"id": 12,
+		"game_id": 11,
+		"name": "прокачка уровней",
+		"price": "от 200₽",
+		"image": null,
+		"description": null,
+		"options": []
+	},
+	{
+		"id": 26,
+		"game_id": 1,
+		"name": "Тренер на 1 час",
+		"price": "2000 ₽",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_26_1775225107350.jpg",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 25,
+		"game_id": 1,
+		"name": "Сопровод рейдов",
+		"price": "500 ₽",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_25_1775225191426.jpg",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 29,
+		"game_id": 2,
+		"name": "Бравл пасс",
+		"price": "1000",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_29_1775225809927.png",
+		"description": "фывф",
+		"options": []
+	},
+	{
+		"id": 30,
+		"game_id": 2,
+		"name": "Бравл пасс плюс",
+		"price": "1500",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_1775225857423_1775225857423.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 28,
+		"game_id": 1,
+		"name": "Прокачка лвла",
+		"price": "1000 ₽",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_28_1775246122793.jpg",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 24,
+		"game_id": 1,
+		"name": "Купить игру подарком в Steam",
+		"price": "2000 ₽",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_24_1775246171386.jpg",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 32,
+		"game_id": 2,
+		"name": "30 гемов",
+		"price": "300",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_32_1775226561282.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 33,
+		"game_id": 2,
+		"name": "80 гемов",
+		"price": "1000",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_33_1775226583872.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 35,
+		"game_id": 2,
+		"name": "950 гемов",
+		"price": "10000",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_35_1775226652517.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 34,
+		"game_id": 2,
+		"name": "170 гемов",
+		"price": "2500",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_34_1775226664311.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 36,
+		"game_id": 2,
+		"name": "2000 гемов",
+		"price": "12000",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_36_1775226709593.png",
+		"description": "",
+		"options": []
+	},
+	{
+		"id": 37,
+		"game_id": 2,
+		"name": "Тренер 1 час",
+		"price": "1000",
+		"image": "https://buonqsikukvqbnbpuuco.supabase.co/storage/v1/object/public/game_images/product_1775226728997_1775226728997.jpg",
+		"description": "",
+		"options": []
+	}
+]

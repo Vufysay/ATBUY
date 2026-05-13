@@ -440,18 +440,19 @@ const supabaseClient = window.supabase.createClient(
         return publicUrl;
       }
       async function loadProducts() {
-        const { data, error } = await supabaseClient
-          .from("game_products")
-          .select("*")
-          .eq("game_id", currentGameId)
-          .order("id");
-        if (error) {
-          console.error(error);
-          return;
-        }
-        products = data || [];
-        renderProducts();
-      }
+  try {
+    const response = await fetch('/products.json');
+    const allProducts = await response.json();
+    // Фильтруем товары по текущему game_id
+    products = allProducts.filter(p => p.game_id == currentGameId);
+    productOptions = []; // опции уже внутри каждого товара
+    renderProducts();
+    renderAdminPanel();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('productsContainer').innerHTML = '<div>Ошибка загрузки товаров</div>';
+  }
+}
       async function saveProduct(product, imageFile = null) {
         let imageUrl = product.image;
         if (imageFile) {
