@@ -322,10 +322,23 @@
       const SUPABASE_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
       const SUPABASE_ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY,
-      );
+      // Прокси-функция на Yandex Cloud Functions
+const PROXY_URL = "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
+
+// Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
+const customFetch = async (url, options) => {
+    if (typeof url === 'string' && url.startsWith('https://buonqsikukvqbnbpuuco.supabase.co')) {
+        const path = url.replace('https://buonqsikukvqbnbpuuco.supabase.co', '');
+        url = PROXY_URL + path;
+    }
+    return fetch(url, options);
+};
+
+const supabaseClient = window.supabase.createClient(
+    'https://buonqsikukvqbnbpuuco.supabase.co',
+    SUPABASE_ANON_KEY,
+    { fetch: customFetch }
+);
       let currentUser = null,
         isAdmin = false;
 
