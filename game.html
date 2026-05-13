@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATBUY — Товары игры</title>
     <style>
-      /* стили как в предыдущей версии (они уже есть) */
       * {
         margin: 0;
         padding: 0;
@@ -176,60 +175,6 @@
         align-self: flex-start;
         margin-top: 8px;
       }
-      .edit-icon,
-      .delete-icon {
-        position: absolute;
-        background: #0009;
-        backdrop-filter: blur(4px);
-        border-radius: 20px;
-        padding: 4px 10px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        color: #fff;
-        z-index: 3;
-      }
-      .edit-icon {
-        top: 12px;
-        right: 12px;
-      }
-      .delete-icon {
-        top: 12px;
-        right: 70px;
-        background: #dc2626cc;
-      }
-      .delete-icon:hover {
-        background: #dc2626;
-      }
-      .edit-icon:hover {
-        background: #3b82f6;
-      }
-      .admin-controls {
-        background: #15181f;
-        border-radius: 20px;
-        padding: 20px;
-        margin-bottom: 30px;
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        align-items: flex-end;
-      }
-      .admin-controls input,
-      .admin-controls textarea {
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        padding: 10px 12px;
-        border-radius: 12px;
-        color: #fff;
-        flex: 1;
-      }
-      .admin-controls button {
-        background: #3b82f6;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-      }
       .footer {
         background: #0f1117;
         border-top: 1px solid #1f2329;
@@ -242,54 +187,10 @@
         flex-wrap: wrap;
         gap: 20px;
       }
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000c;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-      .modal.active {
-        display: flex;
-      }
-      .modal-content {
-        background: #15181f;
-        border-radius: 24px;
-        padding: 24px;
-        width: 90%;
-        max-width: 500px;
-      }
-      .modal-content input,
-      .modal-content textarea {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 12px;
-        background: #1f2329;
-        border: 1px solid #2d3138;
-        border-radius: 12px;
-        color: #fff;
-      }
-      .modal-content button {
-        background: #3b82f6;
-        border: 0;
-        padding: 8px 16px;
-        border-radius: 30px;
-        color: #fff;
-        cursor: pointer;
-        margin-right: 12px;
-      }
       @media (max-width: 768px) {
         .navbar {
           flex-direction: column;
           text-align: center;
-        }
-        .nav-links {
-          justify-content: center;
         }
         .products-grid {
           grid-template-columns: 1fr;
@@ -311,13 +212,13 @@
         <div class="navbar">
           <div class="logo"><a href="index.html">ATBUY</a></div>
           <div class="nav-links">
-            <a href="reviews.html">Отзывы</a
-            ><a href="cart.html" class="cart-link">🛒 Корзина</a
-            ><a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
-            <a href="support.html" class="cart-link">💬 Поддержка</a
-            ><span id="admin-links"></span
-            ><a href="https://t.me/your_telegram" target="_blank">Telegram</a
-            ><a
+            <a href="reviews.html">Отзывы</a>
+            <a href="cart.html" class="cart-link">🛒 Корзина</a>
+            <a href="my-orders.html" class="cart-link">📦 Мои заказы</a>
+            <a href="support.html" class="cart-link">💬 Поддержка</a>
+            <span id="admin-links"></span>
+            <a href="https://t.me/your_telegram" target="_blank">Telegram</a>
+            <a
               href="https://www.youtube.com/@atr1but"
               target="_blank"
               class="youtube-link"
@@ -331,7 +232,6 @@
     <main class="main">
       <div class="container">
         <div class="page-header"><h1 id="gameTitle">Загрузка...</h1></div>
-        <div id="adminPanel" style="display: none"></div>
         <div id="productsContainer" class="products-grid"></div>
       </div>
     </main>
@@ -344,15 +244,18 @@
               href="reviews.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Отзывы</a
-            ><a
+            >
+            <a
               href="terms.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Оферта</a
-            ><a
+            >
+            <a
               href="delivery.html"
               style="color: #9ca3af; text-decoration: none; margin-right: 20px"
               >Доставка</a
-            ><a
+            >
+            <a
               href="requisites.html"
               style="color: #9ca3af; text-decoration: none"
               >Реквизиты</a
@@ -361,344 +264,12 @@
         </div>
       </div>
     </footer>
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <h3>Редактировать товар</h3>
-        <input type="text" id="editName" placeholder="Название" /><input
-          type="text"
-          id="editPrice"
-          placeholder="Цена"
-        /><input type="file" id="editImageFile" accept="image/*" /><textarea
-          id="editDescription"
-          rows="4"
-          placeholder="Описание товара"
-        ></textarea>
-        <div style="margin: 8px 0; font-size: 0.75rem; color: #9ca3af">
-          Оставьте изображение пустым, чтобы не менять
-        </div>
-        <div style="display: flex; justify-content: flex-end">
-          <button id="saveEditBtn">Сохранить</button
-          ><button id="cancelEditBtn" style="background: #4b5563">
-            Отмена
-          </button>
-        </div>
-      </div>
-    </div>
+
     <script>
-      const SUPABASE_URL = "https://buonqsikukvqbnbpuuco.supabase.co";
-      const SUPABASE_ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw";
-      // Прокси-функция на Yandex Cloud Functions
-      const PROXY_URL =
-        "https://functions.yandexcloud.net/d4e7o3blascl5q4mi51c?path=";
-
-      // Кастомная fetch-функция: перехватывает запросы к Supabase и направляет через прокси
-      const customFetch = async (url, options) => {
-        if (
-          typeof url === "string" &&
-          url.startsWith("https://buonqsikukvqbnbpuuco.supabase.co")
-        ) {
-          const path = url.replace(
-            "https://buonqsikukvqbnbpuuco.supabase.co",
-            "",
-          );
-          url = PROXY_URL + path;
-        }
-        return fetch(url, options);
-      };
-
-      const supabaseClient = window.supabase.createClient(
-        "https://buonqsikukvqbnbpuuco.supabase.co",
-        SUPABASE_ANON_KEY,
-        { fetch: customFetch },
-      );
-      let currentUser = null,
-        isAdmin = false,
-        products = [],
-        editingProductId = null,
-        currentGameId = null;
-      function getGameIdFromUrl() {
-        return new URLSearchParams(window.location.search).get("id");
-      }
-      async function loadGameInfo() {
-        const { data, error } = await supabaseClient
-          .from("games")
-          .select("name")
-          .eq("id", currentGameId)
-          .single();
-        if (error) {
-          console.error(error);
-          document.getElementById("gameTitle").innerText = "Игра не найдена";
-          return;
-        }
-        document.getElementById("gameTitle").innerText =
-          data.name + " — товары и услуги";
-      }
-      async function uploadProductImage(file, productId) {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `product_${productId}_${Date.now()}.${fileExt}`;
-        const { error } = await supabaseClient.storage
-          .from("game_images")
-          .upload(fileName, file);
-        if (error) throw error;
-        const {
-          data: { publicUrl },
-        } = supabaseClient.storage.from("game_images").getPublicUrl(fileName);
-        return publicUrl;
-      }
-      async function loadProducts() {
-        try {
-          const response = await fetch("/products.json");
-          if (!response.ok) throw new Error("Ошибка загрузки данных");
-          const allProducts = await response.json();
-          // Оставляем только товары для текущей игры (currentGameId берётся из URL)
-          products = allProducts.filter((p) => p.game_id == currentGameId);
-          // Опции уже лежат внутри каждого товара, отдельно загружать не нужно
-          productOptions = [];
-          renderProducts();
-          if (isAdmin) renderAdminPanel();
-        } catch (err) {
-          console.error("Не удалось загрузить товары:", err);
-          document.getElementById("productsContainer").innerHTML =
-            "<div>Ошибка загрузки товаров</div>";
-        }
-      }
-      async function saveProduct(product, imageFile = null) {
-        let imageUrl = product.image;
-        if (imageFile) {
-          const tempId = product.id || Date.now();
-          imageUrl = await uploadProductImage(imageFile, tempId);
-        }
-        // Добавляем символ рубля, если его нет
-        let priceWithRub = product.price;
-        if (priceWithRub && !priceWithRub.includes("₽")) {
-          priceWithRub = priceWithRub + " ₽";
-        }
-        if (product.id) {
-          const { error } = await supabaseClient
-            .from("game_products")
-            .update({
-              name: product.name,
-              price: priceWithRub,
-              image: imageUrl,
-              description: product.description,
-            })
-            .eq("id", product.id);
-          if (error) throw error;
-        } else {
-          const { error } = await supabaseClient.from("game_products").insert({
-            game_id: currentGameId,
-            name: product.name,
-            price: priceWithRub,
-            image: imageUrl,
-            description: product.description,
-          });
-          if (error) throw error;
-        }
-      }
-      async function deleteProduct(id) {
-        await supabaseClient.from("game_products").delete().eq("id", id);
-      }
-      function renderProducts() {
-        const container = document.getElementById("productsContainer");
-        if (!products.length) {
-          container.innerHTML =
-            '<div style="grid-column:1/-1; text-align:center; padding:40px;">Товары отсутствуют. Добавьте первый товар.</div>';
-          return;
-        }
-        container.innerHTML = products
-          .map(
-            (prod) => `
-                <div class="product-card" data-product-id="${prod.id}">
-                    ${isAdmin ? `<div class="edit-icon" data-id="${prod.id}" data-name="${escapeHtml(prod.name)}" data-price="${escapeHtml(prod.price)}" data-image="${escapeHtml(prod.image || "")}" data-description="${escapeHtml(prod.description || "")}">✏️</div><div class="delete-icon" data-id="${prod.id}">🗑️</div>` : ""}
-                    <div class="product-image">${prod.image ? `<img src="${prod.image}" alt="${escapeHtml(prod.name)}">` : '<div class="no-image">🖼️</div>'}</div>
-                    <div class="product-details">
-                        <div class="product-name">${escapeHtml(prod.name)}</div>
-                        <div class="product-price">${escapeHtml(prod.price)}</div>
-                        <button class="btn-buy" data-id="${prod.id}">Купить</button>
-                    </div>
-                </div>
-            `,
-          )
-          .join("");
-        // Клик по карточке (кроме кнопки и иконок) -> страница товара
-        document.querySelectorAll(".product-card").forEach((card) => {
-          card.addEventListener("click", (e) => {
-            if (
-              e.target.classList.contains("btn-buy") ||
-              e.target.classList.contains("edit-icon") ||
-              e.target.classList.contains("delete-icon")
-            )
-              return;
-            const productId = card.dataset.productId;
-            if (productId)
-              window.location.href = `product.html?id=${productId}`;
-          });
-        });
-        // Кнопка "Купить" -> добавление в корзину
-        document.querySelectorAll(".btn-buy").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const productId = parseInt(btn.dataset.id);
-            const product = products.find((p) => p.id === productId);
-            if (product) addToCart(product);
-          });
-        });
-        if (isAdmin) {
-          document.querySelectorAll(".edit-icon").forEach((icon) =>
-            icon.addEventListener("click", (e) => {
-              e.stopPropagation();
-              openEditModal(
-                parseInt(icon.dataset.id),
-                icon.dataset.name,
-                icon.dataset.price,
-                icon.dataset.image,
-                icon.dataset.description,
-              );
-            }),
-          );
-          document.querySelectorAll(".delete-icon").forEach((icon) =>
-            icon.addEventListener("click", async (e) => {
-              e.stopPropagation();
-              if (confirm("Удалить товар?")) {
-                await deleteProduct(parseInt(icon.dataset.id));
-                await loadProducts();
-              }
-            }),
-          );
-        }
-      }
-      async function addToCart(product) {
-        if (!currentUser) {
-          alert("Войдите в аккаунт");
-          window.location.href = "login.html";
-          return;
-        }
-        // Проверяем, есть ли уже такой товар в корзине
-        const { data: existing, error: checkError } = await supabaseClient
-          .from("cart")
-          .select("id, quantity")
-          .eq("user_id", currentUser.id)
-          .eq("product_id", product.id)
-          .maybeSingle();
-        if (checkError && checkError.code !== "PGRST116") {
-          alert("Ошибка проверки корзины: " + checkError.message);
-          return;
-        }
-        if (existing) {
-          const { error } = await supabaseClient
-            .from("cart")
-            .update({ quantity: existing.quantity + 1 })
-            .eq("id", existing.id);
-          if (error) alert("Ошибка обновления: " + error.message);
-          else alert("Товар добавлен в корзину!");
-        } else {
-          const { error } = await supabaseClient.from("cart").insert({
-            user_id: currentUser.id,
-            game_id: currentGameId,
-            product_id: product.id,
-            product_name: product.name,
-            product_price: product.price,
-            quantity: 1,
-            options: [], // опции пустые
-          });
-          if (error) {
-            alert("Ошибка добавления: " + error.message);
-            console.error(error);
-          } else {
-            alert("Товар добавлен в корзину!");
-          }
-        }
-      }
-
-      function renderAdminPanel() {
-        const container = document.getElementById("adminPanel");
-        container.style.display = "block";
-        container.innerHTML = `
-                <div class="admin-controls">
-                    <input type="text" id="newProductName" placeholder="Название товара">
-                    <input type="text" id="newProductPrice" placeholder="Цена (например, 1000)">
-                    <input type="file" id="newProductImage" accept="image/*">
-                    <textarea id="newProductDescription" rows="2" placeholder="Описание товара"></textarea>
-                    <button id="addProductBtn">➕ Добавить товар</button>
-                </div>
-            `;
-        document
-          .getElementById("addProductBtn")
-          .addEventListener("click", async () => {
-            const name = document.getElementById("newProductName").value.trim();
-            let price = document.getElementById("newProductPrice").value.trim();
-            const imageFile =
-              document.getElementById("newProductImage").files[0];
-            const description = document
-              .getElementById("newProductDescription")
-              .value.trim();
-            if (!name || !price) {
-              alert("Заполните название и цену");
-              return;
-            }
-            if (price && !price.includes("₽")) price = price + " ₽";
-            try {
-              const tempId = Date.now();
-              let imageUrl = null;
-              if (imageFile)
-                imageUrl = await uploadProductImage(imageFile, tempId);
-              await saveProduct(
-                { name, price, image: imageUrl, description },
-                null,
-              );
-              await loadProducts();
-              document.getElementById("newProductName").value = "";
-              document.getElementById("newProductPrice").value = "";
-              document.getElementById("newProductImage").value = "";
-              document.getElementById("newProductDescription").value = "";
-            } catch (err) {
-              alert("Ошибка добавления: " + err.message);
-            }
-          });
-      }
-      function openEditModal(id, name, price, imageUrl, description) {
-        editingProductId = id;
-        document.getElementById("editName").value = name;
-        document.getElementById("editPrice").value = price.replace(" ₽", "");
-        document.getElementById("editImageFile").value = "";
-        document.getElementById("editDescription").value = description || "";
-        document.getElementById("editModal").classList.add("active");
-      }
-      async function saveEdit() {
-        const newName = document.getElementById("editName").value.trim();
-        let newPrice = document.getElementById("editPrice").value.trim();
-        const imageFile = document.getElementById("editImageFile").files[0];
-        const newDescription = document
-          .getElementById("editDescription")
-          .value.trim();
-        if (!newName || !newPrice) {
-          alert("Заполните название и цену");
-          return;
-        }
-        if (newPrice && !newPrice.includes("₽")) newPrice = newPrice + " ₽";
-        try {
-          let imageUrl = null;
-          if (imageFile)
-            imageUrl = await uploadProductImage(imageFile, editingProductId);
-          await saveProduct(
-            {
-              id: editingProductId,
-              name: newName,
-              price: newPrice,
-              image: imageUrl,
-              description: newDescription,
-            },
-            null,
-          );
-          await loadProducts();
-          document.getElementById("editModal").classList.remove("active");
-        } catch (err) {
-          alert("Ошибка обновления: " + err.message);
-        }
-      }
-      async function checkAuth() {
-        // Пытаемся получить сессию из localStorage (мгновенно, без запросов)
+      // ---------- АВТОРИЗАЦИЯ ЧЕРЕЗ localStorage ----------
+      let currentUser = null;
+      let isAdmin = false;
+      function checkAuth() {
         const stored = localStorage.getItem("atbuy_current_user");
         if (stored) {
           const userData = JSON.parse(stored);
@@ -706,60 +277,30 @@
             email: userData.email,
             user_metadata: { name: userData.name },
           };
-          // Проверяем права администратора из той же записи (если там был флаг isAdmin, сохраняйте его при логине)
-          const adminFlag = localStorage.getItem("atbuy_is_admin") === "true";
-          isAdmin = adminFlag || currentUser.email === "vufysay@gmail.com";
-          renderAuthHeader();
-          return true;
-        }
-        // Если в localStorage нет — пробуем получить сессию через Supabase (только один раз при пустом кэше)
-        const {
-          data: { session },
-        } = await supabaseClient.auth.getSession();
-        if (session) {
-          currentUser = session.user;
-          const { data: userData } = await supabaseClient
-            .from("users")
-            .select("is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          isAdmin =
-            userData?.is_admin || currentUser.email === "vufysay@gmail.com";
-          // Сохраняем в localStorage для будущих мгновенных загрузок
-          localStorage.setItem(
-            "atbuy_current_user",
-            JSON.stringify({
-              email: currentUser.email,
-              name: currentUser.user_metadata?.name || currentUser.email,
-            }),
-          );
-          localStorage.setItem("atbuy_is_admin", isAdmin);
-          renderAuthHeader();
-          return true;
+          isAdmin = localStorage.getItem("atbuy_is_admin") === "true";
         }
         renderAuthHeader();
-        return false;
       }
-
       function renderAuthHeader() {
         const authSection = document.getElementById("auth-section");
         const adminLinks = document.getElementById("admin-links");
         if (currentUser) {
           authSection.innerHTML = `<div class="user-info" id="userMenu"><span>👤 ${escapeHtml(currentUser.user_metadata?.name || currentUser.email)}</span><button id="logoutBtn" class="logout-btn">Выйти</button></div>`;
-          document
-            .getElementById("userMenu")
-            ?.addEventListener("click", (e) => {
-              if (e.target.id !== "logoutBtn")
-                window.location.href = "profile.html";
-            });
-          document
-            .getElementById("logoutBtn")
-            ?.addEventListener("click", async () => {
-              localStorage.removeItem("atbuy_current_user");
-              localStorage.removeItem("atbuy_is_admin");
-              await supabaseClient.auth.signOut();
-              window.location.reload();
-            });
+          document.getElementById("userMenu").addEventListener("click", (e) => {
+            if (e.target.id !== "logoutBtn")
+              window.location.href = "profile.html";
+          });
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("atbuy_current_user");
+            localStorage.removeItem("atbuy_is_admin");
+            const supabaseClient = window.supabase.createClient(
+              "https://buonqsikukvqbnbpuuco.supabase.co",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw",
+            );
+            supabaseClient.auth
+              .signOut()
+              .finally(() => window.location.reload());
+          });
           if (adminLinks)
             adminLinks.innerHTML = isAdmin
               ? `<a href="admin-chats.html" class="cart-link">📋 Чаты поддержки</a>`
@@ -775,22 +316,124 @@
           (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
         );
       }
-      window.addEventListener("load", async () => {
-        currentGameId = getGameIdFromUrl();
-        if (!currentGameId) {
-          document.getElementById("gameTitle").innerText = "Игра не указана";
+
+      // ---------- ДАННЫЕ ИГРЫ И ТОВАРОВ ----------
+      let products = [];
+      let currentGameId = new URLSearchParams(window.location.search).get("id");
+      if (!currentGameId) {
+        document.getElementById("gameTitle").innerText = "Игра не указана";
+      }
+
+      async function loadGameInfo() {
+        try {
+          const response = await fetch("/games.json");
+          const games = await response.json();
+          const game = games.find((g) => g.id == currentGameId);
+          document.getElementById("gameTitle").innerText = game
+            ? game.name + " — товары и услуги"
+            : "Игра не найдена";
+        } catch (err) {
+          document.getElementById("gameTitle").innerText = "Ошибка загрузки";
+        }
+      }
+
+      async function loadProducts() {
+        try {
+          const response = await fetch("/products.json");
+          if (!response.ok) throw new Error("Ошибка загрузки данных");
+          const allProducts = await response.json();
+          products = allProducts.filter((p) => p.game_id == currentGameId);
+          renderProducts();
+        } catch (err) {
+          console.error(err);
+          document.getElementById("productsContainer").innerHTML =
+            "<div>Ошибка загрузки товаров</div>";
+        }
+      }
+
+      function renderProducts() {
+        const container = document.getElementById("productsContainer");
+        if (!products.length) {
+          container.innerHTML =
+            '<div style="text-align:center; padding:40px;">Товары отсутствуют.</div>';
           return;
         }
-        await loadGameInfo();
-        await checkAuth();
-        document
-          .getElementById("saveEditBtn")
-          .addEventListener("click", saveEdit);
-        document
-          .getElementById("cancelEditBtn")
-          .addEventListener("click", () =>
-            document.getElementById("editModal").classList.remove("active"),
-          );
+        container.innerHTML = products
+          .map(
+            (prod) => `
+          <div class="product-card" data-product-id="${prod.id}">
+            <div class="product-image">${prod.image ? `<img src="${prod.image}" alt="${escapeHtml(prod.name)}">` : '<div class="no-image">🖼️</div>'}</div>
+            <div class="product-details">
+              <div class="product-name">${escapeHtml(prod.name)}</div>
+              <div class="product-price">${escapeHtml(prod.price)}</div>
+              <button class="btn-buy" data-id="${prod.id}">Купить</button>
+            </div>
+          </div>
+        `,
+          )
+          .join("");
+
+        document.querySelectorAll(".btn-buy").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const productId = parseInt(btn.dataset.id);
+            addToCart(productId);
+          });
+        });
+        document.querySelectorAll(".product-card").forEach((card) => {
+          card.addEventListener("click", () => {
+            const productId = card.dataset.productId;
+            if (productId)
+              window.location.href = `product.html?id=${productId}`;
+          });
+        });
+      }
+
+      async function addToCart(productId) {
+        if (!currentUser) {
+          alert("Войдите в аккаунт");
+          window.location.href = "login.html";
+          return;
+        }
+        const product = products.find((p) => p.id == productId);
+        if (!product) return;
+
+        const supabaseClient = window.supabase.createClient(
+          "https://buonqsikukvqbnbpuuco.supabase.co",
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b25xc2lrdWt2cWJuYnB1dWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTU0MzQsImV4cCI6MjA5MDYzMTQzNH0.cCN9ciGSblGTYHUXeyQ_1Yr4htM__7F1CfHkcgQGmcw",
+        );
+
+        const { data: existing, error: checkError } = await supabaseClient
+          .from("cart")
+          .select("id, quantity")
+          .eq("user_id", currentUser.email) // временно: используем email вместо id, т.к. нет полного профиля
+          .eq("product_id", productId)
+          .maybeSingle();
+
+        // Т.к. у нас нет ID пользователя в localStorage, лучше сохранять cart в localStorage или запрашивать ID из Supabase.
+        // Упрощённый вариант: сохраняем cart прямо в localStorage.
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const existingItem = cart.find((item) => item.product_id === productId);
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          cart.push({
+            product_id: productId,
+            product_name: product.name,
+            product_price: product.price,
+            quantity: 1,
+            options: [],
+          });
+        }
+        localStorage.setItem("cart", JSON.stringify(cart));
+        alert("Товар добавлен в корзину!");
+      }
+
+      // ---------- ЗАПУСК ----------
+      window.addEventListener("load", () => {
+        checkAuth();
+        loadGameInfo();
+        loadProducts();
       });
     </script>
   </body>
