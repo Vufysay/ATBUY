@@ -34,7 +34,7 @@
       }
       .tab-btn {
         flex: 1;
-        background: none;
+        background: 0 0;
         border: none;
         padding: 18px 0;
         font-size: 1.1rem;
@@ -88,7 +88,7 @@
         border: 1.5px solid #e2e8f0;
         border-radius: 16px;
         transition: 0.2s;
-        outline: none;
+        outline: 0;
       }
       .input-group input:focus {
         border-color: #4f46e5;
@@ -557,7 +557,8 @@
             const { data, error } =
               await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) {
-              showToast("Неверный email или пароль", true);
+              console.error("Ошибка входа:", error);
+              showToast(error.message, true); // <-- ИСПРАВЛЕНО: показываем реальную ошибку
               return;
             }
 
@@ -590,7 +591,7 @@
                 await supabaseClient.auth.signOut();
               }
             } else {
-              // в без 2FA — сразу сохраняем данные
+              // без 2FA — сразу сохраняем данные
               const userId = data.user.id;
               const userEmail = data.user.email;
               const userName = data.user.user_metadata?.name || userEmail;
