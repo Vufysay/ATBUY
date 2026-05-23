@@ -446,10 +446,10 @@
         const { data, error } = await supabaseClient
           .from("users")
           .select("is_2fa_enabled")
-          .eq("id", currentUser.email)
+          .eq("email", currentUser.email) // <-- исправлено: фильтруем по email
           .single();
-        if (error) return;
-        const isEnabled = data?.is_2fa_enabled;
+        if (error || !data) return;
+        const isEnabled = data.is_2fa_enabled;
         const twofaDiv = document.getElementById("twofa-status");
         if (twofaDiv) {
           if (isEnabled) {
@@ -488,7 +488,7 @@
             const { error } = await supabaseClient
               .from("users")
               .update({ is_2fa_enabled: true })
-              .eq("id", currentUser.email);
+              .eq("email", currentUser.email);
             if (error) alert("Ошибка включения 2FA");
             else {
               alert("2FA успешно включена!");
@@ -515,7 +515,7 @@
         const { error } = await supabaseClient
           .from("users")
           .update({ is_2fa_enabled: false })
-          .eq("id", currentUser.email);
+          .eq("email", currentUser.email);
         if (error) alert("Ошибка отключения 2FA");
         else {
           alert("2FA отключена");
